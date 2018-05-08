@@ -1,0 +1,302 @@
+#!/usr/bin/env perl6
+use v6;
+use JSON::Fast;
+
+sub srgb-gamma($c) { if $c ≤ 0.0031308 { 12.92 * $c } else { 1.055 * $c ** (1/2.4) - 0.055 } }
+
+sub hcy2xyy($h, $c, $Y) {
+  my $theta = $h * π / 180;
+  return (0.31271 + cos($theta) * $c, 0.32902 + sin($theta) * $c, $Y);
+}
+
+sub xyy2xyz($x, $y, $Y) {
+  my $Yy = $Y / $y;
+  return ($Yy * $x, $Y, $Yy * (1 - $x - $y));
+}
+
+sub xyz2xyy($x, $y, $z) {
+  my $xyz = $x + $y + $z;
+  return ($x / $xyz, $y / $xyz, $y);
+}
+
+sub xyz2srgb($x, $y, $z) {
+  my @xyz = ($x, $y, $z);
+
+  given (
+    (+3.2406, -1.5372, -0.4986),
+    (-0.9689, +1.8758, +0.0415),
+    (+0.0557, -0.2040, +1.0570)
+  ).map: { srgb-gamma [@xyz «*» $_].reduce(&[+]); } {
+    my @ret = $_;
+    if @ret.map({ $_ < 0 || $_ > 1 }).any {
+      my @xyy = xyz2xyy($x, $y, $z);
+
+      warn "xyY(@xyy.join(', ')) -> XYZ($x, $y, $z) -> sRGB(@ret.join(', '))"
+    }
+    return @ret;
+  }
+}
+
+sub rgb2term8($r, $g, $b) {
+  return (5, 16 + reduce
+    { $^a * 6 + $^b },
+    ($r, $g, $b).map({ 0 max (5 min ($_ * 5).round); }));
+}
+
+sub rgb2term24($r, $g, $b) {
+  return (flat 2, ($r, $g, $b).map({ 0 max (255 min ($_ * 255).round); }))
+}
+
+constant &srgb = &xyz2srgb ∘ &xyy2xyz ∘ &hcy2xyy;
+constant &tclr = &rgb2term24 ∘ &xyz2srgb ∘ &xyy2xyz ∘ &hcy2xyy;
+
+sub tgray($a where $a ≥ 0 & $a ≤ 1) { return (5, 232 + Int($a * 23)); }
+
+enum Lvl<Emerg Alert Crit Error Warn Note Info Debug>;
+
+constant %levels = :{
+  0 => Emerg,
+  1 => Alert,
+  2 => Crit,
+  3 => Error,
+  4 => Warn,
+  5 => Note,
+  6 => Info,
+  7 => Debug
+};
+
+constant %lvlfmt = :{
+  (Emerg) => (
+    (flat 1, 48, tclr(0, 0.25, 0.21), 38, tgray(0.95)),
+    Any,
+    "EMR",
+    Any
+  ),
+  (Alert) => (
+    (flat 1, 48, tclr(15, 0.25, 0.21), 38, tgray(0.95)),
+    Any,
+    "ALR",
+    Any
+  ),
+  (Crit) => (
+    (flat 1, 38, tgray(0.85)),
+    (flat 1, 38, tclr(0, 0.25, 0.21)),
+    "CRT",
+    (flat 1, 38, tclr(0, 0.25, 0.21))
+  ),
+  (Error) => (
+    (flat 1, 38, tgray(0.85)),
+    (flat 1, 38, tclr(15, 0.25, 0.21)),
+    "ERR",
+    (flat 38, tclr(15, 0.25, 0.17))
+  ),
+  (Warn) => (
+    (flat 1, 38, tgray(0.85)),
+    (flat 1, 38, tclr(45, 0.2, 0.3)),
+    "WRN",
+    (flat 38, tclr(45, 0.2, 0.2))
+  ),
+  (Note) => (
+    (flat 1, 38, tgray(0.85)),
+    (flat 1, 38, tclr(210, 0.12, 0.3)),
+    "NTC",
+    (flat 38, tclr(210, 0.12, 0.2)),
+  ),
+  (Info) => (
+    (flat 1, 38, tgray(0.85)),
+    Any,
+    "INF",
+    (flat 38, tgray(0.75)),
+  ),
+  (Debug) => (
+    (flat 1, 38, tgray(0.85)),
+    (flat 1, 38, tclr(105, 0.12, 0.3)),
+    "DBG",
+    (flat 38, tclr(105, 0.12, 0.2))
+  )
+};
+
+constant %jbrfmt = {
+  done => (flat 1, 38, tclr(105, 0.12, 0.3)),
+  failed => (flat 1, 38, tclr(15, 0.25, 0.21)),
+  timeout => (flat 1, 38, tclr(15, 0.25, 0.21)),
+  dependency => (flat 1, 38, tclr(210, 0.12, 0.3))
+}
+
+constant @def-bkgd = tclr(200, 0.1, 0.01);
+
+multi sub make-fmt(Any:U --> '') {}
+multi sub make-fmt(+@seq --> Str) { "\e[{(flat 0, 48, @def-bkgd, @@seq).join(';')}m" }
+
+constant $dim-pref = make-fmt(flat 1, 38, tgray(0.5));
+constant $miscfmt = make-fmt(flat 38, tclr(90, 0.1, 0.15));
+constant $pink-pref = make-fmt(flat 1, 38, tclr(-15, 0.1, 0.2));
+constant $blue-pref = make-fmt(flat 1, 38, tclr(250, 0.1, 0.2));
+
+constant %hidden-keys = set <
+  __CURSOR
+  __MONOTONIC_TIMESTAMP
+  __REALTIME_TIMESTAMP
+  _BOOT_ID
+  _CAP_EFFECTIVE
+  _CMDLINE
+  _COMM
+  _EXE
+  _GID
+  _HOSTNAME
+  _KERNEL_DEVICE
+  _KERNEL_SUBSYSTEM
+  _MACHINE_ID
+  _PID
+  _SOURCE_MONOTONIC_TIMESTAMP
+  _SOURCE_REALTIME_TIMESTAMP
+  _STREAM_ID
+  _SYSTEMD_CGROUP
+  _SYSTEMD_INVOCATION_ID
+  _SYSTEMD_OWNER_UID
+  _SYSTEMD_SESSION
+  _SYSTEMD_SLICE
+  _SYSTEMD_UNIT
+  _SYSTEMD_USER_SLICE
+  _SYSTEMD_USER_UNIT
+  _TRANSPORT
+  _UDEV_DEVNODE
+  _UDEV_SYSNAME
+  _UID
+  CODE_FILE
+  CODE_FUNC
+  CODE_LINE
+  ERRNO
+  GLIB_DOMAIN
+  GLIB_OLD_LOG_API
+  INVOCATION_ID
+  JOB_RESULT
+  JOB_TYPE
+  MESSAGE
+  MESSAGE_ID
+  NM_DEVICE
+  NM_LOG_DOMAINS
+  NM_LOG_LEVEL
+  PRIORITY
+  RESULT
+  SYSLOG_FACILITY
+  SYSLOG_IDENTIFIER
+  SYSLOG_PID
+  TIMESTAMP_BOOTTIME
+  TIMESTAMP_MONOTONIC
+  UNIT
+  USER_UNIT
+  USER_INVOCATION_ID
+>;
+
+my $prevline = '';
+my $prevtime = -1;
+
+my $proc = Proc::Async.new((flat <sudo -E -- journalctl>, @*ARGS, <-o json --no-pager>));
+$proc.stdout.tap(-> $buf {
+  my @lines = ($prevline ~ $buf).lines.grep(/\S/).List;
+
+  $prevline = $buf ~~ /\n $/ ?? '' !! @lines.pop;
+
+  for @lines -> $log {
+    try {
+      given from-json $log orelse $log {
+        when Hash {
+          my %log = $_;
+          my $lvl = %levels{%log<PRIORITY> andthen .Int orelse 6};
+
+          given %log<MESSAGE> // '' {
+            when /^ '(' ('--' || '**' || '==' || '++') ')' / { $lvl = Debug; }
+            when /^ '(' ('II') ')' / { $lvl = Info; }
+            when /^ '(' ('!!') ')' / { $lvl = Note; }
+            when /^ '(' ('WW' || '??') ')' / { $lvl = Warn; }
+            when /^ '(' ('EE' || 'NI') ')' / { $lvl = Error; }
+            when / 'segfault' \s+ 'at' / { $lvl = Crit; }
+          }
+
+          my $lfmt = %lvlfmt{$lvl};
+          my $prefmt = make-fmt($lfmt[0] // ());
+          my $msgfmt = make-fmt($lfmt[3]);
+
+          my $time = %log<__REALTIME_TIMESTAMP> / 1e6;
+          my $dt = $time - $prevtime;
+
+          if $prevtime >= 0.0 {
+            say "" if $dt > 5.0;
+            say ". . ." if $dt > 1.0;
+            say "" if $dt > 5.0;
+          }
+          $prevtime = $time;
+
+          say make-fmt($lfmt[0])
+            ~ "[{ .yyyy-mm-dd ~ ' ' ~ .hh-mm-ss given Instant.from-posix($time).DateTime.local }]"
+            ~ "[{ make-fmt($lfmt[1]) }{ $lfmt[2] // '' }$prefmt]"
+            ~ (do (
+              "["
+              ~ (%log<_HOSTNAME> // '')
+              ~ (" " if %log<_UID> || %log<_GID>)
+              ~ (%log<_GID> andthen "G$_")
+              ~ (":" if %log<_UID> && %log<_GID>)
+              ~ (%log<_UID> andthen "U$_")
+              ~ "]"
+            ) if %log<_HOSTNAME> || %log<_UID> || %log<_GID>)
+            ~ (%log<_TRANSPORT> andthen do "[$_]" if $_ !~~ %log<SYSLOG_IDENTIFIER>)
+            ~ (do given (flat
+              %log<_SYSTEMD_SESSION>,
+              %log<_SYSTEMD_USER_SLICE> // %log<_SYSTEMD_SLICE>,
+              %log<_SYSTEMD_USER_UNIT> // %log<_SYSTEMD_UNIT>,
+              %log<USER_UNIT> // %log<UNIT>,
+              %log<NM_LOG_DOMAINS>,
+              %log<GLIB_DOMAIN>
+            ) {
+              ("[$dim-pref$_.grep(Any:D).join(', ')$prefmt]") if .cache.any
+            })
+            ~ "["
+            ~ (%log<SYSLOG_IDENTIFIER> orelse %log<_COMM> // %log<_EXE> // %log<_CMDLINE> andthen "$blue-pref>$_$prefmt")
+            ~ (%log<_KERNEL_SUBSYSTEM> andthen "::$_")
+            ~ (%log<_KERNEL_DEVICE> // %log<_UDEV_SYSNAME> // %log<NM_DEVICE> andthen "@$pink-pref$_$prefmt")
+            ~ (%log<_UDEV_DEVNODE> andthen "$blue-pref$_$prefmt")
+            ~ (%log<_PID> // %log<SYSLOG_PID> andthen " ($_)")
+            ~ "]"
+            ~ (%log<JOB_TYPE> // (%log<JOB_RESULT> // %log<RESULT> andthen "job") andthen {
+              "["
+              ~ $_
+              ~ (%log<JOB_RESULT> // %log<RESULT> andthen " &make-fmt(%jbrfmt{$_})$_$prefmt")
+              ~ "]"
+            })
+            ~ (%log<ERRNO> andthen "[&make-fmt($lfmt[1])ERRNO $_$prefmt]")
+            ~ $msgfmt
+            ~ " "
+            ~ (%log<MESSAGE> andthen S/\s+ $// andthen S:g/\n+/&make-fmt()$/&make-fmt($lfmt[0])... $msgfmt/ orelse '<no message>')
+            ~ make-fmt();
+
+          for (%log<>:k ∖ %hidden-keys).keys -> $key {
+            say $miscfmt
+            ~ " -- $key:"
+            ~ (%log{$key} && %log{$key} ~~ /\n/ ?? "&make-fmt()\n$miscfmt      " !! ' ')
+            ~ (%log{$key} andthen S/\s+ $// andthen S:g/\n+/&make-fmt()$/$miscfmt      / orelse '<no value>')
+            ~ make-fmt();
+          }
+        }
+        default { say "\e[38;5;3m$_.gist()&make-fmt()"; }
+      }
+
+      CATCH { # Probably a broken pipe, so drop all pipes immediately and die
+        try $*ERR.say($_) unless $_ ~~ /:i broken <.ws> pipe /;
+        try $*OUT.close;
+        try $*ERR.close;
+        $proc.kill('TERM');
+        exit 1;
+      }
+    }
+  }
+});
+$proc.stderr.tap(-> $buf { $*OUT.flush; $*ERR.print($buf); });
+
+try {
+  my $done = $proc.start;
+
+  await $done;
+}
+
+LEAVE try $*OUT.print("\e[0m");

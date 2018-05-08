@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require "fileutils"
+
+case ARGV[-1]
+  when /\A\..*\z/, "", nil;
+  else raise "Invalid extension format."
+end
+
+ARGV[0...-1].each do |path|
+  FileUtils.mv(path, path.sub(/(?<=\A|#{File::SEPARATOR}|#{File::ALT_SEPARATOR})[^#{File::SEPARATOR}#{File::ALT_SEPARATOR}]+\z/) do |base|
+    idx = base.rindex(".")
+
+    (!idx || idx == 0 ? base : base[0...idx]) << ARGV[-1]
+  end)
+end
