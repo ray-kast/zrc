@@ -48,8 +48,15 @@ _rc_l_scroll_prompt() {
 
 fpath=($HOME/.zrc/completion $fpath)
 
+zstyle ':completion:*' ambiguous true
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
+zstyle ':completion:*' completer \
+  _expand \
+  _complete \
+  _ignored \
+  _correct \
+  _approximate
+
 zstyle ':completion:*' completions 1
 zstyle ':completion:*' expand prefix suffix
 zstyle ':completion:*' file-sort name
