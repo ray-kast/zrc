@@ -35,6 +35,8 @@ function update() {
     echo ":: The following packages could be cleaned up:"
 
     pacaur -Qdt
+
+    echo ':: Use pacman -Rs $(pacman -Qdtq) to remove them'
   fi
 
   notify-send -i archlinux 'update' 'System update complete.'
