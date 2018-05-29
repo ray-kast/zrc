@@ -107,14 +107,12 @@ _rc_g_prompt_rps1() {
   _rc_g_prompt_set 2 0 l
   echo -n " %D{%H:%M} %-100(l:"
   _rc_g_prompg_chvrn 0 l
-  echo -n " %D{%d/%m/%y} "
+  echo -n " %D{%d/%m/%y} :)"
 
   if [[ $(jobs -l | head -n1 | wc -l) -gt 0 ]]; then
     _rc_g_prompt_set 4 0 l
-    echo -n " %j "
+    echo -n " %-100(l:%j :)"
   fi
-
-  echo -n ":)"
 
   if [[ $RETCODE -ne 0 ]]; then
     _rc_g_prompt_set 9 0 l

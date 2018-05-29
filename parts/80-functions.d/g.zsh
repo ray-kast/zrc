@@ -9,6 +9,7 @@ _rc_g_fn_gcmds+=(
   c   'commit'
   ca  'commit --amend'
   can 'commit --amend --no-edit'
+  cm  'commit -m'
   cl  'clone'
   co  'checkout'
   coh 'checkout HEAD'

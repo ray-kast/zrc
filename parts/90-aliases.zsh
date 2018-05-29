@@ -2,6 +2,7 @@ alias bigtext="figlet" # because 'figlet' is hard to remember
 alias dh="dirs -v"
 alias grep="command grep --color"
 alias j="jobs -l"
+alias k="kill -9"
 alias l="command ls --color -abhlF"
 alias lblk="lsblk -oNAME,FSTYPE,UUID,LABEL,MOUNTPOINT"
 alias ll="command ls --color -bhlF"
