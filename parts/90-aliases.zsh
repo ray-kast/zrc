@@ -16,8 +16,15 @@ alias rw="rlwrap"
 alias sudo-code="sudo code --user-data-dir=$HOME/.vscode-sudo/"
 alias t="tree -pah"
 
-alias '?'="help"
-alias '?i'="info"
-alias '?m'="man"
-alias '?v'="version"
 alias '#'="calc"
+
+alias -s exe="mono"
+alias -s pdf="evince"
+
+if { which gio 1>/dev/null 2>/dev/null }; then
+  for x in png jpg gif; do alias -s $x="gio open"; done
+fi
+
+if { which firefox 1>/dev/null 2>/dev/null }; then
+  alias -s svg="firefox"
+fi
