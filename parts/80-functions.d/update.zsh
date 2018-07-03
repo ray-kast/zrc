@@ -11,33 +11,30 @@ function update() {
     echo " there is nothing to do"
   fi
 
-  echo ":: Running AUR upgrade..."
+  # TODO: Find a way to suppress this if we're doing nothing
+  notify-send -i archlinux 'update' 'Starting AUR upgrade...'
 
-  if { pacaur -k 1>/dev/null 2>/dev/null }; then
-    notify-send -i archlinux 'update' 'Starting AUR upgrade...'
-
-    pacaur -Sau
-  else
-    echo " there is nothing to do"
-  fi
+  aurman --aur -Syu
 
   echo ":: Cleaning up packages..."
 
-  if { pacaur -Qmtdq 1>/dev/null 2>/dev/null }; then
+  if { pacman -Qmtdq 1>/dev/null 2>/dev/null }; then
     notify-send -i archlinux 'update' 'Cleaning up packages...'
 
-    pacaur -Rs $(pacaur -Qmtdq)
+    pacman -Rs $(pacman -Qmtdq)
   else
     echo " there is nothing to do"
   fi
 
-  if { pacaur -Qdtq 1>/dev/null 2>/dev/null }; then
+  if { pacman -Qdtq 1>/dev/null 2>/dev/null }; then
     echo ":: The following packages could be cleaned up:"
 
-    pacaur -Qdt
+    pacman -Qdt
 
     echo ':: Use pacman -Rs $(pacman -Qdtq) to remove them'
   fi
 
   notify-send -i archlinux 'update' 'System update complete.'
+
+  echo ':: Remember to occasionally clean your cache with aurman -Sc'
 }
