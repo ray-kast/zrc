@@ -69,15 +69,21 @@ function update() {
     echo ':: Use pacman -Rs $(pacman -Qdtq) to remove them'
   fi
 
-  if sudo find /etc -name '*.pacnew' | grep -q '.'; then
-    echo ":: Resolving pacnew files..."
+  echo ':: Searching for .pacnew files...'
 
-    _rc_g_fn_update_notify -i archlinux 'update' 'Resolving pacnew files...'
+  local pacnews
+
+  pacnews=$(for x in $(pacman -Qql); do if [ -f "$x.pacnew" ]; then echo "$x.pacnew"; fi; done)
+
+  if ! [[ -z $pacnews ]]; then
+    echo ":: Resolving .pacnew files..."
+
+    _rc_g_fn_update_notify -i archlinux 'update' 'Resolving .pacnew files...'
   fi
 
   local new old
 
-  for new in $(sudo find /etc -name '*.pacnew'); do
+  for new in ${(f)pacnews}; do
     old=${new%.pacnew}
 
     if [[ $(_rc_g_fn_update_yn "View diff for $new? [Y/n] " y) == 'y' ]]; then
