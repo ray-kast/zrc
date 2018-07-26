@@ -22,7 +22,7 @@ for file in "$_rc_i_basedir"/utils/**/*(on); do
   unfunction -m '_rc_l_*'
 done
 
-for file in "$(dirname "$0")"/parts/**/*(on); do
+for file in "$_rc_i_basedir"/parts/**/*(on); do
   _rc_i_status util ${${file#$_rc_i_basedir/parts}##/}
   . $file
   unfunction -m '_rc_l_*'
