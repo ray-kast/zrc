@@ -19,6 +19,7 @@ alias t="tree -pah"
 alias '#'="calc"
 
 alias -s exe="mono"
+alias -s js="node"
 alias -s pdf="evince"
 
 if { which gio 1>/dev/null 2>/dev/null }; then
@@ -26,5 +27,5 @@ if { which gio 1>/dev/null 2>/dev/null }; then
 fi
 
 if { which firefox 1>/dev/null 2>/dev/null }; then
-  alias -s svg="firefox"
+  for x in svg html; do alias -s $x="firefox"; done
 fi
