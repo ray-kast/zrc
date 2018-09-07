@@ -1,5 +1,6 @@
 alias bigtext="figlet" # because 'figlet' is hard to remember
 alias dh="dirs -v"
+alias fucc="boi"
 alias grep="command grep --color"
 alias j="jobs -l"
 alias k="kill -9"
