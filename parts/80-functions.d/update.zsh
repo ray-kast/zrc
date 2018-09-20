@@ -66,7 +66,7 @@ function update() {
 
     pacman -Qdt
 
-    echo ':: Use pacman -Rs $(pacman -Qdtq) to remove them'
+    echo ':: Use update-cleanup to remove them'
   fi
 
   echo ':: Searching for .pacnew files...'
@@ -103,4 +103,16 @@ function update() {
   _rc_g_fn_update_notify -i archlinux 'update' 'System update complete.'
 
   echo ':: Remember to occasionally clean your cache with aurman -Sc'
+}
+
+function update-cleanup() {
+  local targets
+
+  targets=$(pacman -Qdtq)
+
+  if ! [[ -z $targets ]]; then
+    sudo pacman -Rs $targets
+  else
+    echo ' there is nothing to do'
+  fi
 }
