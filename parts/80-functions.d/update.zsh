@@ -46,10 +46,12 @@ function update() {
     echo " there is nothing to do"
   fi
 
-  # TODO: Find a way to suppress this if we're doing nothing
-  _rc_g_fn_update_notify -i archlinux 'update' 'Starting AUR upgrade...'
+  if { which aurman 1>/dev/null 2>/dev/null }; then
+    # TODO: Find a way to suppress this if we're doing nothing
+    _rc_g_fn_update_notify -i archlinux 'update' 'Starting AUR upgrade...'
 
-  aurman --aur --show_changes -Syu
+    aurman --aur --show_changes -Syu
+  fi
 
   echo ":: Cleaning up packages..."
 
@@ -99,6 +101,12 @@ function update() {
       fi
     fi
   done
+
+  if { which rustup 1>/dev/null 2>/dev/null }; then
+    _rc_g_fn_update_notify -i archlinux 'update' 'Running rustup update...'
+
+    rustup update
+  fi
 
   _rc_g_fn_update_notify -i archlinux 'update' 'System update complete.'
 
