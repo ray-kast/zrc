@@ -66,9 +66,24 @@ _rc_g_prompt_ps1() {
 
   _rc_g_prompt_start
 
-  if [[ $UID -eq 0 ]]; then
+  local nest root
+
+  [[ $SHLVL -gt 1 ]] && nest=t || nest=''
+  [[ $UID -eq 0 ]] && root=t || root=''
+
+  if [[ -n $nest || -n $root ]]; then
     _rc_g_prompt_set 3 0
-    echo -n " ⚡ "
+
+    if [[ -n $root ]]; then
+      echo -n " ⚡"
+    fi
+
+    if [[ -n $nest ]]; then
+      echo -n " $SHLVL"
+    fi
+
+    echo -n " "
+
     _rc_g_prompt_set 0 r r
   fi
 

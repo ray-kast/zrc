@@ -1,4 +1,4 @@
-if ruby -e 'exit(1) unless STDOUT.tty?'; then
+if [[ -t 1 ]] then
   function _rc_i_status() {
     echo -n "\r\x1b[2K[zrc] ${(j: :)@} "
   }
