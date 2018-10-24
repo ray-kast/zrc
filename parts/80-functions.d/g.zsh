@@ -45,6 +45,7 @@ _rc_g_fn_gcmds+=(
   s   'status'
   ss  'status --short'
   t   'stash'
+  tk  'stash -k'
   tl  'stash list'
   tp  'stash pop'
   sui 'submodule update --init --recursive'
