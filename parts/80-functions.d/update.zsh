@@ -110,7 +110,7 @@ function update() {
 
   _rc_g_fn_update_notify -i archlinux 'update' 'System update complete.'
 
-  echo ':: Remember to occasionally clean your cache with aurman -Sc'
+  echo ':: Remember to occasionally clean your cache with update-clearcache'
 }
 
 function update-cleanup() {
@@ -122,5 +122,13 @@ function update-cleanup() {
     sudo pacman -Rs $targets
   else
     echo ' there is nothing to do'
+  fi
+}
+
+function update-clearcache() {
+  if { which aurman 1>/dev/null 2>/dev/null }; then
+    aurman -Sc
+  else
+    sudo pacman -Sc
   fi
 }
