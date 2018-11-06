@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'open3'
+
+(list, status) = Open3.capture2(*%w[pacman -Qql])
+
+exit status.exitstatus if status.exitstatus != 0
+
+list = list.split(/\n/).map{|s| s.strip }
+
+pacnews = list
+  .select{|p| File.exist?(p) }
+  .map{|p| "#{p}.pacnew" }
+  .select{|p| File.exist?(p) }
+
+puts pacnews.join("\n")

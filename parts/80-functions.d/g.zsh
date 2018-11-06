@@ -24,6 +24,8 @@ _rc_g_fn_gcmds+=(
   fa  'fetch --all'
   gr  'graph'
   gra 'graph --all'
+  h   'show'
+  hs  'show --stat'
   l   'pull'
   la  'pull --all'
   m   'merge'

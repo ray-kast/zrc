@@ -75,7 +75,7 @@ function update() {
 
   local pacnews
 
-  pacnews=$(for x in $(pacman -Qql); do if [ -f "$x.pacnew" ]; then echo "$x.pacnew"; fi; done)
+  pacnews=$(find-pacnews)
 
   if ! [[ -z $pacnews ]]; then
     echo ":: Resolving .pacnew files..."
