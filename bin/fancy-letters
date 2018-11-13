@@ -1,0 +1,468 @@
+#!/usr/bin/env ruby
+
+require "getoptlong"
+require "digest/sha2"
+
+$fonts = {
+  bold: {
+    A: 0x1D400,
+    a: 0x1D41A,
+    Alpha: 0x1D6A8,
+    alpha: 0x1D6C2,
+    zero: 0x1D7CE,
+  },
+  italic: {
+    A: 0x1D434,
+    a: 0x1D44E,
+    Alpha: 0x1D6E2,
+    alpha: 0x1D6FC,
+    special: {
+      "h" => 0x210E,
+    },
+  },
+  bold_italic: {
+    A: 0x1D468,
+    a: 0x1D482,
+    Alpha: 0x1D71C,
+    alpha: 0x1D736,
+  },
+  script: {
+    A: 0x1D49C,
+    a: 0x1D4B6,
+    special: {
+      "B" => 0x212C,
+      "E" => 0x2130,
+      "F" => 0x2131,
+      "H" => 0x210B,
+      "I" => 0x2110,
+      "L" => 0x2112,
+      "M" => 0x2133,
+      "R" => 0x211B,
+      "e" => 0x212F,
+      "g" => 0x210A,
+      "o" => 0x2134,
+    },
+  },
+  bold_script: {
+    A: 0x1D4D0,
+    a: 0x1D4EA,
+  },
+  fraktur: {
+    A: 0x1D504,
+    a: 0x1D51E,
+    special: {
+      "C" => 0x212D,
+      "H" => 0x210C,
+      "I" => 0x2111,
+      "R" => 0x211C,
+      "Z" => 0x2128,
+    },
+  },
+  double_struck: {
+    A: 0x1D538,
+    a: 0x1D552,
+    zero: 0x1D7D8,
+    special: {
+      "C" => 0x2102,
+      "H" => 0x210D,
+      "N" => 0x2115,
+      "P" => 0x2119,
+      "Q" => 0x211A,
+      "R" => 0x211D,
+      "Z" => 0x2124,
+    },
+  },
+  bold_fraktur: {
+    A: 0x1D56C,
+    a: 0x1D586,
+  },
+  sans_serif: {
+    A: 0x1D5A0,
+    a: 0x1D5BA,
+    zero: 0x1D7E2,
+  },
+  sans_serif_bold: {
+    A: 0x1D5D4,
+    a: 0x1D5EE,
+    Alpha: 0x1D756,
+    alpha: 0x1D770,
+    zero: 0x1D7EC,
+  },
+  sans_serif_italic: {
+    A: 0x1D608,
+    a: 0x1D622,
+  },
+  sans_serif_bold_italic: {
+    A: 0x1D63C,
+    a: 0x1D656,
+    Alpha: 0x1D790,
+    alpha: 0x1D7AA,
+  },
+  monospace: {
+    A: 0x1D670,
+    a: 0x1D68A,
+    zero: 0x1D7F6,
+  },
+  paren: {
+    A: 0x1F110,
+    a: 0x249C,
+    zero: 0x2473,
+    special: {
+      "0" => 0x2473,
+    },
+  },
+  squared: {
+    A: 0x1F130,
+    a: 0x1F130,
+  },
+  circled: {
+    A: 0x24B6,
+    a: 0x24D0,
+    zero: 0x277F,
+    special: {
+      "0" => 0x24EA,
+    }
+  },
+  neg_circled: {
+    A: 0x1F150,
+    a: 0x1F150,
+    zero: 0x2789,
+    special: {
+      "0" => 0x24FF,
+    },
+  },
+  neg_squared: {
+    A: 0x1F170,
+    a: 0x1F170,
+  },
+  region_indicator: {
+    A: 0x1F1E6,
+    a: 0x1F1E6,
+  },
+  fullwidth: {
+    A: 0xFF21,
+    a: 0xFF41,
+    zero: 0xFF10,
+  },
+  spades: {
+    zero: 0x1F0A0,
+    special: {
+      "0" => 0x1F0CF,
+      "A" => 0x1F0A1,
+      "J" => 0x1F0AB,
+      "C" => 0x1F0AC,
+      "Q" => 0x1F0AD,
+      "K" => 0x1F0AE,
+      "a" => 0x1F0A1,
+      "j" => 0x1F0AB,
+      "c" => 0x1F0AC,
+      "q" => 0x1F0AD,
+      "k" => 0x1F0AE,
+    },
+  },
+  hearts: {
+    zero: 0x1F0B0,
+    special: {
+      "0" => 0x1F0BF,
+      "A" => 0x1F0B1,
+      "J" => 0x1F0BB,
+      "C" => 0x1F0BC,
+      "Q" => 0x1F0BD,
+      "K" => 0x1F0BE,
+      "a" => 0x1F0B1,
+      "j" => 0x1F0BB,
+      "c" => 0x1F0BC,
+      "q" => 0x1F0BD,
+      "k" => 0x1F0BE,
+    },
+  },
+  diamonds: {
+    zero: 0x1F0C0,
+    special: {
+      "0" => 0x1F0BF,
+      "A" => 0x1F0C1,
+      "J" => 0x1F0CB,
+      "C" => 0x1F0CC,
+      "Q" => 0x1F0CD,
+      "K" => 0x1F0CE,
+      "a" => 0x1F0C1,
+      "j" => 0x1F0CB,
+      "c" => 0x1F0CC,
+      "q" => 0x1F0CD,
+      "k" => 0x1F0CE,
+    },
+  },
+  clubs: {
+    zero: 0x1F0D0,
+    special: {
+      "0" => 0x1F0CF,
+      "A" => 0x1F0C1,
+      "J" => 0x1F0CB,
+      "C" => 0x1F0CC,
+      "Q" => 0x1F0CD,
+      "K" => 0x1F0CE,
+      "a" => 0x1F0C1,
+      "j" => 0x1F0CB,
+      "c" => 0x1F0CC,
+      "q" => 0x1F0CD,
+      "k" => 0x1F0CE,
+    },
+  },
+  b: {
+    special: {
+      "b" => 0x1F171,
+      "B" => 0x1F171,
+    }
+  }
+}
+
+$ords = {
+  A: "A".ord,
+  a: "a".ord,
+  Alpha: "\u0391".ord,
+  alpha: "\u03B1".ord,
+  zero: "0".ord,
+}
+
+$ranges = {
+  zero: "0".."9",
+  A: "A".."Z",
+  a: "a".."z",
+  Alpha: "\u0391".."\u03A9",
+  alpha: "\u03B1".."\u03C9",
+}
+
+$rand_fonts = $ranges.each_key.map{|n| [n, $fonts.select{|k, v| v.include?(n) }.map{|k, _| k }] }.to_h
+
+$fonts[:random] = $rand_fonts.map{|k, _| [k, true] }.to_h
+$fonts[:random][:random] = true
+
+def fancy(font, str)
+  random = !!font[:random]
+
+  srand(Digest::SHA2.hexdigest(str).to_i(16)) if random
+
+  str.each_char.map do |chr|
+    range, _ = $ranges.find{|n, r| r === chr }
+
+    next chr unless range
+
+    if random
+      rnd = $rand_fonts[range]
+      next unless rnd
+      rnd = rnd[rand(rnd.length)]
+      font = $fonts[rnd]
+    end
+
+    spec = font.fetch(:special, {}).fetch(chr, nil)
+    next spec.chr("utf-8") if spec
+
+    next chr unless font.include?(range)
+
+    next (font[range] + chr.ord - $ords[range]).chr("utf-8") if range
+  end.join
+end
+
+def zalgo(n, str, uni_ver)
+  return if n.zero?
+
+  unless $cchars
+    STDERR << "Doing Unicode stuff..." if STDERR.tty?
+
+    $cchars = []
+
+    cats = %w[
+      Lu letter_upper
+      Ll letter_lower
+      Lt letter_title
+      LC letter_cased
+
+      Lm letter_mdf
+      Lo letter_other
+      L  letter
+
+      Mn mark_nonsp
+      Mc mark_space
+      Me mark_enclosing
+      M  mark
+
+      Nd number_decimal
+      Nl number_letter
+      No number_other
+      N  number
+
+      Pc punct_join
+      Pd punct_dash
+      Ps punct_open
+      Pe punct_close
+      Pi punct_init
+      Pf punct_final
+      Po punct_other
+      P  punct
+
+      Sm symbol_math
+      Sc symbol_money
+      Sk symbol_mdf
+      So symbol_other
+      S  symbol
+
+      Zs separator_space
+      Zl separator_line
+      Zp separator_par
+      Z  separator
+
+      Cc control
+      Cf format
+      Cs surrogate
+      Co private_use
+      Cn unassigned
+      C  other
+    ].each_slice(2).map{|k, v| [k, v.to_sym] }.to_h
+
+    cccs = %w[
+      0   none
+      1   overlay
+      7   nukta
+      8   kana_voicing
+      9   virama
+
+      200 attach_bl
+      202 attach_b
+      204 attach_br
+      208 attach_l
+      210 attach_r
+      212 attach_tl
+      214 attach_t
+      216 attach_tr
+
+      218 pos_bl
+      220 pos_b
+      222 pos_br
+      224 pos_l
+      226 pos_r
+      228 pos_tl
+      230 pos_t
+      232 pos_tr
+
+      233 join_b
+      234 join_t
+
+      240 iota_sub
+    ].each_slice(2).map{|k, v| [k.to_i, v.to_sym] }.to_h
+
+    super_cccs = cccs.map{|_, c| [c, c.to_s.gsub(/^(.[^_]*)_.*$/, "\\1").to_sym] }.to_h
+
+    if uni_ver
+      STDERR << "\r\e[2KDoing Unicode version stuff..." if STDERR.tty?
+
+      ages = []
+      File.foreach(File.join(File.dirname(__FILE__), "DerivedAge.txt")) do |l|
+        range, age = l.gsub(/^(.[^#]*)\s+#.*$/, "\\1").split(";")
+
+        next if range.nil? || age.nil? || range.empty? || age.empty?
+
+        age.strip! if age
+
+        if range =~ /^(.*)\.\.(.*)$/
+          $1.to_i(16)..$2.to_i(16)
+        else
+          r = range.to_i(16)
+          r..r
+        end.step{|i| ages[i] = age.split(".").map{|c| c.to_i } }
+      end
+
+      STDERR << "\r\e[2KDoing Unicode stuff..." if STDERR.tty?
+    end
+
+    File.open(File.join(File.dirname(__FILE__), "UnicodeData.txt"), "r") do |f|
+      f.each_line.lazy.map{|l|
+        id, _, cat, ccc, * = l.strip!.split(";")
+        id = id.to_i(16)
+        ccc_id = ccc.to_i
+        ccc = (10..199) === ccc_id ? :"pos_#{ccc_id}" : cccs[ccc_id]
+        [id, ccc_id, cats[cat[0]], cats[cat], super_cccs[ccc], (ages[id] || [1, 0] if uni_ver)]
+      }.select{|*, a, aa, c, g| aa == :mark_nonsp && c == :pos && (uni_ver.nil? || (g <=> uni_ver) <= 0) }
+        .each{|i, c, *| $cchars << [i.chr("utf-8"), c] }
+    end
+
+    STDERR << "\r\e[2K" if STDERR.tty?
+  end
+
+  str.each_char.map do |chr|
+    next chr if chr =~ /^\s+$/
+    "#{chr}#{Array.new(n){ $cchars[rand($cchars.length)] }.sort_by.with_index{|(c, d), i| [d, i] }.map{|i, *| i }.join}"
+  end.join
+end
+
+def help
+  puts <<~EOF
+    Usage: fancy-letters [options] [--] <font>
+    Display text, but real fancy-like.
+
+    Options:
+      -h, --help
+        print a help message and exit
+
+      -z, --zalgo <spec>
+        print Zalgo-text (add random combining marks to the text)
+
+      -u, --unicode-version <version>
+        limit characters added by -z to <version>
+
+    Available fonts:
+  EOF
+  $fonts.each do |name, font|
+    puts " - #{name.to_s.tr("_", "-")} -> #{fancy(font, $ords.select{|n, _| font.include?(n) }.map do |name, ord|
+      (0..2).map{|o| (ord + o).chr("utf-8") }.join
+    end.join(" "))}"
+  end
+end
+
+opts = GetoptLong.new(
+  ["--help", "-h", GetoptLong::NO_ARGUMENT],
+  ["--zalgo", "-z", GetoptLong::OPTIONAL_ARGUMENT],
+  ["--unicode-version", "-u", GetoptLong::REQUIRED_ARGUMENT],
+)
+
+$zalgo = 0
+$uni_ver = nil
+
+opts.each do |opt, arg|
+  case opt
+    when "--help"
+      help
+      exit 0
+    when "--zalgo"
+      $zalgo = arg.to_i
+    when "--unicode-version"
+      $uni_ver = arg.split(".").map{|c| c.to_i }
+  end
+end
+
+case ARGV.length
+  when 0
+    if $zalgo.zero?
+      help
+      exit 1
+    end
+  when 1
+    $font = $fonts.fetch(ARGV[0].tr("-", "_").to_sym) do
+      puts "Font '#{ARGV[0]}' not found."
+      exit 1
+    end
+  else
+    puts "Invalid arguments."
+    help
+    exit 1
+end
+
+out = ""
+
+while STDIN.gets
+  line = $_
+  line = fancy($font, line) if $font
+  line = zalgo($zalgo, line, $uni_ver) unless $zalgo.zero?
+  out << line
+end
+
+STDOUT << out

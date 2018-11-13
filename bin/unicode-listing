@@ -1,0 +1,199 @@
+#!/usr/bin/env ruby
+
+cats = %w[
+  Lu letter_upper
+  Ll letter_lower
+  Lt letter_title
+  LC letter_cased
+
+  Lm letter_mdf
+  Lo letter_other
+  L  letter
+
+  Mn mark_nonsp
+  Mc mark_space
+  Me mark_enclosing
+  M  mark
+
+  Nd number_decimal
+  Nl number_letter
+  No number_other
+  N  number
+
+  Pc punct_join
+  Pd punct_dash
+  Ps punct_start
+  Pe punct_end
+  Pi punct_init
+  Pf punct_final
+  Po punct_other
+  P  punct
+
+  Sm symbol_math
+  Sc symbol_money
+  Sk symbol_mdf
+  So symbol_other
+  S  symbol
+
+  Zs separator_space
+  Zl separator_line
+  Zp separator_par
+  Z  separator
+
+  Cc control
+  Cf format
+  Cs surrogate
+  Co private_use
+  Cn unassigned
+  C  other
+].each_slice(2).map{|k, v| [k, v.to_sym] }.to_h
+
+bd_types = %w[
+  L   left_to_right
+  R   right_to_left
+  AL  letter_arabic
+
+  EN  num_eur
+  ES  sep_eur
+  ET  term_eur
+  AN  num_arabic
+  CS  sep_common
+  NSM mark_nonsp
+  BN  neutral_bound
+
+  B   separator_par
+  S   separator_seg
+  WS  whitespace
+  ON  neutral_other
+
+  LRE ltr_embedding
+  LRO ltr_override
+  RLE rtl_embedding
+  RLO rtl_override
+  PDF pop_dir_fmt
+  LRI ltr_isolate
+  RLI rtl_isolate
+  FSI first_strong_isolate
+  PDI pop_dir_isolate
+].each_slice(2).map{|k, v| [k, v.to_sym] }.to_h
+
+cccs = %w[
+  0   none
+  1   overlay
+  7   nukta
+  8   kana_voicing
+  9   virama
+
+  200 attach_bl
+  202 attach_b
+  204 attach_br
+  208 attach_l
+  210 attach_r
+  212 attach_tl
+  214 attach_t
+  216 attach_tr
+
+  218 pos_bl
+  220 pos_b
+  222 pos_br
+  224 pos_l
+  226 pos_r
+  228 pos_tl
+  230 pos_t
+  232 pos_tr
+
+  233 join_b
+  234 join_t
+
+  240 iota_sub
+].each_slice(2).map{|k, v| [k.to_i, v.to_sym] }.to_h
+
+ages = []
+File.foreach(File.join(File.dirname(__FILE__), "DerivedAge.txt")) do |l|
+  range, age = l.gsub(/^(.[^#]*)\s+#.*$/, "\\1").split(";")
+
+  next if range.nil? || age.nil? || range.empty? || age.empty?
+
+  age.strip! if age
+
+  if range =~ /^(.*)\.\.(.*)$/
+    $1.to_i(16)..$2.to_i(16)
+  else
+    r = range.to_i(16)
+    r..r
+  end.step{|i| ages[i] = age.split(".").map{|c| c.to_i } }
+end
+
+def mkchr(id, sgc = nil)
+  return nil if id.nil? || id.empty?
+
+  cp = "\e[7mU+#{id.to_i(16).to_s(16).upcase.rjust(4, "0")}\e[27m"
+
+  if sgc == :other then cp
+  elsif sgc == :mark then "#{cp} \u00A0#{id.to_i(16).chr("utf-8")}"
+  else "#{cp} #{id.to_i(16).chr("utf-8")}"
+  end
+end
+
+class String
+  def cljust(width, chr = nil)
+    ljust(width + length - gsub(/\e\[[\x30-\x3F]*[\x20-\x2F]*[\x40-\x7E]/, "").length)
+  end
+end
+
+begin
+  File.foreach(File.join(File.dirname(__FILE__), "UnicodeData.txt")) do |l|
+    id, name, cat, ccc, bd_type, decomp, num_type, num_digit, num_rational,
+    bd_flip, uni1_name, iso_comment, up_map, dn_map, tl_map = l.strip.split(";")
+
+    idx = id.to_i(16)
+
+    name << " (#{uni1_name})" unless uni1_name.nil? || uni1_name.empty?
+    name << " // #{iso_comment}" unless iso_comment.nil? || iso_comment.empty?
+
+    gc = cats[cat]
+    sgc = cats[cat[0]]
+
+    ccc = ccc.to_i
+
+    *dc_map = decomp.split(/\s+/)
+    dc_type = :canonical unless decomp.nil? || decomp.empty?
+
+    if dc_map[0] =~ /^<(.*)>$/
+      dc_type = $1.to_sym
+      dc_map.shift
+    end
+
+    dc_map = dc_map.map{|m| mkchr(m, nil) }.join(" ")
+
+    num_val = num_digit
+    num_val = num_rational if num_digit.nil? || num_digit.empty?
+
+    bd_flip = case bd_flip
+      when "Y"; true
+      when "N"; false
+      else nil
+    end
+
+    ret = {
+      ver: (ages[idx] || [1, 0]).join("."),
+      cat: gc,
+      ccc: (10..199) === ccc ? :"pos_#{ccc}" : cccs[ccc],
+    }
+
+    ret.delete(:ccc) if ret[:ccc] == :none
+
+    ret[:bd_type] = bd_types[bd_type] unless bd_type.nil? || bd_type.empty?
+    ret[:dc_type] = dc_type unless dc_type.nil? || dc_type.empty?
+    ret[:dc_map] = dc_map unless dc_map.nil? || dc_map.empty?
+    ret[:num_type] = num_type unless num_type.nil? || num_type.empty?
+    ret[:num_val] = num_val unless num_val.nil? || num_val.empty?
+    ret[:bd_flip] = bd_flip if bd_flip
+    ret[:casing] = "#{mkchr(up_map, sgc)}/#{mkchr(dn_map, sgc)}/#{mkchr(tl_map, sgc)}"\
+      unless [up_map, dn_map, tl_map].compact.all?{|e| e.empty? }
+
+    puts "#{mkchr(id, sgc).cljust(16)} \e[1m#{name}\e[22m"
+    puts ret.map{|k, v| "  #{"#{k}:".ljust(12)} #{v}" }.join("\n")
+  end
+rescue Errno::EPIPE
+end

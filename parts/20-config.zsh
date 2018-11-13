@@ -1,6 +1,6 @@
 export EDITOR="vim"
 export PAGER="less -QRS"
-export PATH="$PATH:$HOME/.zrc/bin:$HOME/Documents/Ruby"
+export PATH="$PATH:$HOME/.zrc/bin"
 export VISUAL="code --new-window -g --wait -- "
 
 # zsh internals
