@@ -119,7 +119,7 @@ function update-cleanup() {
   targets=$(pacman -Qdtq)
 
   if ! [[ -z $targets ]]; then
-    sudo pacman -Rs $targets
+    sudo pacman -Rs ${(f)targets}
   else
     echo ' there is nothing to do'
   fi
