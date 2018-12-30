@@ -3,36 +3,6 @@ function _rc_g_fn_update_notify() {
   (timeout 2s notify-send $@) &!
 }
 
-function _rc_g_fn_update_yn() {
-  local yn
-
-  while true; do
-    echo -n "$1" >&2
-
-    read -k1 yn
-
-    case $yn in
-      y|Y)
-        echo >&2
-        echo y
-        return
-        ;;
-      n|N)
-        echo >&2
-        echo n
-        return
-        ;;
-      $'\n')
-        echo $2
-        return
-        ;;
-      *)
-        echo >&2
-        ;;
-    esac
-  done
-}
-
 function update() {
   sudo pacman -Sy
 
@@ -88,14 +58,14 @@ function update() {
   for new in ${(f)pacnews}; do
     old=${new%.pacnew}
 
-    if [[ $(_rc_g_fn_update_yn "View diff for $new? [Y/n] " y) == 'y' ]]; then
+    if [[ $(_rc_g_yn "View diff for $new? [Y/n] " y) == 'y' ]]; then
       # Using git diff because it can handle colors in less properly
       sudo git diff "$old" "$new"
 
-      if [[ $(_rc_g_fn_update_yn "Replace $old with $new? [y/N] " n) == 'y' ]]; then
+      if [[ $(_rc_g_yn "Replace $old with $new? [y/N] " n) == 'y' ]]; then
         sudo mv $new $old
       else
-        if [[ $(_rc_g_fn_update_yn "Delete $new? [y/N] " n) == 'y' ]]; then
+        if [[ $(_rc_g_yn "Delete $new? [y/N] " n) == 'y' ]]; then
           sudo rm $new
         fi
       fi

@@ -14,6 +14,10 @@ setopt histexpiredupsfirst histignoredups histnostore histreduceblanks sharehist
 DIRSTACKSIZE=20
 setopt autopushd pushdminus pushdsilent pushdtohome
 
+# go
+export GOPATH="$HOME/Documents/Go"
+export PATH="$PATH:$GOPATH/bin"
+
 # less
 export LESS="-QRS"
 export LESSEDIT="%E %f?lm\:%lm."
