@@ -4,7 +4,7 @@ function _rc_g_fn_update_notify() {
 }
 
 function update() {
-  sudo pacman -Sy
+  sudo sh -c 'pacman -Sy || true' || return 1
 
   echo ":: Running pacman upgrade..."
 
