@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+begin
+  n = Integer(ARGV[0]).to_f
+  str = ARGV[1..-1].join(" ")
+rescue
+  puts "usage: hou <n> <string...>"
+  exit(1)
+end
+
+count = str.chars.select{|c| c !~ /\s/ }.size
+
+slice = count / n
+
+curr = 0
+
+puts(str.chars.slice_when do |a, b|
+  curr += a =~ /\s/ ? 0 : 1
+
+  if curr >= slice
+    curr -= slice
+    true
+  else
+    false
+  end
+end.map{|a| a.join.strip }.to_a.join("\n"))
