@@ -20,7 +20,7 @@ function update() {
     # TODO: Find a way to suppress this if we're doing nothing
     _rc_g_fn_update_notify -i archlinux 'update' 'Starting AUR upgrade...'
 
-    aurman --aur --show_changes -Syu
+    aurman --aur --show_changes -Su
   fi
 
   echo ":: Cleaning up packages..."

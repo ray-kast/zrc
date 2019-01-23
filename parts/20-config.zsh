@@ -14,6 +14,11 @@ setopt histexpiredupsfirst histignoredups histnostore histreduceblanks sharehist
 DIRSTACKSIZE=20
 setopt autopushd pushdminus pushdsilent pushdtohome
 
+# gem
+if { which ruby && which gem } >/dev/null; then
+  PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
+fi
+
 # go
 export GOPATH="$HOME/Documents/Go"
 export PATH="$PATH:$GOPATH/bin"
