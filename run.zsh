@@ -28,6 +28,11 @@ for file in "$_rc_i_basedir"/parts/**/*(on); do
   unfunction -m '_rc_l_*'
 done
 
+if [[ -f ~/.zrc-local.zsh ]]; then
+  _rc_i_status zrc-local
+  . ~/.zrc-local.zsh
+fi
+
 _rc_i_status_reset
 
 unfunction -m '_rc_i_*'
