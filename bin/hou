@@ -2,11 +2,15 @@
 
 begin
   n = Integer(ARGV[0]).to_f
-  str = ARGV[1..-1].join(" ")
-rescue
-  puts "usage: hou <n> <string...>"
+  ARGV.shift
+  str = ARGV.join(" ") unless ARGV.empty?
+rescue => e
+  p e
+  puts "usage: hou <n> [string...]"
   exit(1)
 end
+
+str = ARGF.read unless str
 
 count = str.chars.select{|c| c !~ /\s/ }.size
 
