@@ -14,14 +14,8 @@ setopt histexpiredupsfirst histignoredups histnostore histreduceblanks sharehist
 DIRSTACKSIZE=20
 setopt autopushd pushdminus pushdsilent pushdtohome
 
-# gem
-if { which ruby && which gem } >/dev/null; then
-  PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
-fi
-
 # go
 export GOPATH="$HOME/Documents/Go"
-export PATH="$PATH:$GOPATH/bin"
 
 # less
 export LESS="-QRS"
@@ -30,8 +24,9 @@ export LESSEDIT="%E %f?lm\:%lm."
 # ls
 source <(dircolors -b)
 
-# rust
-export RUST_SRC_PATH=~/.multirust/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
+# TODO: what was this supposed to be? This directory doesn't exist.
+# # rust
+# export RUST_SRC_PATH=~/.multirust/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
 
 # texlive
 export TEXMFLOCAL=/usr/local/texmf
