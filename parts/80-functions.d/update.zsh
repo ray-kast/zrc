@@ -28,7 +28,7 @@ function update() {
   if { pacman -Qmtdq 1>/dev/null 2>/dev/null }; then
     _rc_g_fn_update_notify -i archlinux 'update' 'Cleaning up packages...'
 
-    pacman -Rs $(pacman -Qmtdq)
+    sudo pacman -Rs $(pacman -Qmtdq)
   else
     echo " there is nothing to do"
   fi

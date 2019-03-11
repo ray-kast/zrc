@@ -4,8 +4,6 @@ function autoxelatex() {
     return 1
   fi
 
-  { jobs | grep -Gqsm 1 -e autoxelatex } && { echo "Job already running."; return -1 }
-
   typeset -a args
   args=(-pdf -pdflatex="timeout --signal=9 5s xelatex -interaction=nonstopmode -synctex=1 %O %S")
   echo "\x1b[1mRunning latexmk once...\x1b[0m"

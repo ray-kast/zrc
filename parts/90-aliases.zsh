@@ -1,3 +1,4 @@
+alias b="bundle exec"
 alias bigtext="figlet" # because 'figlet' is hard to remember
 alias dh="dirs -v"
 alias fucc="boi"
@@ -5,7 +6,7 @@ alias grep="command grep --color"
 alias j="jobs -l"
 alias k="kill -9"
 alias l="command ls --color -abhlF"
-alias lblk="lsblk -oNAME,FSTYPE,UUID,LABEL,MOUNTPOINT"
+alias lblk="lsblk -oNAME,FSTYPE,UUID,LABEL,MOUNTPOINT,FSSIZE,FSUSED,FSAVAIL"
 alias ll="command ls --color -bhlF"
 alias ls="command ls --color -bF"
 alias pk="pkill -9 -e"
