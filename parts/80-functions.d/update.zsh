@@ -16,11 +16,11 @@ function update() {
     echo " there is nothing to do"
   fi
 
-  if { which aurman 1>/dev/null 2>/dev/null }; then
+  if { which yay 1>/dev/null 2>/dev/null }; then
     # TODO: Find a way to suppress this if we're doing nothing
     _rc_g_fn_update_notify -i archlinux 'update' 'Starting AUR upgrade...'
 
-    aurman --aur --show_changes -Su
+    yay -Syua
   fi
 
   echo ":: Cleaning up packages..."
@@ -96,8 +96,8 @@ function update-cleanup() {
 }
 
 function update-clearcache() {
-  if { which aurman 1>/dev/null 2>/dev/null }; then
-    aurman -Sc
+  if { which yay 1>/dev/null 2>/dev/null }; then
+    yay -Sc
   else
     sudo pacman -Sc
   fi
