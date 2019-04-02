@@ -121,7 +121,7 @@ fi
 
 # ===== Actually perform the install =====
 
-say "Target directory: '$REAL_TARGET'"
+say "Target directory: '$REAL_TARGET' (as '$TARGET')"
 
 [[ $(yn "Continue with installation? [y/N] " n) == 'y' ]] || exit 1
 
