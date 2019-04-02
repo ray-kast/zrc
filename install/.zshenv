@@ -1,0 +1,1 @@
+. "$HOME/.zrc/env.zsh"
