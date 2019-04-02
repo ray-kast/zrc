@@ -22,3 +22,5 @@ function boi() {
     return 1
   fi
 }
+
+alias fucc="boi"

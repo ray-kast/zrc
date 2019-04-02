@@ -11,3 +11,5 @@ function calc() {
 
   echo "$expr"
 }
+
+alias '#'="calc"
