@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
-require "getoptlong"
 require "digest/sha2"
+require "getoptlong"
+require "set"
 
 $fonts = {
   bold: {
@@ -140,9 +141,10 @@ $fonts = {
     a: 0x1F1E6,
   },
   fullwidth: {
-    A: 0xFF21,
-    a: 0xFF41,
-    zero: 0xFF10,
+    ascii: 0xFF00,
+    special: {
+      " " => 0x2003,
+    }
   },
   spades: {
     zero: 0x1F0A0,
@@ -217,6 +219,7 @@ $fonts = {
 }
 
 $ords = {
+  ascii: " ".ord,
   A: "A".ord,
   a: "a".ord,
   Alpha: "\u0391".ord,
@@ -225,6 +228,7 @@ $ords = {
 }
 
 $ranges = {
+  ascii: " ".."~",
   zero: "0".."9",
   A: "A".."Z",
   a: "a".."z",
@@ -242,8 +246,10 @@ def fancy(font, str)
 
   srand(Digest::SHA2.hexdigest(str).to_i(16)) if random
 
+  ranges = $ranges.select{|n, _| font[n] }
+
   str.each_char.map do |chr|
-    range, _ = $ranges.find{|n, r| r === chr }
+    range, _ = ranges.find{|n, r| r === chr }
 
     next chr unless range
 
@@ -412,9 +418,23 @@ def help
     Available fonts:
   EOF
   $fonts.each do |name, font|
-    puts " - #{name.to_s.tr("_", "-")} -> #{fancy(font, $ords.select{|n, _| font.include?(n) }.map do |name, ord|
-      (0..2).map{|o| (ord + o).chr("utf-8") }.join
-    end.join(" "))}"
+
+    ranges = Set.new($ords
+      .each_key
+      .select{|n| font.include?(n) }
+      .flat_map do |name|
+        case name
+          when :ascii; [:A, :a, :zero]
+          else [name]
+        end
+      end);
+
+    puts " - #{name.to_s.tr("_", "-")} -> #{$ords
+      .select{|n, _| ranges.include?(n) }
+      .map do |name, ord|
+        (0..2).map{|o| (ord + o).chr("utf-8") }.join
+      end.map{|s| fancy(font, s) }
+      .join(" ")}"
   end
 end
 
