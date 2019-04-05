@@ -51,8 +51,6 @@ _rc_i_basedir="$(dirname "$0")"
         [[ "$(_rc_g_yn "Update ~/.zrc? [Y/n] " y)" == 'y' ]] || exit 0
 
         git pull
-
-        exit 1
       ) || { _rc_i_status_reset; echo "WARNING: update check failed"; return }
 
       touch "$file"
