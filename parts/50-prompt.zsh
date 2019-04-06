@@ -1,30 +1,21 @@
-_RC_L_CURR_BG=""
-_RC_L_CURR_FG=""
-_RC_L__CURR_BG=""
-_RC_L__CURR_FG=""
-() {
-  local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-  _RC_L_RTRI="\ue0b0"  # U+E0B0 <Private Use> (right pointing triangle)
-  _RC_L_RCHE="\ue0b1"  # U+E0B1 <Private Use> (thin right pointing chevron)
-  _RC_L_LTRI="\ue0b2"  # U+E0B2 <Private Use> (left pointing triangle)
-  _RC_L_LCHE="\ue0b3"  # U+E0B3 <Private Use> (thin left pointing chevron)
-  _RC_L_GITBR="\ue0a0" # U+E0A0 <Private Use> (branch symbol)
-  _RC_L_GITRF="\u27a6" # U+27A6 HEAVY BLACK CURVED UPWARDS AND RIGHTWARDS ARROW
-  _RC_L_GITPL="\u271a" # U+271A HEAVY GREEK CROSS
-  _RC_L_GITDT="\u25cf" # U+25CF BLACK CIRCLE
-  _RC_L_GITCK="\u2713" # U+2713 CHECK MARK
-  _RC_L_GITXM="\u2757" # U+2757 HEAVY EXCLAMATION MARK SYMBOL
-}
-
 _rc_g_prompt_do_git() {
   (( $+commands[git] )) || return
+
+  local LC_ALL="" LC_CTYPE="en_US.UTF-8" _branch _ref _plus _dot _check _bang
+
+  _branch=$'\ue0a0' # U+E0A0 <Private Use> (branch symbol)
+  _ref=$'\u27a6'    # U+27A6 HEAVY BLACK CURVED UPWARDS AND RIGHTWARDS ARROW
+  _plus=$'\u271a'   # U+271A HEAVY GREEK CROSS
+  _dot=$'\u25cf'    # U+25CF BLACK CIRCLE
+  _check=$'\u2713'  # U+2713 CHECK MARK
+  _bang=$'\u2757'   # U+2757 HEAVY EXCLAMATION MARK SYMBOL
 
   local repo_path rfsym ref mode msg
 
   repo_path=$(git rev-parse --git-dir 2>/dev/null)
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    ref=$(git symbolic-ref HEAD 2>/dev/null) && rfsym="$_RC_L_GITBR" || { rfsym="$_RC_L_GITRF"; ref="$(git rev-parse --short HEAD 2>/dev/null)" }
+    ref=$(git symbolic-ref HEAD 2>/dev/null) && rfsym="$_branch" || { rfsym="$_ref"; ref="$(git rev-parse --short HEAD 2>/dev/null)" }
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
       mode=" <B>"
     elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
@@ -37,8 +28,8 @@ _rc_g_prompt_do_git() {
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:*' stagedstr "$_RC_L_GITPL"
-    zstyle ':vcs_info:*' unstagedstr "$_RC_L_GITDT"
+    zstyle ':vcs_info:*' stagedstr "$_plus"
+    zstyle ':vcs_info:*' unstagedstr "$_dot"
     zstyle ':vcs_info:*' formats '%u%c'
     zstyle ':vcs_info:*' actionformats '%u%c'
     vcs_info
@@ -56,8 +47,8 @@ _rc_g_prompt_do_git() {
     msg=${vcs_info_msg_0_%%}
 
     echo -n " %-100(l@$rfsym ${ref#refs/heads/}${msg:+ $msg}$mode@$rfsym"
-    [[ ${ref#refs/heads/} == "master" ]] && echo -n " $_RC_L_GITXM" || echo -n " "
-    echo -n "${msg:-$_RC_L_GITCK}$mode) "
+    [[ ${ref#refs/heads/} == "master" ]] && echo -n " $_bang" || echo -n " "
+    echo -n "${msg:-$_check}$mode) "
   fi
 }
 

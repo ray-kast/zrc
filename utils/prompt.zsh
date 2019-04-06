@@ -57,28 +57,35 @@ _rc_g_prompt_start() {
 }
 
 _rc_g_prompt_set() {
-  if [[ $3 == "l" ]]; then
-    _rc_g_prompt_fgcolor $1
-    echo -n $_RC_L_LTRI
-    _rc_g_prompt_colors $1 $2
-  elif [[ $3 == "r" ]]; then
-    _rc_g_prompt_colors $1 $_RC_L_CURR_BG
-    echo -n $_RC_L_RTRI
-    _rc_g_prompt_fgcolor $2
-  else
-    _rc_g_prompt_colors $1 $2
-  fi
+  local LC_ALL="" LC_CTYPE="en_US.UTF-8"
+
+  case $3 in
+    l)
+      _rc_g_prompt_fgcolor $1
+      echo -n $'\ue0b2' # U+E0B2 <Private Use> (left pointing triangle)
+      _rc_g_prompt_colors $1 $2
+      ;;
+    r)
+      _rc_g_prompt_colors $1 $_RC_L_CURR_BG
+      echo -n $'\ue0b0' # U+E0B0 <Private Use> (right pointing triangle)
+      _rc_g_prompt_fgcolor $2
+      ;;
+    *)
+      _rc_g_prompt_colors $1 $2
+      ;;
+  esac
 
   _RC_L_CURR_BG="$1"
   _RC_L_CURR_FG="$2"
 }
 
 _rc_g_prompg_chvrn() {
+  local LC_ALL="" LC_CTYPE="en_US.UTF-8"
+
   _rc_g_prompt_fgcolor $1
-  if [[ $2 == "l" ]]; then
-    echo -n $_RC_L_LCHE
-  elif [[ $2 == "r" ]]; then
-    echo -n $_RC_L_RCHE
-  fi
+  case $2 in
+    l) echo -n $'\ue0b3' ;; # <Private Use> (thin left pointing chevron)
+    r) echo -n $'\ue0b1' ;; # <Private Use> (thin right pointing chevron)
+  esac
   _rc_g_prompt_fgcolor $_RC_L_CURR_FG
 }

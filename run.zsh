@@ -23,6 +23,7 @@ _rc_i_basedir="$(dirname "$0")"
     _rc_i_status util ${${file#$_rc_i_basedir/utils}##/}
     . $file
     unfunction -m '_rc_l_*'
+    unset -m '_rc_l_*'
   done
 
   if [[ -t 1 ]]; then
@@ -61,6 +62,7 @@ _rc_i_basedir="$(dirname "$0")"
     _rc_i_status util ${${file#$_rc_i_basedir/parts}##/}
     . $file
     unfunction -m '_rc_l_*'
+    unset -m '_rc_l_*'
   done
 }
 
@@ -72,3 +74,4 @@ fi
 _rc_i_status_reset
 
 unfunction -m '_rc_i_*'
+unset -m '_rc_i_*'
