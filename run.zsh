@@ -32,7 +32,7 @@ _rc_i_basedir="$(dirname "$0")"
 
       file="$ZDOTDIR"/.zrc-update
 
-      [[ -n "$(find "$file" -atime +0 2>/dev/null)" || (! -f "$file") ]] || return
+      [[ -n "$(find "$file" -daystart -atime +0 2>/dev/null)" || (! -f "$file") ]] || return
 
       _rc_i_status "Checking for updates..."
 
