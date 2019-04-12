@@ -1,24 +1,39 @@
 function _rc_g_fn_update_notify() {
   # It appears notify-send may have hung when I was running only a TTY
-  (timeout 2s notify-send $@) &!
+  (timeout 2s notify-send -i archlinux 'update' $1) &!
 }
 
-function update() {
-  sudo sh -c 'pacman -Sy || true' || return 1
+function _rc_g_fn_update_apt() {
+  _rc_g_has apt-get || return 0
+
+  echo ":: Running APT upgrade..."
+
+  # TODO: suppress this if no updates are necessary
+  _rc_g_fn_update_notify 'Starting APT upgrade...'
+
+  sudo apt-get update && sudo apt-get upgrade
+
+  return 0
+}
+
+function _rc_g_fn_update_pacman() {
+  _rc_g_has pacman || return 0
+
+  sudo pacman -Sy
 
   echo ":: Running pacman upgrade..."
 
   if { pacman -Qu 1>/dev/null 2>/dev/null }; then
-    _rc_g_fn_update_notify -i archlinux 'update' 'Starting pacman upgrade...'
+    _rc_g_fn_update_notify 'Starting pacman upgrade...'
 
     sudo pacman -Su
   else
     echo " there is nothing to do"
   fi
 
-  if { which yay 1>/dev/null 2>/dev/null }; then
+  if _rc_g_has yay; then
     # TODO: Find a way to suppress this if we're doing nothing
-    _rc_g_fn_update_notify -i archlinux 'update' 'Starting AUR upgrade...'
+    _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
     yay -Syua
   fi
@@ -26,7 +41,7 @@ function update() {
   echo ":: Cleaning up packages..."
 
   if { pacman -Qmtdq 1>/dev/null 2>/dev/null }; then
-    _rc_g_fn_update_notify -i archlinux 'update' 'Cleaning up packages...'
+    _rc_g_fn_update_notify 'Cleaning up packages...'
 
     sudo pacman -Rs $(pacman -Qmtdq)
   else
@@ -50,7 +65,7 @@ function update() {
   if ! [[ -z $pacnews ]]; then
     echo ":: Resolving .pacnew files..."
 
-    _rc_g_fn_update_notify -i archlinux 'update' 'Resolving .pacnew files...'
+    _rc_g_fn_update_notify 'Resolving .pacnew files...'
   fi
 
   local new old
@@ -72,18 +87,48 @@ function update() {
     fi
   done
 
-  if { which rustup 1>/dev/null 2>/dev/null }; then
-    _rc_g_fn_update_notify -i archlinux 'update' 'Running rustup update...'
-
-    rustup update
-  fi
-
-  _rc_g_fn_update_notify -i archlinux 'update' 'System update complete.'
-
-  echo ':: Remember to occasionally clean your cache with update-clearcache'
+  return 0
 }
 
-function update-cleanup() {
+function _rc_g_fn_update_rustup() {
+  _rc_g_has rustup || return 0
+
+  echo ":: Running rustup upgrade..."
+
+  _rc_g_fn_update_notify 'Running rustup update...'
+
+  rustup update
+
+  return 0
+}
+
+function update() {
+  sudo echo -n || return 1
+
+  _rc_g_fn_update_apt
+  _rc_g_fn_update_pacman
+  _rc_g_fn_update_rustup
+
+  _rc_g_fn_update_notify 'System update complete.'
+
+  echo ':: Remember to occasionally clean your cache with update-clearcache'
+
+  return 0
+}
+
+
+
+function _rc_g_fn_update-cleanup_apt() {
+  _rc_g_has apt-get || return 0
+
+  sudo apt-get autoremove
+
+  return 0
+}
+
+function _rc_g_fn_update-cleanup_pacman() {
+  _rc_g_has pacman || return 0
+
   local targets
 
   targets=$(pacman -Qdtq)
@@ -93,12 +138,37 @@ function update-cleanup() {
   else
     echo ' there is nothing to do'
   fi
+
+  return 0
 }
 
-function update-clearcache() {
-  if { which yay 1>/dev/null 2>/dev/null }; then
+function update-cleanup() {
+  sudo echo -n || return 1
+
+  _rc_g_fn_update-cleanup_apt
+  _rc_g_fn_update-cleanup_pacman
+
+  return 0
+}
+
+
+
+function _rc_g_fn_update-clearcache_pacman() {
+  _rc_g_has pacman || return 0
+
+  if _rc_g_has yay; then
     yay -Sc
   else
     sudo pacman -Sc
   fi
+
+  return 0
+}
+
+function update-clearcache() {
+  sudo echo -n || return 1
+
+  _rc_g_fn_update-clearcache_pacman
+
+  return 0
 }
