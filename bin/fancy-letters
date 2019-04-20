@@ -241,10 +241,26 @@ $rand_fonts = $ranges.each_key.map{|n| [n, $fonts.select{|k, v| v.include?(n) }.
 $fonts[:random] = $rand_fonts.map{|k, _| [k, true] }.to_h
 $fonts[:random][:random] = true
 
-def fancy(font, str)
-  random = !!font[:random]
+def random(str)
+  srand(Digest::SHA2.hexdigest(str).to_i(16))
 
-  srand(Digest::SHA2.hexdigest(str).to_i(16)) if random
+  str.each_char.map do |chr|
+    fonts = Set.new($ranges.select{|n, r| r === chr }.flat_map{|n, _| $rand_fonts[n] }).to_a
+
+    next chr if fonts.empty?
+
+    font = $fonts[fonts[rand(fonts.length)]]
+    range, _ = $ranges.find{|n, r| font[n] && r === chr }
+
+    spec = font.fetch(:special, {}).fetch(chr, nil)
+    next spec.chr("utf-8") if spec
+
+    next (font[range] + chr.ord - $ords[range]).chr("utf-8") if range
+  end.join
+end
+
+def fancy(font, str)
+  return random(str) if font[:random]
 
   ranges = $ranges.select{|n, _| font[n] }
 
@@ -252,13 +268,6 @@ def fancy(font, str)
     range, _ = ranges.find{|n, r| r === chr }
 
     next chr unless range
-
-    if random
-      rnd = $rand_fonts[range]
-      next unless rnd
-      rnd = rnd[rand(rnd.length)]
-      font = $fonts[rnd]
-    end
 
     spec = font.fetch(:special, {}).fetch(chr, nil)
     next spec.chr("utf-8") if spec
