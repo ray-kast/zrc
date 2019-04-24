@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+
+require 'getoptlong'
+
+def help
+  $stderr << <<~EOF
+    Usage: bftext [options] [--] [text]
+    Convert a string to Brainfuck.
+
+    If no text is given, bftext will read from stdin.
+
+    Options:
+      --help, -h          Print this message and quit
+      --trim-right, -t    Trim the right end of every line, and the final
+                          newline.
+  EOF
+end
+
+opts = GetoptLong.new(
+  ["--help", "-h", GetoptLong::NO_ARGUMENT],
+  ["--trim-right", "-t", GetoptLong::NO_ARGUMENT],
+)
+
+trim = false
+
+opts.each do |opt, _|
+  case opt
+    when "--help"
+      help
+      exit 0
+    when "--trim-right"; trim = true
+  end
+end
+
+str = ARGV.join(" ") unless ARGV.empty?
+
+str = ARGF.read unless str
+
+if trim
+  str.gsub!(/\s+\n/, "\n")
+  str.rstrip!
+end
+
+last = 0
+
+str.chars.each do |chr|
+  curr = chr.ord
+
+  if curr > last
+    $stdout << "+" * (curr - last)
+  else
+    $stdout << "-" * (last - curr)
+  end
+
+  $stdout << "."
+
+  last = curr
+end
+
+$stdout.flush
