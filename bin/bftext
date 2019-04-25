@@ -10,30 +10,85 @@ def help
     If no text is given, bftext will read from stdin.
 
     Options:
-      --help, -h          Print this message and quit
+      --help, -h          Print this message and quit.
       --trim-right, -t    Trim the right end of every line, and the final
                           newline.
+      --verbose, -v       Output extra debug information.
   EOF
+end
+
+def factors(n) (1..Math::sqrt(n).to_i).lazy.select{|m| n % m == 0 } end
+
+def inc_naive(n) '*' * n end
+
+def inc_add(n)
+  ret = nil
+
+  (1...n).each do |a|
+    b = n - a
+
+    str = "#{inc(b)}#{inc(a)}"
+
+    ret = str if !ret || str.size < ret.size
+  end
+
+  ret
+end
+
+def inc_mul_by(n, f, g)
+  # TODO: make the right-hand inc non-naive?
+  ">#{(f == n ? inc_naive(f) : inc(f)).gsub('*', '+')}[-<#{inc_naive(g)}>]<"
+end
+
+def inc_mul(n)
+  ret = nil
+
+  factors(n).each do |f|
+    g = n / f
+
+    str = inc_mul_by(n, f, g)
+    inc_mul_by(n, g, f).tap{|s| str = s if s.size < str.size }
+
+    ret = str if !ret || str.size < ret.size
+  end
+
+  ret
+end
+
+$inc_cache = {}
+
+def inc(n)
+  $inc_cache.fetch(n) do
+    ret = inc_naive(n)
+
+    inc_mul(n).tap{|s| ret = s if s && s.size <= ret.size }
+    inc_add(n).tap{|s| ret = s if s && s.size <= ret.size }
+
+    $inc_cache[n] = ret
+  end
 end
 
 opts = GetoptLong.new(
   ["--help", "-h", GetoptLong::NO_ARGUMENT],
   ["--trim-right", "-t", GetoptLong::NO_ARGUMENT],
+  ["--verbose", "-v", GetoptLong::NO_ARGUMENT],
 )
 
-trim = false
+trim = verb = false
 
 opts.each do |opt, _|
   case opt
     when "--help"
       help
       exit 0
-    when "--trim-right"; trim = true
+    when "--trim-right"
+      trim = true
+    when "--verbose"
+      verb = true
   end
 end
 
 str = ARGV.join(" ") unless ARGV.empty?
-
 str = ARGF.read unless str
 
 if trim
@@ -45,11 +100,12 @@ last = 0
 
 str.chars.each do |chr|
   curr = chr.ord
+  n = curr - last
 
-  if curr > last
-    $stdout << "+" * (curr - last)
+  if n > 0
+    $stdout << inc(n).gsub('*', '+')
   else
-    $stdout << "-" * (last - curr)
+    $stdout << inc(-n).gsub('*', '-')
   end
 
   $stdout << "."
@@ -58,3 +114,7 @@ str.chars.each do |chr|
 end
 
 $stdout.flush
+
+$stderr << "\n" if verb && $stdout.tty?
+
+$inc_cache.each{|k, v| $stderr << "#{k} => #{v}\n" } if verb
