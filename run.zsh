@@ -39,7 +39,7 @@ _rc_i_basedir="$(dirname "$0")"
       (
         cd "$HOME"/.zrc
 
-        git fetch -q || exit 1
+        { timeout 5s git fetch -q } || exit 1
 
         [[ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]] || {
           _rc_i_status_reset
