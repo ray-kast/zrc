@@ -8,8 +8,6 @@ function boi() {
     if [[ $+functions[__rc_i_boi_cmd] ]]; then
       [[ $(_rc_g_yn "Execute '$cmd'? [y/N] " n) == 'y' ]] || return -1
 
-      echo "Executing '$cmd'..." >&2
-
       sudo sh -c "${functions[__rc_i_boi_cmd]#$'\t'}"
 
       return $?
