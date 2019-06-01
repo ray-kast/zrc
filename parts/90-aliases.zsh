@@ -15,6 +15,8 @@ alias rs="rsync -rcp --progress"
 alias rs-del="rsync -rcp --progress --delete"
 alias rs-git="rsync -rcp --progress --delete --exclude-from=.gitignore"
 alias rw="rlwrap"
+alias sr="screen -R"
+alias srs="screen -RS"
 alias sudo-code="sudo code --user-data-dir=$HOME/.vscode-sudo/"
 alias t="tree -pah"
 
