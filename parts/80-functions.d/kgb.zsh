@@ -3,7 +3,7 @@ function kgb() {
 
   newfile="$HISTFILE.new"
 
-  grep -Fva "${(F)@}" "$HISTFILE" >"$newfile"
+  grep -Pva "${(F)@}" "$HISTFILE" >"$newfile"
 
   git diff "$HISTFILE" "$newfile"
 
