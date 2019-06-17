@@ -7,7 +7,7 @@
 [[ -v LC_CTYPE ]] || export LC_CTYPE="en_US.UTF-8"
 
 # cargo
-export PATH=$PATH:$HOME/.cargo/bin
+export PATH="$PATH:$HOME/.cargo/bin"
 
 # gem
 if { which ruby && which gem } >/dev/null; then
@@ -28,4 +28,7 @@ fi
 if [[ -d "$HOME/.rakudobrew" ]]; then
   source <("$HOME/.rakudobrew/bin/rakudobrew" init -)
 fi
+
+# yarn
+export PATH="$PATH:$HOME/.yarn/bin"
 
