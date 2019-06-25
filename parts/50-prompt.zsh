@@ -98,7 +98,7 @@ _rc_g_prompt_ps1() {
   else
     _rc_g_prompt_set 2 0
   fi
-  echo -n ") %-100(l/%~/%2~) "
+  echo -n ") %-100(l/%4~/%2~) "
 
   [[ -z $ZRC_NO_GIT_PROMPT ]] && _rc_g_prompt_do_git $RETCODE
   _rc_g_prompt_set r r r
