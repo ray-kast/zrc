@@ -16,6 +16,7 @@ _rc_g_fn_gcmds+=(
   cm  'commit -m'
   cl  'clone'
   co  'checkout'
+  cob 'checkout -b'
   coh 'checkout HEAD'
   d   'diff'
   dc  'diff --cached'
