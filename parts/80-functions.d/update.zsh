@@ -16,6 +16,16 @@ function _rc_g_fn_update_apt() {
   return 0
 }
 
+function _rc_g_fn_update_cabal() {
+  _rc_g_has cabal || return 0
+
+  echo ":: Running Cabal update..."
+
+  cabal v2-update
+
+  return 0
+}
+
 function _rc_g_fn_update_pacman() {
   _rc_g_has pacman || return 0
 
@@ -106,6 +116,7 @@ function update() {
   sudo echo -n || return 1
 
   _rc_g_fn_update_apt
+  _rc_g_fn_update_cabal
   _rc_g_fn_update_pacman
   _rc_g_fn_update_rustup
 
