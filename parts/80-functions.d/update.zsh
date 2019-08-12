@@ -112,13 +112,29 @@ function _rc_g_fn_update_rustup() {
   return 0
 }
 
+function _rc_g_fn_update_yarn() {
+  _rc_g_has yarn || return 0
+
+  echo ":: Running yarn global upgrade..."
+
+  _rc_g_fn_update_notify 'Running yarn global upgrade...'
+
+  yarn global upgrade
+
+  return 0
+}
+
 function update() {
   sudo echo -n || return 1
 
+  # Update system packages first...
   _rc_g_fn_update_apt
-  _rc_g_fn_update_cabal
   _rc_g_fn_update_pacman
+
+  # ...then run other updaters
+  _rc_g_fn_update_cabal
   _rc_g_fn_update_rustup
+  _rc_g_fn_update_yarn
 
   _rc_g_fn_update_notify 'System update complete.'
 
