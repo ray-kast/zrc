@@ -56,7 +56,7 @@ _rc_g_fn_gcmds+=(
   rsh 'reset --hard'
   s   'status'
   ss  'status --short'
-  t   'stash'
+  t   'stash push'
   tk  'stash -k'
   tl  'stash list'
   tp  'stash pop'
