@@ -39,6 +39,7 @@ _rc_g_fn_gcmds+=(
   p   'push'
   pa  'push --all'
   paf 'push --all -f'
+  pd  'push -d'
   pf  'push -f'
   pu  'push -u'
   r   'remote'
