@@ -21,6 +21,9 @@ _rc_g_fn_gcmds+=(
   cp  'cherry-pick'
   cpa 'cherry-pick --abort'
   cpc 'cherry-pick --continue'
+  cxf 'clean -xf'
+  cxi 'clean -xi'
+  cxn 'clean -xn'
   d   'diff'
   dc  'diff --cached'
   dcs 'diff --cached --stat'
@@ -65,6 +68,8 @@ _rc_g_fn_gcmds+=(
   sui 'submodule update --init --recursive'
   sur 'submodule update --init --recursive --remote'
   wd  'word-diff'
+  w   'switch'
+  wc  'switch -c'
 )
 
 function _rc_g_fn_gcmd() {
