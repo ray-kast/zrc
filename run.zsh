@@ -41,11 +41,34 @@ _rc_i_basedir="$(dirname "$0")"
 
         { timeout 5s git fetch -q } || exit 1
 
-        [[ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]] || {
+        local head origin common
+
+        git rev-parse HEAD | read head
+        git rev-parse '@{u}' | read origin
+
+        if [[ "$origin" == "$head" ]]; then
           _rc_i_status_reset
           echo 'No update available.'
           exit 0
-        }
+        fi
+
+        git merge-base "$head" "$origin" | read common
+
+        if [[ "$head" != "$common" ]]; then
+          _rc_i_status_reset
+
+          if [[ "$origin" != "$common" ]]; then
+            echo '\x1b[1;38;5;1mYou have local changes to ~/.zrc, refusing update.\x1b[m'
+          else
+            echo '\x1b[1;38;5;3mYou have local changes to ~/.zrc.\x1b[m'
+
+            [[ "$(_rc_g_yn "Push them? [Y/n] " y)" == 'y' ]] || exit 0
+
+            git push
+          fi
+
+          exit 0
+        fi
 
         _rc_i_status_reset
 
