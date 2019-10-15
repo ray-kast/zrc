@@ -26,6 +26,56 @@ function _rc_g_fn_update_cabal() {
   return 0
 }
 
+function _rc_g_fn_update_nvim() {
+  _rc_g_has nvim || return 0
+
+  echo ":: Running nvim package upgrade..."
+
+  _rc_g_fn_update_notify 'Starting nvim package upgrade...'
+
+  local basedir dir head origin common
+
+  basedir="$HOME/.config/nvim/pack"
+
+  for dir in "$HOME"/.config/nvim/**/.git(/); do
+    (
+      cd "$dir/.."
+
+      { timeout 5s git fetch -q } || exit 1
+
+      git rev-parse HEAD | read head
+      git rev-parse '@{u}' | read origin
+
+      if [[ "$origin" == "$head" ]]; then
+        echo " $(basename "$PWD") up-to-date"
+        exit 0
+      fi
+
+      git merge-base "$head" "$origin" | read common
+
+      if [[ "$head" != "$common" ]]; then
+        if [[ "$origin" != "$common" ]]; then
+          echo " \x1b[1;38;5;1m$(basename "$PWD") has local changes, refusing update\x1b[m"
+        else
+          echo " \x1b[1;38;5;3m$(basename "$PWD") has local changes\x1b[m"
+
+          [[ "$(_rc_g_yn "Push them? [y/N] " n)" == 'n' ]] || exit 0
+
+          git push
+        fi
+
+        exit 0
+      fi
+
+      [[ "$(_rc_g_yn "Update $(basename "$PWD")? [Y/n] " y)" == 'y' ]] || exit 0
+
+      git pull
+    ) || echo " \x1b[1;38;5;1mupdate check failed for $(basename "$PWD")"
+  done
+
+  return 0
+}
+
 function _rc_g_fn_update_pacman() {
   _rc_g_has pacman || return 0
 
@@ -133,6 +183,7 @@ function update() {
 
   # ...then run other updaters
   _rc_g_fn_update_cabal
+  _rc_g_fn_update_nvim
   _rc_g_fn_update_rustup
   _rc_g_fn_update_yarn
 
