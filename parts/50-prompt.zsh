@@ -55,6 +55,17 @@ _rc_g_prompt_do_git() {
 _rc_g_prompt_ps1() {
   RETCODE=$?
 
+  if [[ -n $VIRTUAL_ENV ]]; then
+    _rc_g_prompt_start
+    _rc_g_prompt_set 4 0
+
+    echo -n " $(basename "$VIRTUAL_ENV") "
+
+    _rc_g_prompt_set r r r
+
+    echo
+  fi
+
   _rc_g_prompt_start
 
   local nest root

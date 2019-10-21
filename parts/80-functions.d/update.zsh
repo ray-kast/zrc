@@ -41,6 +41,11 @@ function _rc_g_fn_update_nvim() {
     (
       cd "$dir/.."
 
+      if [[ -n $(git status --porcelain | head -n1) ]]; then
+        echo "\x1b[1;38;5;1m$(basename "$PWD") has unstaged changes, refusing update\x1b[m"
+        exit 1
+      fi
+
       { timeout 5s git fetch -q } || exit 1
 
       git rev-parse HEAD | read head
@@ -56,10 +61,11 @@ function _rc_g_fn_update_nvim() {
       if [[ "$head" != "$common" ]]; then
         if [[ "$origin" != "$common" ]]; then
           echo " \x1b[1;38;5;1m$(basename "$PWD") has local changes, refusing update\x1b[m"
+          exit 1
         else
           echo " \x1b[1;38;5;3m$(basename "$PWD") has local changes\x1b[m"
 
-          [[ "$(_rc_g_yn "Push them? [y/N] " n)" == 'n' ]] || exit 0
+          [[ "$(_rc_g_yn "Push them? [y/N] " n)" == 'n' ]] || exit 1
 
           git push
         fi

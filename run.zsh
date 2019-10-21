@@ -39,6 +39,12 @@ _rc_i_basedir="$(dirname "$0")"
       (
         cd "$HOME"/.zrc
 
+        if [[ -n $(git status --porcelain | head -n1) ]]; then
+          _rc_i_status_reset
+          echo '\x1b[1;38;5;1mYou have unstaged changes to ~/.zrc, refusing update.\x1b[m'
+          exit 1
+        fi
+
         { timeout 5s git fetch -q } || exit 1
 
         local head origin common
@@ -59,10 +65,11 @@ _rc_i_basedir="$(dirname "$0")"
 
           if [[ "$origin" != "$common" ]]; then
             echo '\x1b[1;38;5;1mYou have local changes to ~/.zrc, refusing update.\x1b[m'
+            exit 1
           else
             echo '\x1b[1;38;5;3mYou have local changes to ~/.zrc.\x1b[m'
 
-            [[ "$(_rc_g_yn "Push them? [Y/n] " y)" == 'y' ]] || exit 0
+            [[ "$(_rc_g_yn "Push them? [Y/n] " y)" == 'y' ]] || exit 1
 
             git push
           fi

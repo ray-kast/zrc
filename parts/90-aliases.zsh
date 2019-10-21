@@ -21,6 +21,8 @@ alias sr="screen -R"
 alias srs="screen -RS"
 alias sudo-code="sudo code --user-data-dir=$HOME/.vscode-sudo/"
 alias t="tree -pah"
+alias tn="tmux new-session -A -s"
+alias tls="tmux ls"
 
 alias -s exe="mono"
 alias -s js="node"
