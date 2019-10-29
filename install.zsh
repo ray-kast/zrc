@@ -128,6 +128,6 @@ say "Target directory: '$REAL_TARGET' (as '$TARGET')"
 # NB: I'm making the assumption that the target path doesn't contain U+0001
 install "${INSTALL_OPTS[@]}" -Dm755 -T =(sed -e $'s\x01@TARGET@\x01'"$TARGET"$'\x01' install/bootstrap.zsh.in) "$HOME"/.zshenv || exit -1
 install "${INSTALL_OPTS[@]}" -Dm755 -t "$REAL_TARGET" install/{.zshenv,.zshrc} || exit -1
-chmod ugo-rwx . completion # Appease compaudit.
+chmod go-rwx . completion # Appease compaudit.
 
 say "Installation complete."
