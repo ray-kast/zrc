@@ -1,7 +1,6 @@
 bindkey -e
 
 bindkey " " magic-space
-bindkey "^H" backward-kill-word
 bindkey "^I" menu-expand-or-complete
 bindkey "^[^[" menu-complete
 bindkey "^[OA" up-line-or-beginning-search
@@ -21,3 +20,11 @@ bindkey "^[[E" end-of-line
 bindkey "^[[F" end-of-line
 bindkey "^[k" describe-key-briefly
 bindkey "^]" expand-or-complete
+
+if [[ "$TERM" == 'xterm' ]]; then
+  bindkey "^H" backward-delete-char
+  bindkey "^?" backward-kill-word
+else
+  bindkey "^?" backward-delete-char
+  bindkey "^H" backward-kill-word
+fi
