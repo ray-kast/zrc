@@ -1,6 +1,9 @@
 #!/usr/bin/zsh
 # Run this script from .zshenv
 
+# Weird edge-case logic to try to fix rxvt issues with ssh
+(( SHLVL == 1 )) && export TERM="${TERM/rxvt(-unicode|)/xterm}"
+
 # Not exporting .zrc/bin because it's really just interactive utilities
 
 [[ -v LC_ALL ]] || export LC_ALL="" # Yeah, this is redundant, but not if I ever change LC_ALL
