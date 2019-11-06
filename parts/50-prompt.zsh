@@ -1,6 +1,4 @@
-_rc_g_prompt_do_git() {
-  (( $+commands[git] )) || return
-
+function _rc_g_prompt_do_git() {
   local LC_ALL="" LC_CTYPE="en_US.UTF-8" _branch _ref _plus _dot _check _bang
 
   _branch=$'\ue0a0' # U+E0A0 <Private Use> (branch symbol)
@@ -8,7 +6,6 @@ _rc_g_prompt_do_git() {
   _plus=$'\u271a'   # U+271A HEAVY GREEK CROSS
   _dot=$'\u25cf'    # U+25CF BLACK CIRCLE
   _check=$'\u2713'  # U+2713 CHECK MARK
-  _bang=$'\u2757'   # U+2757 HEAVY EXCLAMATION MARK SYMBOL
 
   local repo_path rfsym ref mode msg
 
@@ -37,102 +34,107 @@ _rc_g_prompt_do_git() {
     if [[ -n $(git status --porcelain | head -n1) ]]; then
       _rc_g_prompt_set 3 0 r
     else
-      if [[ $1 -ne 0 ]]; then
-        _rc_g_prompt_set 2 0 r
-      else
-        _rc_g_prompt_set 6 0 r
-      fi
+      _rc_g_prompt_set 6 0 r
     fi
 
-    msg=${vcs_info_msg_0_%%}
+    msg=${vcs_info_msg_0_}
 
-    echo -n " %-100(l@$rfsym ${ref#refs/heads/}${msg:+ $msg}$mode@$rfsym"
-    [[ ${ref#refs/heads/} == "master" ]] && echo -n " $_bang" || echo -n " "
-    echo -n "${msg:-$_check}$mode) "
+    echo -n " $rfsym ${ref#refs/heads/}${msg:+ $msg}$mode "
   fi
 }
 
-_rc_g_prompt_ps1() {
+function _rc_g_prompt_ps1() {
   RETCODE=$?
 
-  if [[ -n $VIRTUAL_ENV ]]; then
-    _rc_g_prompt_start
-    _rc_g_prompt_set 4 0
+  _rc_g_prompt_ps1_line1
+  echo
+  _rc_g_prompt_ps1_line2
+}
 
-    echo -n " $(basename "$VIRTUAL_ENV") "
-
-    _rc_g_prompt_set r r r
-
-    echo
-  fi
-
+function _rc_g_prompt_ps1_line1() {
   _rc_g_prompt_start
 
-  local nest root
+  local nested='' job='' vcs='' pad=''
 
-  [[ $SHLVL -gt 1 ]] && nest=t || nest=''
-  [[ $UID -eq 0 ]] && root=t || root=''
+  (( SHLVL > 1 )) && nested=t
+  [[ $(jobs -l | head -n1) ]] && job=t
+  [[ -z $ZRC_NO_GIT_PROMPT ]] && { _rc_g_has git && git rev-parse >/dev/null 2>/dev/null } && vcs=t
 
-  if [[ -n $nest || -n $root ]]; then
-    _rc_g_prompt_set 3 0
+  _rc_g_prompt_set 2 0
+  [[ -n $VIRTUAL_ENV ]] && echo -n " $(basename "$VIRTUAL_ENV") "
+  _rc_g_prompt_set 0 3 r
 
-    if [[ -n $root ]]; then
-      echo -n " ⚡"
-    fi
+  echo -n ' %M '
 
-    if [[ -n $nest ]]; then
-      echo -n " $SHLVL"
-    fi
-
-    echo -n " "
-
-    _rc_g_prompt_set 0 r r
-  fi
-
-  if [[ $RETCODE -ne 0 ]]; then
-    _rc_g_prompt_set 0 5
-  else
-    _rc_g_prompt_set 0 2
-  fi
-  echo -n "%-100(l/ %-100<..<%M%<< "
-  [[ $RETCODE -ne 0 ]] && _rc_g_prompg_chvrn 6 r || _rc_g_prompg_chvrn 1 r
-  [[ $RETCODE -ne 0 ]] && _rc_g_prompt_set 0 13 || _rc_g_prompt_set 0 3
-  echo -n " %n "
-  if [[ $RETCODE -ne 0 ]]; then
-    _rc_g_prompt_set 9 0 r
-  else
+  if [[ -n $nested || (-z $job && -z $vcs) ]]; then
     _rc_g_prompt_set 2 0 r
-  fi
-  echo -n "/"
-  if [[ $RETCODE -ne 0 ]]; then
-    _rc_g_prompt_set 9 0
-  else
-    _rc_g_prompt_set 2 0
-  fi
-  echo -n ") %-100(l/%4~/%2~) "
 
-  [[ -z $ZRC_NO_GIT_PROMPT ]] && _rc_g_prompt_do_git $RETCODE
+    pad=t
+  fi
+
+  [[ -n $nested ]] && echo -n " $SHLVL"
+
+  if [[ -n $job ]]; then
+    [[ -n $pad ]] && echo -n ' '
+
+    _rc_g_prompt_set 4 0 r
+    echo -n " %j"
+
+    pad=t
+  fi
+
+  [[ -n $pad ]] && echo -n ' '
+
+  [[ -n $vcs ]] && _rc_g_prompt_do_git
+
   _rc_g_prompt_set r r r
-  echo -n " "
 }
 
-_rc_g_prompt_rps1() {
-  RETCODE=$?
-
+function _rc_g_prompt_ps1_line2() {
   _rc_g_prompt_start
 
-  echo -n " "
-  _rc_g_prompt_set 2 0 l
-  echo -n " %D{%H:%M} %-100(l:"
-  _rc_g_prompg_chvrn 0 l
-  echo -n " %D{%d/%m/%y} :)"
-
-  if [[ $(jobs -l | head -n1 | wc -l) -gt 0 ]]; then
-    _rc_g_prompt_set 4 0 l
-    echo -n " %-100(l:%j :)"
+  if (( UID == 0 )); then
+    _rc_g_prompt_set 3 0
+    echo -n ' ⚡ '
+    _rc_g_prompt_set r r r
+    echo -n ' '
   fi
 
-  if [[ $RETCODE -ne 0 ]]; then
+  if (( RETCODE == 0 )); then
+    _rc_g_prompt_set r 8
+    echo -n '%-100(l: %n '
+    _rc_g_prompt_chvrn 2 r
+    echo -n ':)'
+    _rc_g_prompt_set r 6
+    echo -n ' %-100(l:%4~:%2~) '
+    _rc_g_prompt_chvrn 2 r
+  else
+    _rc_g_prompt_set 0 5
+    echo -n '%-100(l: %n '
+    _rc_g_prompt_set 9 0 r
+    echo -n ':'
+    _rc_g_prompt_set 9 0
+    echo -n ') %-100(l:%4~:%2~) '
+    _rc_g_prompt_set r r r
+  fi
+
+  echo -n ' '
+}
+
+function _rc_g_prompt_rps1() {
+  RETCODE=$?
+
+  echo -n ' '
+
+  _rc_g_prompt_chvrn 2 l
+  _rc_g_prompt_set r 6
+  echo -n ' %D{%H:%M}%-100(l: '
+  _rc_g_prompt_chvrn 2 l
+  _rc_g_prompt_set r 8
+  echo -n ' %D{%d/%m/%y}:)'
+
+  if (( RETCODE != 0 )); then
+    echo -n ' '
     _rc_g_prompt_set 9 0 l
     echo -n " $RETCODE "
   fi
@@ -140,7 +142,7 @@ _rc_g_prompt_rps1() {
   _rc_g_prompt_set r r
 }
 
-_rc_g_prompt_ps2() {
+function _rc_g_prompt_ps2() {
   _rc_g_prompt_start
 
   _rc_g_prompt_set 0 r
@@ -151,7 +153,7 @@ _rc_g_prompt_ps2() {
   echo -n " "
 }
 
-_rc_g_prompt_rps2() {
+function _rc_g_prompt_rps2() {
   _rc_g_prompt_start
 
   echo -n " "
@@ -160,7 +162,7 @@ _rc_g_prompt_rps2() {
   _rc_g_prompt_set r r
 }
 
-_rc_g_prompt_ps3() {
+function _rc_g_prompt_ps3() {
   _rc_g_prompt_start
 
   _rc_g_prompt_set 0 r
@@ -171,7 +173,7 @@ _rc_g_prompt_ps3() {
   echo -n " "
 }
 
-_rc_g_prompt_ps4() {
+function _rc_g_prompt_ps4() {
   _rc_g_prompt_start
 
   _rc_g_prompt_set 0 8

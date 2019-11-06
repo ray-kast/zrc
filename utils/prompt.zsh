@@ -1,4 +1,4 @@
-_rc_g_prompt_colors() {
+function _rc_g_prompt_colors() {
   echo -n "%{"
   if [[ $1 == "r" ]] || [[ $2 == "r" ]]; then
     echo -n "\e[0m"
@@ -15,7 +15,7 @@ _rc_g_prompt_colors() {
   _RC_L__CURR_FG="$2"
 }
 
-_rc_g_prompt_fgcolor() {
+function _rc_g_prompt_fgcolor() {
   [[ $_RC_L__CURR_FG == $1 ]] && return
 
   echo -n "%{"
@@ -32,7 +32,7 @@ _rc_g_prompt_fgcolor() {
   _RC_L__CURR_FG="$1"
 }
 
-_rc_g_prompt_bgcolor() {
+function _rc_g_prompt_bgcolor() {
   [[ $_RC_L__CURR_BG == $1 ]] && return
 
   echo -n "%{"
@@ -49,14 +49,14 @@ _rc_g_prompt_bgcolor() {
   _RC_L__CURR_BG="$1"
 }
 
-_rc_g_prompt_start() {
+function _rc_g_prompt_start() {
   _RC_L_CURR_BG="r"
   _RC_L_CURR_FG="r"
   _RC_L__CURR_BG="r"
   _RC_L__CURR_FG="r"
 }
 
-_rc_g_prompt_set() {
+function _rc_g_prompt_set() {
   local LC_ALL="" LC_CTYPE="en_US.UTF-8"
 
   case $3 in
@@ -79,7 +79,7 @@ _rc_g_prompt_set() {
   _RC_L_CURR_FG="$2"
 }
 
-_rc_g_prompg_chvrn() {
+function _rc_g_prompt_chvrn() {
   local LC_ALL="" LC_CTYPE="en_US.UTF-8"
 
   _rc_g_prompt_fgcolor $1

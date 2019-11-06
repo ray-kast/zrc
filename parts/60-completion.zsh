@@ -1,4 +1,4 @@
-_rc_l_compl_prompt() {
+function _rc_l_compl_prompt() {
   _rc_g_prompt_start
 
   _rc_g_prompt_set 2 0
@@ -10,7 +10,7 @@ _rc_l_compl_prompt() {
   _rc_g_prompt_set r r r
 }
 
-_rc_l_corr_prompt() {
+function _rc_l_corr_prompt() {
   _rc_g_prompt_start
 
   _rc_g_prompt_set 2 0
@@ -22,7 +22,7 @@ _rc_l_corr_prompt() {
   _rc_g_prompt_set r r r
 }
 
-_rc_l_list_prompt() {
+function _rc_l_list_prompt() {
   _rc_g_prompt_start
 
   _rc_g_prompt_set 2 0
@@ -34,7 +34,7 @@ _rc_l_list_prompt() {
   _rc_g_prompt_set r r r
 }
 
-_rc_l_scroll_prompt() {
+function _rc_l_scroll_prompt() {
   _rc_g_prompt_start
 
   _rc_g_prompt_set 2 0
