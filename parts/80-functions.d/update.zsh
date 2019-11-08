@@ -42,7 +42,7 @@ function _rc_g_fn_update_nvim() {
       cd "$dir/.."
 
       if [[ -n $(git status --porcelain | head -n1) ]]; then
-        echo "\x1b[1;38;5;1m$(basename "$PWD") has unstaged changes, refusing update\x1b[m"
+        echo "\x1b[1;38;5;1m$(basename "$PWD") has uncommitted changes, refusing update\x1b[m"
         exit 1
       fi
 
@@ -76,7 +76,7 @@ function _rc_g_fn_update_nvim() {
       [[ "$(_rc_g_yn "Update $(basename "$PWD")? [Y/n] " y)" == 'y' ]] || exit 0
 
       git pull
-    ) || echo " \x1b[1;38;5;1mupdate check failed for $(basename "$PWD")"
+    ) || echo " \x1b[1;38;5;1mupdate check failed for $(basename $(realpath "$dir/.."))\x1b[m"
   done
 
   return 0

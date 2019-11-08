@@ -17,6 +17,11 @@ fi
 _rc_i_basedir="$(dirname "$0")"
 
 () {
+  if [[ -t 1 && -v SSH_AGENT_PID ]] && ! { ssh-add -l >/dev/null 2>/dev/null }; then
+    _rc_i_status_reset
+    ssh-add
+  fi
+
   local file
 
   for file in "$_rc_i_basedir"/utils/**/*(on); do
@@ -41,7 +46,7 @@ _rc_i_basedir="$(dirname "$0")"
 
         if [[ -n $(git status --porcelain | head -n1) ]]; then
           _rc_i_status_reset
-          echo '\x1b[1;38;5;1mYou have unstaged changes to ~/.zrc, refusing update.\x1b[m'
+          echo '\x1b[1;38;5;1mYou have uncommitted changes to ~/.zrc, refusing update.\x1b[m'
           exit 1
         fi
 

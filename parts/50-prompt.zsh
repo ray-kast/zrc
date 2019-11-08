@@ -1,11 +1,8 @@
 function _rc_g_prompt_do_git() {
-  local LC_ALL="" LC_CTYPE="en_US.UTF-8" _branch _ref _plus _dot _check _bang
+  local LC_ALL="" LC_CTYPE="en_US.UTF-8" _branch _ref
 
   _branch=$'\ue0a0' # U+E0A0 <Private Use> (branch symbol)
   _ref=$'\u27a6'    # U+27A6 HEAVY BLACK CURVED UPWARDS AND RIGHTWARDS ARROW
-  _plus=$'\u271a'   # U+271A HEAVY GREEK CROSS
-  _dot=$'\u25cf'    # U+25CF BLACK CIRCLE
-  _check=$'\u2713'  # U+2713 CHECK MARK
 
   local repo_path rfsym ref mode msg
 
@@ -25,8 +22,8 @@ function _rc_g_prompt_do_git() {
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:*' stagedstr "$_plus"
-    zstyle ':vcs_info:*' unstagedstr "$_dot"
+    zstyle ':vcs_info:*' stagedstr '+'
+    zstyle ':vcs_info:*' unstagedstr 'u'
     zstyle ':vcs_info:*' formats '%u%c'
     zstyle ':vcs_info:*' actionformats '%u%c'
     vcs_info
@@ -39,7 +36,7 @@ function _rc_g_prompt_do_git() {
 
     msg=${vcs_info_msg_0_}
 
-    echo -n " $rfsym ${ref#refs/heads/}${msg:+ $msg}$mode "
+    echo -n " $rfsym ${ref#refs/heads/}${msg:+ \x1b[1m$msg\x1b[22m}$mode "
   fi
 }
 
