@@ -19,7 +19,10 @@ _rc_i_basedir="$(dirname "$0")"
 () {
   if [[ -t 1 && -v SSH_AGENT_PID ]] && ! { ssh-add -l >/dev/null 2>/dev/null }; then
     _rc_i_status_reset
-    ssh-add
+
+    for i in {1..3}; do
+      ssh-add && break
+    done
   fi
 
   local file
