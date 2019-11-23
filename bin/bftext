@@ -98,7 +98,7 @@ end
 
 last = 0
 
-str.chars.each do |chr|
+str.force_encoding('utf-8').bytes.each do |chr|
   curr = chr.ord
   n = curr - last
 

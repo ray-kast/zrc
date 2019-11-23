@@ -2,6 +2,7 @@ export EDITOR="vim"
 export PAGER="less -QRS"
 export PATH="$PATH:$HOME/.zrc/bin"
 _rc_g_has code && export VISUAL="code --new-window -g --wait -- "
+_rc_g_has nvim && export VISUAL="nvim"
 
 # zsh internals
 HISTFILE=$ZDOTDIR/.zsh_history
