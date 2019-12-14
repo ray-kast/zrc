@@ -37,7 +37,7 @@ function _rc_g_fn_update_nvim() {
 
   basedir="$HOME/.config/nvim/pack"
 
-  for dir in "$HOME"/.config/nvim/**/.git(/); do
+  for dir in "$HOME"/.config/nvim/**/.git(/N); do
     (
       cd "$dir/.."
 
