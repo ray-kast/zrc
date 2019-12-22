@@ -15,6 +15,8 @@ setopt histexpiredupsfirst histignoredups histnostore histreduceblanks sharehist
 DIRSTACKSIZE=20
 setopt autopushd pushdminus pushdsilent pushdtohome
 
+WORDCHARS=${WORDCHARS//[\/.-]}
+
 # go
 export GOPATH="$HOME/Documents/Go"
 
