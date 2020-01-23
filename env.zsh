@@ -9,11 +9,13 @@
 [[ -v LC_ALL ]] || export LC_ALL="" # Yeah, this is redundant, but not if I ever change LC_ALL
 [[ -v LC_CTYPE ]] || export LC_CTYPE="en_US.UTF-8"
 
+(( $+commands[terminal] )) >/dev/null && [[ -z "$TERMINAL" ]] && export TERMINAL="$commands[terminal]"
+
 # cargo
 export PATH="$PATH:$HOME/.cargo/bin"
 
 # gem
-if { which ruby && which gem } >/dev/null; then
+if (( $+commands[ruby] )) && (( $+commands[gem] )); then
   export PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
 fi
 

@@ -1,1 +1,1 @@
-_rc_g_has() { which "$1" >/dev/null 2>/dev/null }
+_rc_g_has() { (( $+commands[$1] )) }
