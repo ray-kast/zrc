@@ -163,6 +163,8 @@ function _rc_g_fn_update_rustup() {
 
   _rc_g_fn_update_notify 'Running rustup update...'
 
+  rustup self upgrade-data
+
   rustup update
 
   return 0
