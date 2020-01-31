@@ -18,6 +18,8 @@ bindkey "^[[B" down-line-or-beginning-search
 bindkey "^[[H" beginning-of-line
 bindkey "^[[E" end-of-line
 bindkey "^[[F" end-of-line
+bindkey "^[[7~" beginning-of-line
+bindkey "^[[8~" end-of-line
 bindkey "^[k" describe-key-briefly
 bindkey "^]" expand-or-complete
 
