@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+require 'getoptlong'
+require 'open3'
+
+$timeout = 5
+$command = 'xelatex'
+
+def usage
+  puts <<~EOF
+    USAGE: autotex [flags] <file>
+
+    FLAGS:
+      -t, --timeout   Set the timeout for the TeX command (default: #{$timeout})
+      -c, --command   Set the pdflatex command to use (default: #{$command})
+  EOF
+end
+
+def usage_bad
+  usage
+  exit 1
+end
+
+begin
+  opts = GetoptLong.new(
+    ['--timeout', '-t', GetoptLong::REQUIRED_ARGUMENT],
+    ['--command', '-c', GetoptLong::REQUIRED_ARGUMENT],
+    ['--help', '-h', GetoptLong::NO_ARGUMENT],
+    ['--usage', '-u', GetoptLong::NO_ARGUMENT],
+  )
+
+  opts.each do |opt, arg|
+    case opt
+    when '--timeout'; $timeout = Integer(arg)
+    when '--command'; $command = arg
+    when '--help', '--usage'
+      usage
+      exit 0
+    end
+  end
+rescue GetoptLong::InvalidOption, ArgumentError
+  usage_bad
+end
+
+usage_bad if ARGV.empty?
+file = ARGV.shift
+pdf = file.sub(/\.[^.]*$/, '.pdf')
+
+args = [
+  '-pdf',
+  "-pdflatex=timeout --signal=9 #{$timeout}s #{$command} -interaction=nonstopmode -synctex=1 %O %S",
+]
+
+puts "\e[1mRunning latexmk once...\e[m"
+
+pid = Process.spawn('latexmk', '-f', *args, file)
+Process.wait(pid)
+latexmk_res = $?
+
+exit(-1) unless File.file?(pdf)
+
+unless latexmk_res.success?
+  puts "\e[1;38;5;1mWARNING: latexmk exited with code #{latexmk_res.exitstatus}\e[m"
+  sleep 3
+end
+
+puts "\e[1mOpening #{pdf.inspect}...\e[m"
+
+pid = Process.spawn('gio', 'open', pdf)
+Process.wait(pid)
+exit $?.exitstatus unless $?.success?
+
+puts "\e[1mStarting latexmk in continuous mode...\e[m"
+
+pid = Process.spawn('latexmk', '-f', '-pvc', *args, file)
+Process.wait(pid)
+exit $?.exitstatus
