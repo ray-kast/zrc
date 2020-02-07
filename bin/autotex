@@ -5,14 +5,18 @@ require 'open3'
 
 $timeout = 5
 $command = 'xelatex'
+$once = false
 
 def usage
   puts <<~EOF
     USAGE: autotex [flags] <file>
 
     FLAGS:
-      -t, --timeout   Set the timeout for the TeX command (default: #{$timeout})
       -c, --command   Set the pdflatex command to use (default: #{$command})
+      -h, --help      Show this message
+      -o, --once      Do not run latexmk in continuous mode
+      -t, --timeout   Set the timeout for the TeX command (default: #{$timeout})
+      -u, --usage     Show this message
   EOF
 end
 
@@ -23,9 +27,10 @@ end
 
 begin
   opts = GetoptLong.new(
-    ['--timeout', '-t', GetoptLong::REQUIRED_ARGUMENT],
     ['--command', '-c', GetoptLong::REQUIRED_ARGUMENT],
     ['--help', '-h', GetoptLong::NO_ARGUMENT],
+    ['--once', '-o', GetoptLong::NO_ARGUMENT],
+    ['--timeout', '-t', GetoptLong::REQUIRED_ARGUMENT],
     ['--usage', '-u', GetoptLong::NO_ARGUMENT],
   )
 
@@ -33,6 +38,7 @@ begin
     case opt
     when '--timeout'; $timeout = Integer(arg)
     when '--command'; $command = arg
+    when '--once'; $once = true
     when '--help', '--usage'
       usage
       exit 0
@@ -64,14 +70,18 @@ unless latexmk_res.success?
   sleep 3
 end
 
-puts "\e[1mOpening #{pdf.inspect}...\e[m"
+if $once
+  exit latexmk_res.exitstatus
+else
+  puts "\e[1mOpening #{pdf.inspect}...\e[m"
 
-pid = Process.spawn('gio', 'open', pdf)
-Process.wait(pid)
-exit $?.exitstatus unless $?.success?
+  pid = Process.spawn('gio', 'open', pdf)
+  Process.wait(pid)
+  exit $?.exitstatus unless $?.success?
 
-puts "\e[1mStarting latexmk in continuous mode...\e[m"
+  puts "\e[1mStarting latexmk in continuous mode...\e[m"
 
-pid = Process.spawn('latexmk', '-f', '-pvc', *args, file)
-Process.wait(pid)
-exit $?.exitstatus
+  pid = Process.spawn('latexmk', '-f', '-pvc', *args, file)
+  Process.wait(pid)
+  exit $?.exitstatus
+end
