@@ -94,7 +94,6 @@ function _rc_g_prompt_ps1_line2() {
     _rc_g_prompt_set 3 0
     echo -n ' ⚡ '
     _rc_g_prompt_set r r r
-    echo -n ' '
   fi
 
   if (( RETCODE == 0 )); then
