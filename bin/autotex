@@ -55,6 +55,7 @@ pdf = file.sub(/\.[^.]*$/, '.pdf')
 args = [
   '-pdf',
   "-pdflatex=timeout --signal=9 #{$timeout}s #{$command} -interaction=nonstopmode -synctex=1 %O %S",
+  *ARGV,
 ]
 
 puts "\e[1mRunning latexmk once...\e[m"

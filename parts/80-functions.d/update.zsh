@@ -85,6 +85,12 @@ function _rc_g_fn_update_nvim() {
 function _rc_g_fn_update_pacman() {
   _rc_g_has pacman || return 0
 
+  if _rc_g_has reflector && [[ "$(_rc_g_yn "Update mirror list? [Y/n] " y)" == 'y' ]]; then
+    _rc_g_fn_update_notify 'Updating mirrors...'
+
+    sudo sh -c 'reflector --verbose --sort rate -cUS --score 50 -f 20 --save /etc/pacman.d/mirrorlist && rm -f /etc/pacman.d/mirrorlist.pacnew'
+  fi
+
   sudo pacman -Sy
 
   echo ":: Running pacman upgrade..."
