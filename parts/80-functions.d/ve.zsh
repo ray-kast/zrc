@@ -3,7 +3,7 @@ function ve() {
 
   dir="$1"
 
-  shift
+  shift || return 1
 
   virtualenv "$HOME/.venv/$dir" $@
   return $?
