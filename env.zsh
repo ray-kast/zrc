@@ -11,6 +11,10 @@
 
 (( $+commands[terminal] )) >/dev/null && [[ -z "$TERMINAL" ]] && export TERMINAL="$commands[terminal]"
 
+# snap (doing this first because it's system-level)
+export PATH="$PATH:/snap/bin"
+
+
 # cargo
 export PATH="$PATH:$HOME/.cargo/bin"
 
