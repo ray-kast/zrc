@@ -106,7 +106,7 @@ done
 
 if [[ "$ZDOTDIR" != "$HOME/.zsh" ]]; then
   for f in .zshenv .zprofile .zshrc .zlogin; do
-    if [[ -f "$DOTDIR"/"$f" ]]; then
+    if [[ -f "$ZDOTDIR"/"$f" ]]; then
       warn "\$ZDOTDIR/$f exists, but will be ignored by zsh after installation"
     fi
   done
