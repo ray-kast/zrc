@@ -17,12 +17,16 @@ fi
 _rc_i_basedir="$(dirname "$0")"
 
 () {
-  if [[ -t 1 && -v SSH_AGENT_PID ]] && ! { ssh-add -l >/dev/null 2>/dev/null }; then
-    _rc_i_status_reset
+  if [[ -t 1 ]] && (( $+commands[ssh-agent] )); then
+    if [[ -v SSH_AGENT_PID ]] && ! { ssh-add -l >/dev/null 2>/dev/null }; then
+      _rc_i_status_reset
 
-    for i in {1..3}; do
-      ssh-add && break
-    done
+      for i in {1..3}; do
+        ssh-add && break
+      done
+    else
+      exec ssh-agent $SHELL
+    fi
   fi
 
   local file
