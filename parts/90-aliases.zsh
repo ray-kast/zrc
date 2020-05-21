@@ -23,6 +23,8 @@ alias sudo-code="sudo code --user-data-dir=$HOME/.vscode-sudo/"
 alias t="tree -pah"
 alias tn="tmux new-session -A -s"
 alias tls="tmux ls"
+alias umb="udisksctl mount -b"
+alias uub="udisksctl unmount -b"
 
 alias -s exe="mono"
 alias -s js="node"
