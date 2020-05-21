@@ -26,6 +26,9 @@ alias tls="tmux ls"
 alias umb="udisksctl mount -b"
 alias uub="udisksctl unmount -b"
 
+# display distro info. i always forget the name of this command.
+alias rice="neofetch"
+
 alias -s exe="mono"
 alias -s js="node"
 alias -s pdf="evince"
