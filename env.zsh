@@ -9,7 +9,14 @@
 [[ -v LC_ALL ]] || export LC_ALL="" # Yeah, this is redundant, but not if I ever change LC_ALL
 [[ -v LC_CTYPE ]] || export LC_CTYPE="en_US.UTF-8"
 
-(( $+commands[terminal] )) >/dev/null && [[ -z "$TERMINAL" ]] && export TERMINAL="$commands[terminal]"
+if [[ -z "$TERMINAL" ]]; then
+  for term in kitty terminal; do
+    if (( $+commands[$term] )) >/dev/null; then
+      export TERMINAL="$commands[$term]"
+      break
+    fi
+  done
+fi
 
 # snap (doing this first because it's system-level)
 export PATH="$PATH:/snap/bin"
