@@ -82,3 +82,5 @@ autoload -Uz compinit
 export ZCOMPDUMP=$ZDOTDIR/.zcompdump
 
 compinit -d $ZCOMPDUMP
+
+_rc_g_has kitty && kitty + complete setup zsh | source /dev/stdin
