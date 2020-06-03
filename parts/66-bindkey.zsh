@@ -23,6 +23,8 @@ bindkey "^[[8~" end-of-line
 bindkey "^[k" describe-key-briefly
 bindkey "^]" expand-or-complete
 
+bindkey ",," vi-cmd-mode
+
 if [[ "$TERM" == 'xterm' ]]; then
   bindkey "^H" backward-delete-char
   bindkey "^?" backward-kill-word

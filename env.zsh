@@ -6,7 +6,7 @@
 
 # Not exporting .zrc/bin because it's really just interactive utilities
 
-[[ -v LC_ALL ]] || export LC_ALL="" # Yeah, this is redundant, but not if I ever change LC_ALL
+[[ -v LC_ALL ]] || export LC_ALL="en_US.UTF-8"
 [[ -v LC_CTYPE ]] || export LC_CTYPE="en_US.UTF-8"
 
 if [[ -z "$TERMINAL" ]]; then
