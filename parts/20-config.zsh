@@ -27,6 +27,9 @@ export LESSEDIT="%E %f?lm\:%lm."
 # ls
 source <(dircolors -b)
 
+# rvm
+export PATH="$PATH:$HOME/.rvm/bin"
+
 # TODO: what was this supposed to be? This directory doesn't exist.
 # # rust
 # export RUST_SRC_PATH=~/.multirust/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/
