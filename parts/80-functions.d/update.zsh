@@ -108,6 +108,10 @@ function _rc_g_fn_update_pacman() {
     _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
     yay -Syua
+
+    echo ":: Cleaning up the cache..."
+
+    yay -Sca
   fi
 
   echo ":: Cleaning up packages..."
@@ -119,6 +123,10 @@ function _rc_g_fn_update_pacman() {
   else
     echo " there is nothing to do"
   fi
+
+  echo ":: Cleaning up the cache..."
+
+  sudo paccache -rk3 -ruk0
 
   if { pacman -Qdtq 1>/dev/null 2>/dev/null }; then
     echo ":: The following packages could be cleaned up:"
@@ -203,8 +211,6 @@ function update() {
 
   _rc_g_fn_update_notify 'System update complete.'
 
-  echo ':: Remember to occasionally clean your cache with update-clearcache'
-
   return 0
 }
 
@@ -239,28 +245,6 @@ function update-cleanup() {
 
   _rc_g_fn_update-cleanup_apt
   _rc_g_fn_update-cleanup_pacman
-
-  return 0
-}
-
-
-
-function _rc_g_fn_update-clearcache_pacman() {
-  _rc_g_has pacman || return 0
-
-  if _rc_g_has yay; then
-    yay -Sc
-  else
-    sudo pacman -Sc
-  fi
-
-  return 0
-}
-
-function update-clearcache() {
-  sudo echo -n || return 1
-
-  _rc_g_fn_update-clearcache_pacman
 
   return 0
 }
