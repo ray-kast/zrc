@@ -11,7 +11,7 @@ function _rc_g_fn_update_apt() {
   # TODO: suppress this if no updates are necessary
   _rc_g_fn_update_notify 'Starting APT upgrade...'
 
-  sudo apt-get update && sudo apt-get upgrade
+  sudo apt-get update && sudo apt-get upgrade || return $?
 
   return 0
 }
@@ -170,6 +170,18 @@ function _rc_g_fn_update_pacman() {
   return 0
 }
 
+function _rc_g_fn_update_port() {
+  _rc_g_has port || return 0
+
+  echo ":: Running MacPorts upgrade..."
+
+  _rc_g_fn_update_notify 'Starting MacPorts upgrade...'
+
+  sudo port selfupdate && sudo port upgrade outdated || return $?
+
+  return 0
+}
+
 function _rc_g_fn_update_rustup() {
   _rc_g_has rustup || return 0
 
@@ -202,6 +214,7 @@ function update() {
   # Update system packages first...
   _rc_g_fn_update_apt
   _rc_g_fn_update_pacman
+  _rc_g_fn_update_port
 
   # ...then run other updaters
   _rc_g_fn_update_cabal
