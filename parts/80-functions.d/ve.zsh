@@ -4,9 +4,12 @@ function ve() {
   dir="$1"
   shift || return 1
 
-  python="$1"
-  shift || python="python"
-  python="$(which "$python")"
+  if (( # > 0 )); then
+    python="$(which "$1")"
+    shift || return 1
+  else
+    python="$(which python)"
+  fi
 
   pyver="$({ "$python" --version 2>&1 } | awk -F' ' '/python/i { print $2 }')"
 
