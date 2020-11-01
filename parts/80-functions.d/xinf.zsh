@@ -6,11 +6,11 @@ function xinf() {
     shift
   fi
 
-  sleep "$delay"
-
   echo "Select a window..."
 
   local id="$(xwininfo | awk '/Window id:/{print $4}')"
+
+  sleep "$delay"
 
   {
     echo "\e[1m==== OUTPUT OF XWININFO ====\e[m\n"
