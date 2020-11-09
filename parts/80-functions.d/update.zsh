@@ -160,8 +160,14 @@ function _rc_g_fn_update_pacman() {
       if [[ $(_rc_g_yn "Replace $old with $new? [y/N] " n) == 'y' ]]; then
         sudo mv $new $old
       else
-        if [[ $(_rc_g_yn "Delete $new? [y/N] " n) == 'y' ]]; then
-          sudo rm $new
+        if [[ $(_rc_g_yn "Patch $old? [Y/n] " y) == 'y' ]]; then
+          if sudo -E nvim -d "$new" "$old" && [[ $(_rc_g_yn "Delete $new? [Y/n] " y) == 'y' ]]; then
+            sudo rm $new
+          fi
+        else
+          if [[ $(_rc_g_yn "Delete $new? [y/N] " n) == 'y' ]]; then
+            sudo rm $new
+          fi
         fi
       fi
     fi
