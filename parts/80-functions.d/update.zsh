@@ -26,6 +26,18 @@ function _rc_g_fn_update_cabal() {
   return 0
 }
 
+function _rc_g_fn_update_flatpak() {
+  _rc_g_has flatpak || return 0
+
+  echo ":: Running Flatpak update..."
+
+  _rc_g_fn_update_notify 'Starting Flatpak update...'
+
+  flatpak update
+
+  return 0
+}
+
 function _rc_g_fn_update_nvim() {
   _rc_g_has nvim || return 0
 
@@ -108,10 +120,6 @@ function _rc_g_fn_update_pacman() {
     _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
     yay -Syua
-
-    echo ":: Cleaning up the cache..."
-
-    yay -Sca
   fi
 
   echo ":: Cleaning up packages..."
@@ -124,16 +132,24 @@ function _rc_g_fn_update_pacman() {
     echo " there is nothing to do"
   fi
 
-  echo ":: Cleaning up the cache..."
-
-  sudo paccache -rk3 -ruk0
-
   if { pacman -Qdtq 1>/dev/null 2>/dev/null }; then
     echo ":: The following packages could be cleaned up:"
 
     pacman -Qdt
 
-    echo ':: Use update-cleanup to remove them'
+    if [[ "$(_rc_g_yn "Remove them now? [Y/n] " y)" == 'y' ]]; then
+      _rc_g_fn_update-cleanup_pacman
+    else
+      echo ':: You can use update-cleanup to remove them later'
+    fi
+  fi
+
+  echo ":: Cleaning up the cache..."
+
+  sudo paccache -rk3 -ruk0
+
+  if _rc_g_has yay; then
+    yay -Sca
   fi
 
   echo ':: Searching for .pacnew files...'
@@ -224,6 +240,7 @@ function update() {
 
   # ...then run other updaters
   _rc_g_fn_update_cabal
+  _rc_g_fn_update_flatpak
   _rc_g_fn_update_nvim
   _rc_g_fn_update_rustup
   _rc_g_fn_update_yarn
