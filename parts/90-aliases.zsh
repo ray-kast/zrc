@@ -28,8 +28,6 @@ alias t="tree -pah"
 alias tn="tmux new-session -A -s"
 alias tls="tmux ls"
 alias venv="python -m venv"
-alias umb="udisksctl mount -b"
-alias uub="udisksctl unmount -b"
 
 # display distro info. i always forget the name of this command.
 alias rice="neofetch"
