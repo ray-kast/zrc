@@ -59,6 +59,7 @@ _rc_g_fn_gcmds+=(
   rs  'reset'
   s   'status'
   ss  'status --short'
+  sua 'status -uall'
   t   'stash'
   tk  'stash -k'
   tl  'stash list'
