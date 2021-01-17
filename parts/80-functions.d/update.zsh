@@ -33,7 +33,7 @@ function _rc_g_fn_update_flatpak() {
 
   _rc_g_fn_update_notify 'Starting Flatpak update...'
 
-  flatpak update
+  flatpak update && flatpak uninstall --unused || return $?
 
   return 0
 }
