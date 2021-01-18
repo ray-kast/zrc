@@ -10,7 +10,7 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory autocd extendedglob nobeep nomatch
 
-setopt histexpiredupsfirst histignoredups histnostore histreduceblanks sharehistory
+setopt histexpiredupsfirst histignoredups histnostore histreduceblanks sharehistory histignorespace
 
 DIRSTACKSIZE=20
 setopt autopushd pushdminus pushdsilent pushdtohome
