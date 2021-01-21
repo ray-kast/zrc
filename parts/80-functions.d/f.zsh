@@ -1,17 +1,21 @@
+function _rc_g_fn_f_fzf() {
+  local basedir fname
+
+  basedir="$1"
+  [[ -z "$basedir" ]] && basedir=$PWD
+
+  fname="$(fd -uu . --base-directory="$basedir" | fzf || echo '')"
+  [[ -n "$fname" ]] && (cd "$basedir"; realpath "$fname")
+}
+
 function f() {
   local fname text
 
-  (( # > 0 )) && pushd "$1"
-
-  fname="$(fd -uu . | fzf || echo '')"
+  fname="$(_rc_g_fn_f_fzf "$1")"
   [[ -z "$fname" ]] && return 1
 
-  fname="$(realpath "$fname")"
-
-  (( # > 0 )) && popd >/dev/null 2>/dev/null
-
   text=''
-  [[ "$(file "$fname")" =~ '(ASCII|Unicode) text' ]] && text='y'
+  [[ "$(file -b "$fname")" =~ '(ASCII|Unicode) text' ]] && text='y'
 
   if [[ -d "$fname" ]]; then
     ty='directory'
@@ -51,17 +55,11 @@ function F() {
     shift
   fi
 
-  [[ -n "$dname" ]] && pushd "$dname"
-
-  fname="$(fd -uu . | fzf || echo '')"
+  fname="$(_rc_g_fn_f_fzf "$dname")"
   [[ -z "$fname" ]] && return 1
 
-  fname="$(realpath "$fname")"
-
-  [[ -n "$dname" ]] && popd
-
   text=''
-  [[ "$(file "$fname")" =~ '(ASCII|Unicode) text' ]] && text='y'
+  [[ "$(file -b "$fname")" =~ '(ASCII|Unicode) text' ]] && text='y'
 
   if [[ -n "$argv0" ]]; then
     (exec "$argv0" "$fname")
