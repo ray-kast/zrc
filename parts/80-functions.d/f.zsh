@@ -1,7 +1,9 @@
 function f() {
+  local fname text
+
   (( # > 0 )) && pushd "$1"
 
-  fname=$(fd -uu . | fzf || echo '')
+  fname="$(fd -uu . | fzf || echo '')"
   [[ -z "$fname" ]] && return 1
 
   fname="$(realpath "$fname")"
@@ -17,11 +19,9 @@ function f() {
     ty='file'
   fi
 
-  file "$fname"
-
   if [[ ! -d "$fname" && -x "$fname" ]]; then
     if [[ "$(_rc_g_yn 'Run executable? [y/N] ' n)" == 'y' ]]; then
-      (exec "$(realpath "$fname")")
+      (exec "$fname")
     elif [[ -n "$text" ]]; then
       nvim "$fname"
     fi
@@ -35,5 +35,48 @@ function f() {
         gio open "$fname"
       fi
     fi
+  fi
+}
+
+function F() {
+  local argv0 dname fname text
+
+  if (( # > 0 )); then
+    dname="$1"
+    shift
+  fi
+
+  if (( # > 0 )); then
+    argv0="$1"
+    shift
+  fi
+
+  [[ -n "$dname" ]] && pushd "$dname"
+
+  fname="$(fd -uu . | fzf || echo '')"
+  [[ -z "$fname" ]] && return 1
+
+  fname="$(realpath "$fname")"
+
+  [[ -n "$dname" ]] && popd
+
+  text=''
+  [[ "$(file "$fname")" =~ '(ASCII|Unicode) text' ]] && text='y'
+
+  if [[ -n "$argv0" ]]; then
+    (exec "$argv0" "$fname")
+  elif [[ -d "$fname" ]]; then
+    cd "$fname"
+  else
+    typeset -a search
+
+    for p in "${(@)path}"; do
+      [[ -d "$p" && ! -h "$p" ]] && search+="$p"
+    done
+
+    argv0="$(fd -uud1 . "${(@)search}" | fzf || echo '')"
+    [[ -z "$argv0" ]] && return 1
+
+    (exec "$argv0" "$fname")
   fi
 }
