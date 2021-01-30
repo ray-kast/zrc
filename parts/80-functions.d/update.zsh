@@ -91,6 +91,10 @@ function _rc_g_fn_update_nvim() {
     ) || echo " \x1b[1;38;5;1mupdate check failed for $(basename $(realpath "$dir/.."))\x1b[m"
   done
 
+  for dir in "$HOME"/.config/nvim/**/doc(/N); do
+    nvim -c "helptags $dir" -c "qa"
+  done
+
   return 0
 }
 
