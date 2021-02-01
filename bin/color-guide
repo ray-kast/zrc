@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+def esc(*args) "\e[#{args.flatten.join(';')}m" end
+
+def color_ty(ty)
+  case ty
+  when :fg; 30
+  when :bg; 40
+  end
+end
+
+GRAY_MIN = 232
+GRAY_MAX = 255
+GRAY_COUNT = GRAY_MAX - GRAY_MIN + 1
+
+def id256(r, g, b) 16 + b + 6 * (g + 6 * r) end
+def id_gray256(l) GRAY_MIN + l end
+def bright256(r, g, b) r + 1.2 * g + 0.5 * b >= 6 end # Empirically evaluated, close enough
+def bright_gray256(l) l >= 13 end
+
+def color8(ty, id, bright) esc(*(1 if bright), color_ty(ty) + id) end
+def color16(ty, id) esc(color_ty(ty) + 8, 5, id) end
+def color256(ty, r, g, b) esc(color_ty(ty) + 8, 5, id256(r, g, b)) end
+def gray256(ty, l) esc(color_ty(ty) + 8, 5, id_gray256(l)) end
+def color24(ty, r, g, b) esc(color_ty(ty) + 8, 2, r, g, b) end # lol
+
+puts '8-color:'
+
+(0...8).each do |id|
+  $stdout << " #{color8(:fg, id, false)}#{id}#{esc} #{color8(:bg, id, false)}  #{esc}"
+  $stdout << " #{color8(:bg, id, true)}  #{esc} #{color8(:fg, id, true)}#{id}#{esc}\n"
+end
+
+puts '16-color:'
+
+(0...8).each do |id|
+  $stdout << " #{color16(:fg, id)}#{id}#{esc} #{color16(:bg, id)}  #{esc}"
+  id += 8
+  $stdout << " #{color16(:bg, id)}  #{esc} #{color16(:fg, id)}#{id}#{esc}\n"
+end
+
+puts '256-color:'
+
+(0...6).each do |b|
+  (0...6).each do |g|
+    (0...6).each do |r|
+      $stdout << " #{color256(:bg, r, g, b)}#{color16(:fg, bright256(r, g, b) ? GRAY_MIN : GRAY_MAX)}#{'% 3d' % id256(r, g, b)}"
+    end
+
+    $stdout << "#{esc} "
+  end
+
+  $stdout << "\n"
+end
+
+$stdout << "\n"
+
+(0...GRAY_COUNT).each do |l|
+  $stdout << "#{gray256(:bg, l)}#{color16(:fg, bright_gray256(l) ? GRAY_MIN : GRAY_MAX)}#{'% 3d' % id_gray256(l)}"
+end
+
+$stdout << "\n"
