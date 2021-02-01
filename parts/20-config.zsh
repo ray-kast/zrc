@@ -17,6 +17,9 @@ setopt autopushd pushdminus pushdsilent pushdtohome
 
 WORDCHARS=${WORDCHARS//[\/.-]}
 
+# fzf
+_rc_g_has fzf && _rc_g_has fd && export FZF_DEFAULT_COMMAND='fd -uu .'
+
 # go
 export GOPATH="$HOME/Documents/Go"
 
