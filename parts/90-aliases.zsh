@@ -10,6 +10,7 @@ alias ll="command ls --color -bhlF --group-directories-first"
 alias ls="command ls --color -bF --group-directories-first"
 alias mv="mv -i"
 alias nv="nvim"
+alias nvo='() { nvim -c "OpenSession $1" }'
 alias pk="pkill -9 -ex"
 alias poweroff="shutdown -P 0"
 alias py="python -m"
