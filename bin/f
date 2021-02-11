@@ -1,0 +1,126 @@
+#!/usr/bin/env ruby
+
+require 'getoptlong'
+require 'open3'
+
+def help
+  $stderr << <<~EOF
+    Usage: f [options] [--] [command...]
+    Execute a command using a filename selected with fzf.
+
+    Command syntax:
+      The command argument syntax is taken from fd, and behaves similarly.  All
+      arguments are passed to exec, with the following exceptions:
+
+      Pattern     Replaced with
+      =======================================
+      {}          path
+      {/}         basename
+      {//}        dirname
+      {.}         path without extension
+      {/.}        basename without extension
+
+      If none of the above patterns are found in the command, the file path will
+      be appended as the final argument as if specified using {}.
+
+      If no command is specified, the command is assumed to be `echo {}`.
+
+    Options:
+      --dir,  -d <DIR>    Start fzf relative to DIR.
+      --help, -h          Print this message and quit.
+  EOF
+end
+
+opts = GetoptLong.new(
+  ['--dir', '-d', GetoptLong::REQUIRED_ARGUMENT],
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+)
+
+dir = nil
+
+opts.each do |opt, arg|
+  case opt
+  when '--dir'
+    dir = arg
+  when '--help'
+    help
+    exit 0
+  end
+end
+
+sep = Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)
+
+unless dir.nil? || dir.empty?
+  dir = dir.split(sep)
+  dir[0] = dir[0].sub(/^~(.*)$/) { $1.empty? ? Dir.home : Dir.home($1) }
+  dir = File.join(*dir)
+end
+
+# Perform $PATH search
+command = ARGV.dup
+
+unless command.empty?
+  argv0 = command[0]
+  unless [*File::PATH_SEPARATOR, *File::ALT_SEPARATOR].all?{|s| argv0.include?(s) }
+    command[0] = catch(:found) do
+      ENV['PATH'].split(':').each do |path|
+        joined = File.join(path, argv0)
+
+        throw(:found, joined) if File.exists?(joined)
+      end
+
+      $stderr << "f: command not found: #{argv0}\n"
+      exit -1
+    end
+  end
+end
+
+# Run fzf and process the result
+path = nil
+
+Open3.pipeline_r(
+  %W[fd -uu . --base-directory=#{dir || Dir.getwd}],
+  %w[fzf]
+) do |out, threads|
+  path = out.read.sub(/\n$/, '')
+  threads.each(&:join)
+end
+
+exit 1 if path.empty?
+
+path = File.absolute_path(path, dir) if dir
+
+extname = /#{Regexp.escape(File.extname(path))}$/
+
+basename = File.basename(path)
+dirname = File.dirname(path)
+path_noext = path.sub(extname, '')
+basename_noext = basename.sub(extname, '')
+
+if command.empty?
+  # Echo the path
+  puts path
+else
+  # Perform command expansion
+  any_match = false
+
+  command = command.map do |arg|
+    arg.gsub(/\{(|\/|\/\/|\.|\/\.)\}/) do
+      any_match = true
+
+      case $1
+      when ''; path
+      when '/'; basename
+      when '//'; dirname
+      when '.'; path_noext
+      when '/.'; basename_noext
+      end
+    end
+  end
+
+  command << path unless any_match
+
+  command[0] = [command[0], argv0]
+
+  exec(*command)
+end

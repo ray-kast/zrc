@@ -1,6 +1,9 @@
 alias b="bundle exec"
 alias cp="cp -i"
 alias dh="dirs -v"
+alias fh="f -d~"
+alias fhc='cd "$(command f -d~)"'
+alias fn="f nvim"
 alias grep="command grep --color"
 alias j="jobs -l"
 alias k="kill -9"
