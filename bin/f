@@ -51,7 +51,7 @@ end
 sep = Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)
 
 unless dir.nil? || dir.empty?
-  dir = dir.split(sep)
+  dir = dir.split(sep, -1)
   dir[0] = dir[0].sub(/^~(.*)$/) { $1.empty? ? Dir.home : Dir.home($1) }
   dir = File.join(*dir)
 end
