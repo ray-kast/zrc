@@ -23,7 +23,7 @@ export PATH="$PATH:/snap/bin"
 
 
 # cargo
-export PATH="$PATH:$HOME/.cargo/bin"
+export PATH="$PATH:/usr/lib/cargo/bin:$HOME/.cargo/bin"
 
 # gem
 if (( $+commands[ruby] )) && (( $+commands[gem] )); then
