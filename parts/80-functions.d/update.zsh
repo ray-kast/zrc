@@ -150,7 +150,8 @@ function _rc_g_fn_update_pacman() {
 
   echo ":: Cleaning up the cache..."
 
-  sudo paccache -rk3 -ruk0
+  sudo paccache -rk3
+  sudo paccache -ruk0
 
   if _rc_g_has yay; then
     yay -Sca --noconfirm
