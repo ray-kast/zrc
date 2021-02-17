@@ -9,12 +9,16 @@ def color_ty(ty)
   end
 end
 
-GRAY_MIN = 232
-GRAY_MAX = 255
-GRAY_COUNT = GRAY_MAX - GRAY_MIN + 1
+GRAY_COUNT = 25
 
 def id256(r, g, b) 16 + b + 6 * (g + 6 * r) end
-def id_gray256(l) GRAY_MIN + l end
+def id_gray256(l)
+  case l
+  when 0; 16
+  when 24; 231
+  else 232 + l
+  end
+end
 def bright256(r, g, b) r + 1.2 * g + 0.5 * b >= 6 end # Empirically evaluated, close enough
 def bright_gray256(l) l >= 13 end
 
@@ -27,36 +31,46 @@ def color24(ty, r, g, b) esc(color_ty(ty) + 8, 2, r, g, b) end # lol
 puts '8-color:'
 
 (0...8).each do |id|
-  $stdout << " #{color8(:fg, id, false)}#{id}#{esc} #{color8(:bg, id, false)}  #{esc}"
-  $stdout << " #{color8(:bg, id, true)}  #{esc} #{color8(:fg, id, true)}#{id}#{esc}\n"
+  $stdout << " #{color8(:fg, id, false)}#{'%2d' % id}#{esc} #{color8(:bg, id, false)}  #{esc}"
+  $stdout << " #{color8(:bg, id, true)}  #{esc} #{color8(:fg, id, true)}#{'%2d' % id}#{esc}\n"
 end
 
 puts '16-color:'
 
 (0...8).each do |id|
-  $stdout << " #{color16(:fg, id)}#{id}#{esc} #{color16(:bg, id)}  #{esc}"
+  $stdout << " #{color16(:fg, id)}#{'%2d' % id}#{esc} #{color16(:bg, id)}  #{esc}"
   id += 8
-  $stdout << " #{color16(:bg, id)}  #{esc} #{color16(:fg, id)}#{id}#{esc}\n"
+  $stdout << " #{color16(:bg, id)}  #{esc} #{color16(:fg, id)}#{'%2d' % id}#{esc}\n"
 end
 
 puts '256-color:'
 
-(0...6).each do |b|
-  (0...6).each do |g|
-    (0...6).each do |r|
-      $stdout << " #{color256(:bg, r, g, b)}#{color16(:fg, bright256(r, g, b) ? GRAY_MIN : GRAY_MAX)}#{'% 3d' % id256(r, g, b)}"
+[false, true].each do |row2|
+  (0...6).each do |b|
+    (0...3).each do |g|
+      g = g + 3 if row2
+
+      (0...6).each do |r|
+        $stdout << "#{color256(:bg, r, g, b)} #{gray256(:fg, bright256(r, g, b) ? 0 : 24)}#{'%3d' % id256(r, g, b)} "
+      end
+
+      $stdout << "#{esc} "
     end
 
-    $stdout << "#{esc} "
+    $stdout << "\n"
   end
 
   $stdout << "\n"
 end
 
-$stdout << "\n"
+(0...GRAY_COUNT / 2).each do |l|
+  $stdout << "#{gray256(:bg, l)} #{gray256(:fg, bright_gray256(l) ? 0 : 24)}#{'%3d' % id_gray256(l)} "
+end
 
-(0...GRAY_COUNT).each do |l|
-  $stdout << "#{gray256(:bg, l)}#{color16(:fg, bright_gray256(l) ? GRAY_MIN : GRAY_MAX)}#{'% 3d' % id_gray256(l)}"
+$stdout << "#{esc}\n"
+
+(GRAY_COUNT / 2...GRAY_COUNT).each do |l|
+  $stdout << "#{gray256(:bg, l)} #{gray256(:fg, bright_gray256(l) ? 0 : 24)}#{'%3d' % id_gray256(l)} "
 end
 
 $stdout << "\n"
