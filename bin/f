@@ -28,15 +28,18 @@ def help
     Options:
       --dir,  -d <DIR>    Start fzf relative to DIR.
       --help, -h          Print this message and quit.
+      --type, -t <TYPE>   The type flag to pass to fd.
   EOF
 end
 
 opts = GetoptLong.new(
   ['--dir', '-d', GetoptLong::REQUIRED_ARGUMENT],
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--type', '-t', GetoptLong::REQUIRED_ARGUMENT],
 )
 
 dir = nil
+type = nil
 
 opts.each do |opt, arg|
   case opt
@@ -45,6 +48,8 @@ opts.each do |opt, arg|
   when '--help'
     help
     exit 0
+  when '--type'
+    type = arg
   end
 end
 
@@ -79,7 +84,7 @@ end
 path = nil
 
 Open3.pipeline_r(
-  %W[fd -uu . --base-directory=#{dir || Dir.getwd}],
+  [*%W[fd -uu . --base-directory=#{dir || Dir.getwd}], *("-t#{type}" if type)],
   %w[fzf]
 ) do |out, threads|
   path = out.read.sub(/\n$/, '')
