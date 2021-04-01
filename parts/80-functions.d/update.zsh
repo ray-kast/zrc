@@ -123,7 +123,15 @@ function _rc_g_fn_update_pacman() {
     # TODO: Find a way to suppress this if we're doing nothing
     _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
-    yay -Syua
+    local ret=1
+    while (( ret != 0 )); do
+      yay -Syua
+      ret=$?
+
+      if (( ret != 0 )) && [[ "$(_rc_g_yn "yay failed; retry? [Y/n] " y)" != 'y' ]]; then
+        ret=0
+      fi
+    done
   fi
 
   echo ":: Cleaning up packages..."
