@@ -32,6 +32,7 @@ alias t="tree -pah"
 alias tn="tmux new-session -A -s"
 alias tls="tmux ls"
 alias venv="python -m venv"
+alias xc="xclip -selection clipboard"
 
 # display distro info. i always forget the name of this command.
 alias rice="neofetch"
