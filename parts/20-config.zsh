@@ -42,3 +42,9 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 
 # texlive
 export TEXMFLOCAL=/usr/local/texmf
+
+# terminal (warn if not using single-instance Kitty)
+if (( $+commands[kitty] )) && ! (( $+commands[kitty1] )); then
+  echo $'\e[1;38;5;1mWARNING:\e[0;1m kitty found but not kitty1 -- using non-single-instance\x1b[m'
+fi
+

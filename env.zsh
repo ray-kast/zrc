@@ -10,7 +10,7 @@
 [[ -v LC_CTYPE ]] || export LC_CTYPE="en_US.UTF-8"
 
 if [[ -z "$TERMINAL" ]]; then
-  for term in kitty terminal; do
+  for term in kitty1 kitty terminal; do
     if (( $+commands[$term] )) >/dev/null; then
       export TERMINAL="$commands[$term]"
       break
