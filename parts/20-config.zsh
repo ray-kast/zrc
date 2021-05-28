@@ -17,6 +17,9 @@ setopt autopushd pushdminus pushdsilent pushdtohome
 
 WORDCHARS=${WORDCHARS//[\/.-]}
 
+# dotnet
+export PATH="$PATH:$HOME/.dotnet/tools"
+
 # fzf
 _rc_g_has fzf && _rc_g_has fd && export FZF_DEFAULT_COMMAND='fd -uu .'
 
