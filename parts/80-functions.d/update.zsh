@@ -111,10 +111,19 @@ function _rc_g_fn_update_pacman() {
 
   echo ":: Running pacman upgrade..."
 
+  local ret
   if { pacman -Qu 1>/dev/null 2>/dev/null }; then
     _rc_g_fn_update_notify 'Starting pacman upgrade...'
 
-    sudo pacman -Su
+    ret=1
+    while (( ret != 0 )); do
+      sudo pacman -Su
+      ret=$?
+
+      if (( ret != 0 )) && [[ "$(_rc_g_yn "pacman failed; retry? [Y/n] " y)" != 'y' ]]; then
+        ret=0
+      fi
+    done
   else
     echo " there is nothing to do"
   fi
@@ -123,7 +132,7 @@ function _rc_g_fn_update_pacman() {
     # TODO: Find a way to suppress this if we're doing nothing
     _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
-    local ret=1
+    ret=1
     while (( ret != 0 )); do
       yay -Syua
       ret=$?
