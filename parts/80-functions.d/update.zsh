@@ -223,6 +223,12 @@ function _rc_g_fn_update_port() {
 
   sudo port selfupdate && sudo port upgrade outdated || return $?
 
+  if [[ "$(_rc_g_yn "Perform unused port cleanup? [Y/n] " y)" == 'y' ]]; then
+    _rc_g_fn_update-cleanup_port
+  else
+    echo ':: You can use update-cleanup to remove any unused ports later'
+  fi
+
   return 0
 }
 
@@ -298,11 +304,20 @@ function _rc_g_fn_update-cleanup_pacman() {
   return 0
 }
 
+function _rc_g_fn_update-cleanup_port() {
+  _rc_g_has port || return 0
+
+  sudo port uninstall inactive && sudo port uninstall leaves || return $?
+
+  return 0
+}
+
 function update-cleanup() {
   sudo echo -n || return 1
 
   _rc_g_fn_update-cleanup_apt
   _rc_g_fn_update-cleanup_pacman
+  _rc_g_fn_update-cleanup_port
 
   return 0
 }
