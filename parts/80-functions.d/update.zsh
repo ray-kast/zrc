@@ -1,4 +1,6 @@
 function _rc_g_fn_update_notify() {
+  _rc_g_has notify_send || return 0
+
   # It appears notify-send may have hung when I was running only a TTY
   (timeout 2s notify-send -i archlinux 'update' $1) &!
 }
