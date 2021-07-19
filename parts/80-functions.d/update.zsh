@@ -248,6 +248,18 @@ function _rc_g_fn_update_rustup() {
   return 0
 }
 
+function _rc_g_fn_update_snap() {
+  _rc_g_has snap || return 0
+
+  echo ":: Running snap upgrade..."
+
+  _rc_g_fn_update_notify 'Running snap upgrade...'
+
+  sudo snap refresh
+
+  return 0
+}
+
 function _rc_g_fn_update_yarn() {
   _rc_g_has yarn || return 0
 
@@ -267,6 +279,7 @@ function update() {
   _rc_g_fn_update_apt
   _rc_g_fn_update_pacman
   _rc_g_fn_update_port
+  _rc_g_fn_update_snap
 
   # ...then run other updaters
   _rc_g_fn_update_cabal
