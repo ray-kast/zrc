@@ -1,0 +1,137 @@
+#!/usr/bin/env ruby
+
+require 'getoptlong'
+require 'open3'
+
+def help
+  $stderr << <<~EOF
+    Usage: dm [options] -- [command...]
+    Execute a command using a string selected with fzf or rofi.
+
+    Usage:
+      A newline-separated list of strings should be provided via STDIN, which
+      will be passed to either fzf or rofi.  See the Options section for how to
+      select which program is executed.
+
+    Command syntax:
+      The command argument syntax is a stripped-down version of that from fd or
+      find.  All arguments are passed to exec, with the exception of {}, which
+      is replaced with the selected string.  If {} is not explicitly provided as
+      an argument, it is assumed to be the final argument.
+
+      If no command is specified, the command is assumed to be `echo {}`.
+
+    Options:
+      --fzf, -F   Use fzf to select a string.  This is the defalut if run from
+                  a terminal.
+      --help, -h  Print this message and quit.
+      --rofi, -r  Use rofi to select a string.  This is the default if not run
+                  from a terminal.
+  EOF
+end
+
+opts = GetoptLong.new(
+  ['--fzf', '-F', GetoptLong::NO_ARGUMENT],
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--rofi', '-r', GetoptLong::NO_ARGUMENT],
+)
+
+dmenu = nil
+
+set_dmenu = lambda do |to|
+  unless dmenu.nil?
+    $stderr << "-F and -r are incompatible\n"
+    exit 1
+  end
+  dmenu = to
+end
+
+opts.each do |opt, arg|
+  case opt
+  when '--fzf'
+    set_dmenu.(:fzf)
+  when '--help'
+    help
+    exit 0
+  when '--rofi'
+    set_dmenu.(:rofi)
+  end
+end
+
+dmenu = $stderr.tty? ? :fzf : :rofi if dmenu.nil?
+
+# Perform $PATH search
+command = ARGV.dup
+
+unless command.empty?
+  argv0 = command[0]
+  unless [*File::PATH_SEPARATOR, *File::ALT_SEPARATOR].any?{|s| argv0.include?(s) }
+    command[0] = catch(:found) do
+      ENV['PATH'].split(':').each do |path|
+        joined = File.join(path, argv0)
+
+        throw(:found, joined) if File.exists?(joined)
+      end
+
+      $stderr << "dm: command not found: #{argv0}\n"
+      exit -1
+    end
+  end
+end
+
+# Run dmenu and process the result
+str = nil
+
+status = case dmenu
+when :fzf
+  Open3.popen2('fzf') do |cin, out, thread|
+    IO.copy_stream($stdin, cin)
+    cin.flush
+    cin.close
+
+    str = out.read.sub(/\n$/, '')
+
+    thread.join.value
+  end
+when :rofi
+  Open3.popen2(*%w[rofi -dmenu -matching fuzzy]) do |cin, out, thread|
+    IO.copy_stream($stdin, cin)
+    cin.flush
+    cin.close
+
+    str = out.read.sub(/\n$/, '')
+
+    thread.join.value
+  end
+else
+  exit -1
+end
+
+unless status.success?
+  $stderr << "dm: #{dmenu} exited with status #{status.to_s}\n"
+  exit status.exitstatus || -1
+end
+
+exit 130 if str.nil?
+
+if command.empty?
+  # Echo the string
+  puts str
+else
+  # Perform command expansion
+  any_match = false
+
+  command = command.map do |arg|
+    arg.gsub(/\{\}/) do
+      any_match = true
+
+      str
+    end
+  end
+
+  command << str unless any_match
+
+  command[0] = [command[0], argv0]
+
+  exec(*command)
+end
