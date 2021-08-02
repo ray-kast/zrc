@@ -34,6 +34,9 @@ alias tls="tmux ls"
 alias venv="python -m venv"
 alias xc="xclip -selection clipboard"
 
+alias :q="exit"
+alias :qa="exit"
+
 # display distro info. i always forget the name of this command.
 alias rice="neofetch"
 
