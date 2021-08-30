@@ -35,6 +35,14 @@ if [[ -s "$GOPATH" ]]; then
   export PATH="$PATH:$GOPATH/bin"
 fi
 
+# nvm
+for f in /usr/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do
+  if [[ -s "$f" ]]; then
+    . "$f"
+    break
+  fi
+done
+
 # rvm
 if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
   . "$HOME/.rvm/scripts/rvm"
