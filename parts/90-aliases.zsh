@@ -1,6 +1,7 @@
 alias b="bundle exec"
 alias cp="cp -i"
 alias dh="dirs -v"
+alias fcd='cd "$(command f -td)"'
 alias fh="f -d~"
 alias fhc='cd "$(command f -td -d~)"'
 alias fn="f nvim"
