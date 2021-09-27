@@ -53,6 +53,7 @@ _rc_g_fn_gcmds+=(
   rbi 'rebase --interactive'
   rbo 'rebase --onto'
   rbs 'rebase --skip'
+  rl  'reflog'
   rh  'reset HEAD'
   rs  'reset'
   s   'status'
