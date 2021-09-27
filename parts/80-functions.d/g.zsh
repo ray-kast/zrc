@@ -19,7 +19,6 @@ _rc_g_fn_gcmds+=(
   cp  'cherry-pick'
   cpa 'cherry-pick --abort'
   cpc 'cherry-pick --continue'
-  cxf 'clean -xf'
   cxi 'clean -xi'
   cxn 'clean -xn'
   d   'diff'
