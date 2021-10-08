@@ -16,6 +16,7 @@ _rc_g_fn_gcmds+=(
   can 'commit --amend --no-edit'
   cm  'commit -m'
   cl  'clone'
+  co  'checkout'
   cp  'cherry-pick'
   cpa 'cherry-pick --abort'
   cpc 'cherry-pick --continue'
