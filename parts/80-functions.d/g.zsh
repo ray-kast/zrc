@@ -69,6 +69,7 @@ _rc_g_fn_gcmds+=(
   wd  'word-diff'
   w   'switch'
   wc  'switch -c'
+  w-  'switch -'
 )
 
 function _rc_g_fn_gcmd() {
