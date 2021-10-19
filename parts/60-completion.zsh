@@ -10,18 +10,6 @@ function _rc_l_compl_prompt() {
   _rc_g_prompt_set r r r
 }
 
-function _rc_l_corr_prompt() {
-  _rc_g_prompt_start
-
-  _rc_g_prompt_set 2 0
-  echo -n " Correcting "
-  _rc_g_prompt_set 0 3 r
-  echo -n " [%e] "
-  _rc_g_prompt_set 2 r r
-  echo -n " "
-  _rc_g_prompt_set r r r
-}
-
 function _rc_l_list_prompt() {
   _rc_g_prompt_start
 
@@ -47,9 +35,6 @@ function _rc_l_scroll_prompt() {
 }
 
 fpath=($HOME/.zrc/completion $fpath)
-
-zstyle ':completion:*' prompt "$(_rc_l_corr_prompt)" # ???
-
 
 zstyle ':completion:*' accept-exact false # Interferes with . for filenames
 zstyle ':completion:*' accept-exact-dirs false

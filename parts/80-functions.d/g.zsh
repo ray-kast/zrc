@@ -41,7 +41,6 @@ _rc_g_fn_gcmds+=(
   m   'merge'
   ma  'merge --abort'
   p   'push'
-  pa  'push --all'
   pd  'push -d'
   pu  'push -u'
   r   'remote'
