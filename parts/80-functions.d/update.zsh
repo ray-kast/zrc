@@ -179,11 +179,12 @@ function _rc_g_fn_update_pacman() {
     yay -Sca --noconfirm
   fi
 
-  echo ':: Searching for .pacnew files...'
+  echo ':: Searching for .pacnew and .pacsave files...'
 
-  local pacnews
+  local pacnews pacsaves
 
   pacnews=$(find-pacnews)
+  pacsaves=$(fd -ig '*.pacsave' / -uu --one-file-system)
 
   if ! [[ -z $pacnews ]]; then
     echo ":: Resolving .pacnew files..."
@@ -198,20 +199,38 @@ function _rc_g_fn_update_pacman() {
 
     if [[ $(_rc_g_yn "View diff for $new? [Y/n] " y) == 'y' ]]; then
       # Using git diff because it can handle colors in less properly
-      sudo git diff "$old" "$new"
+      sudo git diff --no-index -- "$old" "$new"
 
       if [[ $(_rc_g_yn "Replace $old with $new? [y/N] " n) == 'y' ]]; then
-        sudo mv $new $old
+        sudo mv "$new" "$old"
       else
         if [[ $(_rc_g_yn "Patch $old? [Y/n] " y) == 'y' ]]; then
           if sudo -E nvim -d "$new" "$old" && [[ $(_rc_g_yn "Delete $new? [Y/n] " y) == 'y' ]]; then
-            sudo rm $new
+            sudo rm "$new"
           fi
         else
           if [[ $(_rc_g_yn "Delete $new? [y/N] " n) == 'y' ]]; then
-            sudo rm $new
+            sudo rm "$new"
           fi
         fi
+      fi
+    fi
+  done
+
+  if ! [[ -z $pacsaves ]]; then
+    echo ":: Resolving .pacsave files..."
+
+    _rc_g_fn_update_notify 'Resolving .pacsave files...'
+  fi
+
+  for new in ${(f)pacsaves}; do
+    old=${new%.pacsave}
+
+    if [[ $(_rc_g_yn "View $old? [Y/n] " y) == 'y' ]]; then
+      sudo bat "$new" --file-name "$old"
+
+      if [[ $(_rc_g_yn "Delete $new? [y/N] " n) == 'y' ]]; then
+        sudo rm "$new"
       fi
     fi
   done
