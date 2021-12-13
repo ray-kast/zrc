@@ -40,6 +40,7 @@ _rc_g_fn_gcmds+=(
   la  'pull -p --all'
   m   'merge'
   ma  'merge --abort'
+  mf  'merge --ff-only'
   p   'push'
   pd  'push -d'
   pu  'push -u'
