@@ -139,7 +139,7 @@ function _rc_g_fn_update_pacman() {
 
     ret=1
     while (( ret != 0 )); do
-      yay -Syua
+      MAKEFLAGS=-j yay -Syua
       ret=$?
 
       if (( ret != 0 )) && [[ "$(_rc_g_yn "yay failed; retry? [Y/n] " y)" != 'y' ]]; then
