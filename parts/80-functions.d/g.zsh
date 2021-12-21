@@ -67,6 +67,7 @@ _rc_g_fn_gcmds+=(
   sui 'submodule update --init --recursive'
   sur 'submodule update --init --recursive --remote'
   wd  'word-diff'
+  wdc 'word-diff --cached'
   w   'switch'
   wc  'switch -c'
   w-  'switch -'
