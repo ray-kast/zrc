@@ -92,7 +92,7 @@ function _rc_g_fn_update_nvim() {
 
       [[ "$(_rc_g_yn "Update $(basename "$PWD")? [Y/n] " y)" == 'y' ]] || exit 0
 
-      git pull
+      git pull && git gc
     ) || echo " \x1b[1;38;5;1mupdate check failed for $(basename $(realpath "$dir/.."))\x1b[m"
   done
 
