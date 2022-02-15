@@ -13,6 +13,7 @@ def help
       --help, -h          Print this message and quit.
       --trim-right, -t    Trim the right end of every line, and the final
                           newline.
+      --ogham, -o         Output Ogham runes.
       --verbose, -v       Output extra debug information.
   EOF
 end
@@ -68,13 +69,33 @@ def inc(n)
   end
 end
 
+$ogham = {
+  '-' => ' ',
+  '+' => 'ᚐ',
+  '<' => '᚜',
+  '>' => '᚛',
+  '[' => 'ᚁ',
+  ']' => 'ᚆ',
+  '.' => 'ᚖ',
+  ',' => 'ᚕ',
+}
+
+$ogham_re = Regexp.union(*$ogham.each_key)
+
+def write(s, ogham)
+  s = s.to_s.gsub($ogham_re) {|m| $ogham[m] } if ogham
+
+  $stdout << s
+end
+
 opts = GetoptLong.new(
   ["--help", "-h", GetoptLong::NO_ARGUMENT],
   ["--trim-right", "-t", GetoptLong::NO_ARGUMENT],
+  ["--ogham", "-o", GetoptLong::NO_ARGUMENT],
   ["--verbose", "-v", GetoptLong::NO_ARGUMENT],
 )
 
-trim = verb = false
+trim = verb = ogham = false
 
 opts.each do |opt, _|
   case opt
@@ -83,6 +104,8 @@ opts.each do |opt, _|
       exit 0
     when "--trim-right"
       trim = true
+    when "--ogham"
+      ogham = true
     when "--verbose"
       verb = true
   end
@@ -103,12 +126,12 @@ str.force_encoding('utf-8').bytes.each do |chr|
   n = curr - last
 
   if n > 0
-    $stdout << inc(n).gsub('*', '+')
+    write inc(n).gsub('*', '+'), ogham
   else
-    $stdout << inc(-n).gsub('*', '-')
+    write inc(-n).gsub('*', '-'), ogham
   end
 
-  $stdout << "."
+  write ".", ogham
 
   last = curr
 end
