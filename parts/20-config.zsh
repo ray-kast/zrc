@@ -1,6 +1,11 @@
-export EDITOR="vim"
+_rc_g_has emacs && export EDITOR="emacs"
+_rc_g_has nano && export EDITOR="nano"
+_rc_g_has vi && export EDITOR="vi"
+_rc_g_has vim && export EDITOR="vim"
+_rc_g_has nvim && export EDITOR="nvim"
 export PAGER="less -QRS"
 export PATH="$PATH:$HOME/.zrc/bin"
+export VISUAL="$EDITOR"
 _rc_g_has code && export VISUAL="code --new-window -g --wait -- "
 _rc_g_has nvim && export VISUAL="nvim"
 
