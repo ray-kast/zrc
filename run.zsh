@@ -17,17 +17,45 @@ fi
 _rc_i_basedir="$(dirname "$0")"
 
 () {
-  if [[ -t 1 ]] && (( $+commands[ssh-agent] )); then
-    if [[ -v SSH_AGENT_PID ]]; then
-      if ! { ssh-add -l >/dev/null 2>/dev/null }; then
-        _rc_i_status_reset
+  if [[ -t 1 ]] && (( $+commands[ssh-add] )); then
+    local has_ssh_agent gpg_sock
+    has_ssh_agent=''
+    gpg_sock="${XDG_RUNTIME_DIR}/gnupg/S.gpg-agent.ssh"
 
-        for i in {1..3}; do
-          ssh-add && break
-        done
+    if [[ -z "$ZRC_NO_GPG" ]] && [[ -S "$gpg_sock" ]]; then
+      local already_running=''
+
+      if [[ "$SSH_AGENT_PID" -ne 0 || (-n "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$gpg_sock") ]]
+        then already_running='y' fi
+
+      _rc_i_status_reset
+      echo "Using gpg-agent for SSH keys"
+
+      if [[ -n "$already_running" ]]; then
+        echo $'\x1b[1;38;5;3mDetaching existing ssh-agent!\x1b[m'
       fi
-    else
+
+      export SSH_AGENT_PID=''
+      export SSH_AUTH_SOCK="$gpg_sock"
+
+      has_ssh_agent='y'
+    elif [[ -n "$already_running" ]]; then
+      _rc_i_status_reset
+      echo "No GPG socket found!"
+    fi
+
+    if (( $+commands[ssh-agent] )) && ! [[ -v SSH_AGENT_PID ]]; then
+      _rc_i_status_reset
+      echo "No SSH agent found! Exec'ing ssh-agent..."
       exec ssh-agent $SHELL
+    fi
+
+    if ! { ssh-add -l >/dev/null 2>/dev/null }; then
+      _rc_i_status_reset
+
+      for i in {1..3}; do
+        ssh-add && break
+      done
     fi
   fi
 
