@@ -103,6 +103,9 @@ $fonts = {
     A: 0x1D670,
     a: 0x1D68A,
     zero: 0x1D7F6,
+    special: {
+      " " => 0x2002,
+    },
   },
   paren: {
     A: 0x1F110,
@@ -265,16 +268,14 @@ def fancy(font, str)
   ranges = $ranges.select{|n, _| font[n] }
 
   str.each_char.map do |chr|
-    range, _ = ranges.find{|n, r| r === chr }
-
-    next chr unless range
-
     spec = font.fetch(:special, {}).fetch(chr, nil)
     next spec.chr("utf-8") if spec
 
-    next chr unless font.include?(range)
+    range, _ = ranges.find{|n, r| r === chr }
 
-    next (font[range] + chr.ord - $ords[range]).chr("utf-8") if range
+    next chr unless range && font.include?(range)
+
+    (font[range] + chr.ord - $ords[range]).chr("utf-8")
   end.join
 end
 
