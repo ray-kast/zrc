@@ -18,8 +18,7 @@ _rc_i_basedir="$(dirname "$0")"
 
 () {
   if [[ -t 1 ]] && (( $+commands[ssh-add] )); then
-    local has_ssh_agent gpg_sock
-    has_ssh_agent=''
+    local gpg_sock
     gpg_sock="${XDG_RUNTIME_DIR}/gnupg/S.gpg-agent.ssh"
 
     if [[ -z "$ZRC_NO_GPG" ]] && [[ -S "$gpg_sock" ]]; then
@@ -37,8 +36,6 @@ _rc_i_basedir="$(dirname "$0")"
 
       export SSH_AGENT_PID=''
       export SSH_AUTH_SOCK="$gpg_sock"
-
-      has_ssh_agent='y'
     elif [[ -n "$already_running" ]]; then
       _rc_i_status_reset
       echo "No GPG socket found!"
