@@ -35,6 +35,13 @@ if [[ -s "$GOPATH" ]]; then
   export PATH="$PATH:$GOPATH/bin"
 fi
 
+# gpg
+if [[ "$DISPLAY" == :* ]]; then
+  unset GPG_TTY
+elif [[ -o INTERACTIVE ]] && (( $+commands[gpg-agent] )) && (( $+commands[tty] )); then
+  export GPG_TTY="$(tty)"
+fi
+
 # nvm
 for f in /usr/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do
   if [[ -s "$f" ]]; then
