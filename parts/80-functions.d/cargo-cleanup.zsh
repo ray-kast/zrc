@@ -5,11 +5,11 @@ function cargo-cleanup() {
 
   if (( # == 1 )); then
     dir="$1"
-  elif [[ -n "$CARGO_CLEANUP_ROOT" ]]; then
+  elif [[ -v CARGO_CLEANUP_ROOT ]]; then
     dir="$CARGO_CLEANUP_ROOT"
   fi
 
-  if [[ -z "$dir" ]]; then
+  if [[ ! -d "$dir" ]]; then
     cat >2 <<EOF
 Usage: cargo-cleanup [root]
 Recursively cleans up Cargo projects contained within root.
@@ -22,11 +22,17 @@ Environment Variables:
   CARGO_CLEANUP_ROOT  [optional] The default base directory
 EOF
 
-    exit 1
+    return 1
   fi
 
-  for x in "$dir"/**/Cargo.toml; do
+  local x d
+  fd Cargo.toml -tf "$dir" | while read x; do
     echo "Cleaning up '$x'..."
     (cd $(dirname $x); cargo clean) || echo "WARNING: cleanup failed for '$x'"
+  done
+
+  for d in "$HOME/.cargo/registry/"{src,cache}; do
+    echo "Cleaning up global directory '$d'..."
+    rm -rvf "$d"
   done
 }
