@@ -36,11 +36,23 @@ if [[ -s "$GOPATH" ]]; then
 fi
 
 # gpg
-if [[ "$DISPLAY" == :* ]]; then
-  unset GPG_TTY
-elif [[ -o INTERACTIVE ]] && (( $+commands[gpg-agent] )) && (( $+commands[tty] )); then
-  export GPG_TTY="$(tty)"
-fi
+() {
+  typeset -gA _rc_g_gpg
+
+  [[ -o rcs && -z "$ZRC_NO_GPG" ]] || return 0
+  _rc_g_gpg[enabled]=1
+
+  (( $+commands[gpgconf] )) || return 0
+  local gpg_sock="$(gpgconf --list-dirs agent-ssh-socket)"
+  [[ -S "$gpg_sock" ]] || return 0
+  _rc_g_gpg[found]=1
+
+  if [[ "$SSH_AGEND_PID" -ne 0 || (-n "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$gpg_sock") ]]
+    then _rc_g_gpg[already-running]=1 fi
+
+  export SSH_AGENT_PID=''
+  export SSH_AUTH_SOCK="$gpg_sock"
+}
 
 # nvm
 for f in /usr/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do

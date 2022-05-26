@@ -18,25 +18,31 @@ _rc_i_basedir="$(dirname "$0")"
 
 () {
   if [[ -t 1 ]] && (( $+commands[ssh-add] )); then
-    local gpg_sock
-    gpg_sock="${XDG_RUNTIME_DIR}/gnupg/S.gpg-agent.ssh"
-
-    if [[ -z "$ZRC_NO_GPG" ]] && [[ -S "$gpg_sock" ]]; then
-      local already_running=''
-
-      if [[ "$SSH_AGENT_PID" -ne 0 || (-n "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$gpg_sock") ]]
-        then already_running='y' fi
-
+    if (( $+_rc_g_gpg[found] )); then
       _rc_i_status_reset
       echo "Using gpg-agent for SSH keys"
 
-      if [[ -n "$already_running" ]]; then
-        echo $'\x1b[1;38;5;3mDetaching existing ssh-agent!\x1b[m'
+      if (( $+_rc_g_gpg[already-running] )); then
+        echo $'\x1b[1;38;5;3mDetached existing ssh-agent!\x1b[m'
       fi
 
-      export SSH_AGENT_PID=''
-      export SSH_AUTH_SOCK="$gpg_sock"
-    elif [[ -n "$already_running" ]]; then
+      if [[ "$DISPLAY" == :* ]]; then
+        local old_tty="$GPG_TTY"
+
+        unset GPG_TTY
+
+        if [[ -n "$old_tty" ]]; then
+          echo $'\x1b[1;38;5;2mUnsetting GPG_TTY\x1b[m'
+
+          gpg-connect-agent updatestartuptty /bye | rg -Fv OK
+        fi
+      elif [[ -t 1 ]]; then
+        echo $'\x1b[1;38;5;2mSetting GPG_TTY\x1b[m'
+
+        export GPG_TTY="$(tty)"
+        gpg-connect-agent updatestartuptty /bye | rg -Fv OK
+      fi
+    elif (( $+_rc_g_gpg[enabled] )); then
       _rc_i_status_reset
       echo "No GPG socket found!"
     fi
