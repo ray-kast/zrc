@@ -42,7 +42,7 @@ _rc_i_basedir="$(dirname "$0")"
         export GPG_TTY="$(tty)"
         gpg-connect-agent updatestartuptty /bye | rg -Fv OK
       fi
-    elif (( $+_rc_g_gpg[enabled] )); then
+    elif (( $+_rc_g_gpg[enabled] && ! $+_rc_g_gpg[already-running] )); then
       _rc_i_status_reset
       echo "No GPG socket found!"
     fi
