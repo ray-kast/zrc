@@ -34,6 +34,7 @@ alias tn="tmux new-session -A -s"
 alias tls="tmux ls"
 alias venv="python -m venv"
 alias xc="xclip -selection clipboard"
+alias z="zstd --long --ultra -22 -T0 -B0 -vvv"
 
 alias :q="exit"
 alias :qa="exit"
