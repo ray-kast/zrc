@@ -53,3 +53,7 @@ fi
 if _rc_g_has firefox; then
   for x in svg html; do alias -s $x="firefox"; done
 fi
+
+if _rc_g_has batcat && ! _rc_g_has bat; then
+  alias bat=batcat
+fi
