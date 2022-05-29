@@ -61,8 +61,8 @@ fi
   )
 
   local cmd alt
-  for cmd in "${(k)pairs}"; do
-    alt="${pairs[cmd]}"
+  for cmd in "${(@k)pairs}"; do
+    alt="${pairs[$cmd]}"
 
     if _rc_g_has "$cmd" && ! _rc_g_has "$alt"; then
       alias "$alt"="$cmd"
