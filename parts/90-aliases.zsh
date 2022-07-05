@@ -5,6 +5,7 @@ alias fcd='cd "$(command f -td)"'
 alias fh="f -d~"
 alias fhc='cd "$(command f -td -d~)"'
 alias fn="f nvim"
+alias gg="_rc_g_set_gpg_tty"
 alias grep="command grep --color"
 alias j="jobs -l"
 alias k="kill -9"

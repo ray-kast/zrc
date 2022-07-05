@@ -17,6 +17,15 @@ fi
 _rc_i_basedir="$(dirname "$0")"
 
 () {
+  local file
+
+  for file in "$_rc_i_basedir"/utils/**/*(on); do
+    _rc_i_status util ${${file#$_rc_i_basedir/utils}##/}
+    . $file
+    unfunction -m '_rc_l_*'
+    unset -m '_rc_l_*'
+  done
+
   if [[ -t 1 ]] && (( $+commands[ssh-add] )); then
     if (( $+_rc_g_gpg[found] )); then
       _rc_i_status_reset
@@ -39,8 +48,7 @@ _rc_i_basedir="$(dirname "$0")"
       elif [[ -t 1 ]]; then
         echo $'\x1b[1;38;5;2mSetting GPG_TTY\x1b[m'
 
-        export GPG_TTY="$(tty)"
-        gpg-connect-agent updatestartuptty /bye | rg -Fv OK
+        _rc_g_set_gpg_tty
       fi
     elif (( $+_rc_g_gpg[enabled] && ! $+_rc_g_gpg[already-running] )); then
       _rc_i_status_reset
@@ -60,18 +68,7 @@ _rc_i_basedir="$(dirname "$0")"
         ssh-add && break
       done
     fi
-  fi
 
-  local file
-
-  for file in "$_rc_i_basedir"/utils/**/*(on); do
-    _rc_i_status util ${${file#$_rc_i_basedir/utils}##/}
-    . $file
-    unfunction -m '_rc_l_*'
-    unset -m '_rc_l_*'
-  done
-
-  if [[ -t 1 ]]; then
     () {
       local file
 
