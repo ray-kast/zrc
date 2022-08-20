@@ -47,40 +47,69 @@ function _rc_g_fn_update_nvim() {
 
   _rc_g_fn_update_notify 'Starting nvim package upgrade...'
 
-  local basedir dir head origin common
+  local basedir dirty dir head origin common
 
   basedir="$HOME/.config/nvim/pack"
+  dirty=()
 
-  for dir in "$HOME"/.config/nvim/**/.git(/N); do
+  for dir in "$basedir"/**/.git(/N); do
+    dir="$(realpath "$dir/..")"
+
     (
-      cd "$dir/.."
+      cd "$dir"
+      echo -n " $(basename "$dir")"
 
-      { timeout 5s git fetch -q } || exit 1
+      { timeout 10s git fetch -q 2>&1 | cat } || exit 255
 
-      git rev-parse HEAD | read head
-      git rev-parse '@{u}' | read origin
+      head="$(git rev-parse HEAD)"
+      origin="$(git rev-parse '@{u}')"
 
       if [[ "$origin" == "$head" ]]; then
-        echo " $(basename "$PWD") up-to-date"
-        exit 0
+        exit 1
       fi
 
-      if [[ -n $(git status --porcelain | head -n1) ]]; then
-        echo "\x1b[1;38;5;3m$(basename "$PWD") has uncommitted changes\x1b[m"
+      exit 0
+    )
+
+    case "$?" in
+      0) echo; dirty+=("$dir") ;;
+      1) echo " up-to-date" ;;
+      130) echo; return 130 ;;
+      255) echo " \x1b[1;38;5;1failed\x1b[m" ;;
+      *) echo " unknown status $?" ;;
+    esac
+  done
+
+  echo "Packages to be updated:"
+  for dir in "${dirty[@]}"; echo " $(basename "$dir")"
+
+  [[ "$(_rc_g_yn 'Proceed? [Y/n] ' y)" == 'y' ]] || return 0
+
+  for dir in "${dirty[@]}"; do
+    name="$(basename "$dir")"
+
+    (
+      cd "$dir"
+
+      head="$(git rev-parse HEAD)"
+      origin="$(git rev-parse '@{u}')"
+
+      if [[ -n "$(git status --porcelain | head -n1)" ]]; then
+        echo "\x1b[1;38;5;3m$name has uncommitted changes\x1b[m"
 
         [[ "$(_rc_g_yn "Reset them? [y/N] " n)" == 'y' ]] || exit 1
 
         { git add --all && git reset --hard "$head" } || exit 1
       fi
 
-      git merge-base "$head" "$origin" | read common
+      common="$(git merge-base "$head" "$origin")"
 
       if [[ "$head" != "$common" ]]; then
         if [[ "$origin" != "$common" ]]; then
-          echo " \x1b[1;38;5;1m$(basename "$PWD") has local changes, refusing update\x1b[m"
+          echo " \x1b[1;38;5;1m$name has local changes, refusing update\x1b[m"
           exit 1
         else
-          echo " \x1b[1;38;5;3m$(basename "$PWD") has local changes\x1b[m"
+          echo " \x1b[1;38;5;3m$name has local changes\x1b[m"
 
           [[ "$(_rc_g_yn "Push them? [y/N] " n)" == 'n' ]] || exit 1
 
@@ -90,13 +119,11 @@ function _rc_g_fn_update_nvim() {
         exit 0
       fi
 
-      [[ "$(_rc_g_yn "Update $(basename "$PWD")? [Y/n] " y)" == 'y' ]] || exit 0
-
-      git pull && git gc
-    ) || echo " \x1b[1;38;5;1mupdate check failed for $(basename $(realpath "$dir/.."))\x1b[m"
+      git merge '@{u}' --ff-only && git gc --aggressive
+    ) || echo " \x1b[1;38;5;1mfailed to update $name\x1b[m"
   done
 
-  for dir in "$HOME"/.config/nvim/**/doc(/N); do
+  for dir in "$basedir"/**/doc(/N); do
     nvim -c "helptags $dir" -c "qa"
   done
 
