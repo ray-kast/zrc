@@ -143,19 +143,16 @@ function _rc_g_fn_update_pacman() {
 
   echo ":: Running pacman upgrade..."
 
-  local ret
+  if { pacman -Qu archlinux-keyring 1>/dev/null 2>/dev/null }; then
+    _rc_g_fn_update_notify 'Updating pacman keyring...'
+
+    _rc_g_retry -1 'keyring update' sudo pacman -S archlinux-keyring
+  fi
+
   if { pacman -Qu 1>/dev/null 2>/dev/null }; then
     _rc_g_fn_update_notify 'Starting pacman upgrade...'
 
-    ret=1
-    while (( ret != 0 )); do
-      sudo pacman -Su
-      ret=$?
-
-      if (( ret != 0 )) && [[ "$(_rc_g_yn "pacman failed; retry? [Y/n] " y)" != 'y' ]]; then
-        ret=0
-      fi
-    done
+    _rc_g_retry -1 'pacman' sudo pacman -Su
   else
     echo " there is nothing to do"
   fi
@@ -164,15 +161,7 @@ function _rc_g_fn_update_pacman() {
     # TODO: Find a way to suppress this if we're doing nothing
     _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
-    ret=1
-    while (( ret != 0 )); do
-      MAKEFLAGS=-j yay -Syua
-      ret=$?
-
-      if (( ret != 0 )) && [[ "$(_rc_g_yn "yay failed; retry? [Y/n] " y)" != 'y' ]]; then
-        ret=0
-      fi
-    done
+    _rc_g_retry -1 'yay' MAKEFLAGS=-j yay -Syua
   fi
 
   echo ":: Cleaning up packages..."
