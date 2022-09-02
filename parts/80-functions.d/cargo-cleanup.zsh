@@ -10,7 +10,7 @@ function cargo-cleanup() {
   fi
 
   if [[ ! -d "$dir" ]]; then
-    cat >2 <<EOF
+    cat >&2 <<EOF
 Usage: cargo-cleanup [root]
 Recursively cleans up Cargo projects contained within root.
 
@@ -26,9 +26,9 @@ EOF
   fi
 
   local x d
-  fd Cargo.toml -tf "$dir" | while read x; do
+  for x in "${(@f)$(fd Cargo.toml -uutf "$dir")}"; do
     echo "Cleaning up '$x'..."
-    (cd $(dirname $x); cargo clean) || echo "WARNING: cleanup failed for '$x'"
+    cargo clean --manifest-path "$x" || echo "WARNING: cleanup failed for '$x'"
   done
 
   for d in "$HOME/.cargo/registry/"{src,cache}; do
