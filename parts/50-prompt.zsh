@@ -1,187 +1,211 @@
-function _rc_g_prompt_do_git() {
-  local LC_ALL="" LC_CTYPE="en_US.UTF-8" _branch _ref
-
-  _branch=$'\ue0a0' # U+E0A0 <Private Use> (branch symbol)
-  _ref=$'\u27a6'    # U+27A6 HEAVY BLACK CURVED UPWARDS AND RIGHTWARDS ARROW
-
-  local repo_path rfsym ref mode msg
-
-  repo_path=$(git rev-parse --git-dir 2>/dev/null)
-
-  if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    ref=$(git symbolic-ref HEAD 2>/dev/null) && rfsym="$_branch" || { rfsym="$_ref"; ref="$(git rev-parse --short HEAD 2>/dev/null)" }
-    if [[ -e "${repo_path}/BISECT_LOG" ]]; then
-      mode=" <B>"
-    elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
-      mode=" >M<"
-    elif [[ -e "${repo_path}/rebase" || -e "${repo_path}/rebase-apply" || -e "${repo_path}/rebase-merge" || -e "${repo_path}/../.dotest" ]]; then
-      mode=" >R>"
-    fi
-
-    autoload -Uz vcs_info
-    zstyle ':vcs_info:*' enable git
-    zstyle ':vcs_info:*' get-revision true
-    zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:*' stagedstr '+'
-    zstyle ':vcs_info:*' unstagedstr 'u'
-    zstyle ':vcs_info:*' formats '%u%c'
-    zstyle ':vcs_info:*' actionformats '%u%c'
-    vcs_info
-
-    if [[ -n $(git status --porcelain | head -n1) ]]; then
-      _rc_g_prompt_set 3 0 r
-    else
-      _rc_g_prompt_set 6 0 r
-    fi
-
-    msg=${vcs_info_msg_0_}
-
-    echo -n " $rfsym ${ref#refs/heads/}${msg:+ \x1b[1m$msg\x1b[22m}$mode "
-  fi
-}
+_rc_g_prompt_begin
 
 function _rc_g_prompt_ps1() {
-  RETCODE=$?
-
   _rc_g_prompt_ps1_line1
-  echo
+  p $'\n'
   _rc_g_prompt_ps1_line2
+  p ' '
 }
 
 function _rc_g_prompt_ps1_line1() {
-  _rc_g_prompt_start
+  p '%2K%0F'
 
-  local nested='' job='' vcs='' pad=''
+  local vcs
 
-  (( SHLVL > 1 )) && nested=t
-  [[ $(jobs -l | head -n1) ]] && job=t
-  [[ -z $ZRC_NO_GIT_PROMPT ]] && { _rc_g_has git && git rev-parse >/dev/null 2>/dev/null } && vcs=t
+  [[ -z "$ZRC_NO_GIT_PROMPT" ]] && _rc_g_has git && vcs="$(_rc_g_prompt_ps1_git)"
 
-  _rc_g_prompt_set 2 0
-  [[ -n $VIRTUAL_ENV ]] && echo -n " $(basename "$VIRTUAL_ENV") "
-  _rc_g_prompt_set 0 3 r
+  [[ -n "$VIRTUAL_ENV" ]] && p " $(basename "$VIRTUAL_ENV") "
 
-  echo -n ' %M '
+  setl 0 3
+  p ' %M '
+  setl 2 0
+  p ' '
 
-  if [[ -n $nested || (-z $job && -z $vcs) ]]; then
-    _rc_g_prompt_set 2 0 r
+  IF L 2; p '%L '; ELSE; FI
 
-    pad=t
+  if [[ -n "$vcs" ]]; then
+    p "$vcs"
+  else
+    IF j 1
+      setl 4 0
+      p ' %j '
+      endl 4 f
+    ELSE
+      endl 2 f
+    FI
   fi
-
-  [[ -n $nested ]] && echo -n " $SHLVL"
-
-  if [[ -n $job ]]; then
-    [[ -n $pad ]] && echo -n ' '
-
-    _rc_g_prompt_set 4 0 r
-    echo -n " %j"
-
-    pad=t
-  fi
-
-  [[ -n $pad ]] && echo -n ' '
-
-  [[ -n $vcs ]] && _rc_g_prompt_do_git
-
-  _rc_g_prompt_set r r r
 }
 
 function _rc_g_prompt_ps1_line2() {
-  _rc_g_prompt_start
+  IF !
+    p '%3K%0F %B!!%b '
 
-  if (( UID == 0 )); then
-    _rc_g_prompt_set 3 0
-    echo -n ' ⚡ '
-    _rc_g_prompt_set r r r
-  fi
+    IF '?' 0
+      endl 3 f
+    ELSE
+      IF l -101
+        setl 0 5
+      ELSE
+        setl 9 0
+      FI
+    FI
+  ELSE; FI
 
-  if (( RETCODE == 0 )); then
-    _rc_g_prompt_set r 8
-    echo -n '%-100(l: %n '
-    _rc_g_prompt_chvrn 2 r
-    echo -n ':)'
-    _rc_g_prompt_set r 6
-    echo -n ' %-100(l:%4~:%2~) '
-    _rc_g_prompt_chvrn 2 r
+  IF '?' 0
+    IF l -100
+      p '%8F %n %2F'
+      chevl
+    ELSE; FI
+
+    p '%6F '
+
+    IF l -100
+      p '%4~'
+    ELSE
+      p '%2~'
+    FI
+
+    p ' %2F'
+    chevl
+  ELSE
+    IF l -100
+      p '%0K%5F %n '
+      setl 9 0
+    ELSE;
+      p '%9K%0F'
+    FI
+    p ' '
+
+    IF l -100
+      p '%4~'
+    ELSE
+      p '%2~'
+    FI
+
+    p ' '
+    endl 9 f
+  FI
+}
+
+# TODO: consider porting this to vcs_info
+# Characters of note:
+#  - U+27A6 detached-head arrow
+#  - U+E0A0 (powerline) branch symbol
+function _rc_g_prompt_ps1_git() {
+  local git_dir ref ref_sym=$'\u27a6' bkgd=6
+  typeset -a mode=()
+  typeset -A dirty=()
+
+  git_dir="$(git rev-parse --git-dir 2>/dev/null)" || return
+
+  for line in "${(@0)$(git status -z 2>/dev/null)}"; do
+    [[ "${line:0:1}" =~ '[^? ]' ]] && dirty[+]=1
+    [[ "${line:1:1}" =~ '[^? ]' ]] && dirty[u]=1
+    [[ "${line:0:2}" = '??' ]] && dirty[?]=1
+  done
+
+  (( ${#dirty} > 0 )) && bkgd=3
+
+  if ref="$(git symbolic-ref HEAD 2>/dev/null)"; then
+    ref_sym=$'\ue0a0'
   else
-    _rc_g_prompt_set 0 5
-    echo -n '%-100(l: %n '
-    _rc_g_prompt_set 9 0 r
-    echo -n ':'
-    _rc_g_prompt_set 9 0
-    echo -n ') %-100(l:%4~:%2~) '
-    _rc_g_prompt_set r r r
+    ref="$(git rev-parse --short HEAD 2>/dev/null)"
   fi
 
-  echo -n ' '
+  [[ -e "$git_dir/BISECT_LOG" ]] && mode+=('B')
+  [[ -e "$git_dir/MERGE_HEAD" ]] && mode+=('M')
+  [[ -e "$git_dir/rebase" ]] && mode+=('R')
+  [[ -e "$git_dir/rebase-apply" ]] && mode+=('RA')
+  [[ -e "$git_dir/rebase-merge" ]] && mode+=('RM')
+
+  setl $bkgd 0
+  p " $ref_sym "
+
+  if (( ${#mode} > 0 )); then
+    setl 0 5
+    p " %B${(j: :)mode}%b "
+
+    setl $bkgd 0
+    p ' '
+  fi
+
+  p "${ref#refs/heads/} "
+
+  if (( ${#dirty} > 0 )); then
+    p "%B${(kj::)dirty}%b "
+  fi
+
+  endl $bkgd f
 }
 
 function _rc_g_prompt_rps1() {
-  RETCODE=$?
+  p ' %2F'
+  chevr
 
-  echo -n ' '
+  p '%6F %D{%H:%M}'
 
-  _rc_g_prompt_chvrn 2 l
-  _rc_g_prompt_set r 6
-  echo -n ' %D{%H:%M}%-100(l: '
-  _rc_g_prompt_chvrn 2 l
-  _rc_g_prompt_set r 8
-  echo -n ' %D{%d/%m/%y}:)'
+  IF l -100
+    p ' %2F'
+    chevr
 
-  if (( RETCODE != 0 )); then
-    echo -n ' '
-    _rc_g_prompt_set 9 0 l
-    echo -n " $RETCODE "
-  fi
+    p '%8F %D{%d/%m/%y}'
+  ELSE; FI
 
-  _rc_g_prompt_set r r
+  IF '?' 0; ELSE
+    p ' '
+    setr 9 0
+    p ' %? '
+  FI
 }
 
 function _rc_g_prompt_ps2() {
-  _rc_g_prompt_start
+  p '%0K '
+  setl 2 0
+  p ' '
 
-  _rc_g_prompt_set 0 r
-  echo -n " "
-  _rc_g_prompt_set 2 0 r
-  echo -n " %-100(l:%_:%1_) "
-  _rc_g_prompt_set r r r
-  echo -n " "
+  IF l -100
+    p '%_'
+  ELSE
+    p '%1_'
+  FI
+
+  p ' '
+  endl 2 f
+  p ' '
 }
 
 function _rc_g_prompt_rps2() {
-  _rc_g_prompt_start
+  p ' %2F'
+  chevr
 
-  echo -n " "
-  _rc_g_prompt_set 4 0 l
-  echo -n " %-150(l:%^:%1^) "
-  _rc_g_prompt_set r r
+  p '%6F '
+
+  IF l -150
+    p '%^'
+  ELSE
+    p '%1^'
+  FI
 }
 
 function _rc_g_prompt_ps3() {
-  _rc_g_prompt_start
-
-  _rc_g_prompt_set 0 r
-  echo -n " "
-  _rc_g_prompt_set 2 r r
-  echo -n " "
-  _rc_g_prompt_set r r r
-  echo -n " "
+  p '%2F '
+  chevl
+  p ' '
 }
 
 function _rc_g_prompt_ps4() {
-  _rc_g_prompt_start
+  p '%0F'
 
-  _rc_g_prompt_set 0 8
+  for i in {1..$(print -Pn "%e")}; do p " :"; done
 
-  for i in {1..$(print -Pn "%e")}; do echo -n " :"; done
-
-  _rc_g_prompt_set 0 4
-  echo -n " %-100<..<%x%<<:%I"
-  _rc_g_prompt_set 0 3
-  echo -n " %1N"
-  _rc_g_prompt_set r r r
-  echo -n " "
+  p ' %e %2F'
+  chevl
+  p '%6F '
+  truncl -100 ..
+  p '%x:%I %2F'
+  etrunc
+  chevl
+  p ' '
 }
 
 setopt prompt_bang prompt_subst
@@ -191,3 +215,5 @@ PS3='%{%f%b%k%}$(_rc_g_prompt_ps3)%{%f%b%k%}'
 PS4='%{%f%b%k%}$(_rc_g_prompt_ps4)%{%f%b%k%}'
 RPS1='%{%f%b%k%}$(_rc_g_prompt_rps1)%{%f%b%k%}'
 RPS2='%{%f%b%k%}$(_rc_g_prompt_rps2)%{%f%b%k%}'
+
+_rc_g_prompt_end

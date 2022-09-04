@@ -1,38 +1,33 @@
-function _rc_l_compl_prompt() {
-  _rc_g_prompt_start
+_rc_g_prompt_begin
 
-  _rc_g_prompt_set 2 0
-  echo -n " Completing "
-  _rc_g_prompt_set 0 3 r
-  echo -n " %d "
-  _rc_g_prompt_set 2 r r
-  echo -n " "
-  _rc_g_prompt_set r r r
+function _rc_l_compl_prompt() {
+  p '%2K%0F Completing '
+  setl 0 3
+  p ' %d '
+  setl 2 0
+  p ' '
+  endl 2 f
 }
 
 function _rc_l_list_prompt() {
-  _rc_g_prompt_start
-
-  _rc_g_prompt_set 2 0
-  echo -n " Hit TAB for more "
-  _rc_g_prompt_set 0 3 r
-  echo -n " %l "
-  _rc_g_prompt_set 2 0 r
-  echo -n " %p "
-  _rc_g_prompt_set r r r
+  p '%2K%0F Hit TAB for more '
+  setl 0 3
+  p ' %l '
+  setl 2 0
+  p ' %p '
+  endl 2 f
 }
 
 function _rc_l_scroll_prompt() {
-  _rc_g_prompt_start
-
-  _rc_g_prompt_set 2 0
-  echo -n " Scrolling active "
-  _rc_g_prompt_set 0 3 r
-  echo -n " %l "
-  _rc_g_prompt_set 2 0 r
-  echo -n " %p "
-  _rc_g_prompt_set r r r
+  p '%2K%0F Scrolling active '
+  setl 0 3
+  p ' %l '
+  setl 2 0
+  p ' %p '
+  endl 2 f
 }
+
+_rc_g_prompt_end
 
 fpath=($HOME/.zrc/completion $fpath)
 
