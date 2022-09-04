@@ -80,6 +80,8 @@ function _rc_g_fn_update_nvim() {
     esac
   done
 
+  (( ${#dirty} > 0 )) || return 0
+
   echo "Packages to be updated:"
   for dir in "${dirty[@]}"; echo " $(basename "$dir")"
 
