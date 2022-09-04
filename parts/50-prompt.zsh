@@ -8,7 +8,7 @@ function _rc_g_prompt_ps1() {
 }
 
 function _rc_g_prompt_ps1_line1() {
-  p '%2K%0F'
+  setn 2 0
 
   local vcs
 
@@ -38,7 +38,8 @@ function _rc_g_prompt_ps1_line1() {
 
 function _rc_g_prompt_ps1_line2() {
   IF !
-    p '%3K%0F %B!!%b '
+    setn 3 0
+    p ' %B!!%b '
 
     IF '?' 0
       endl 3 f
@@ -53,11 +54,14 @@ function _rc_g_prompt_ps1_line2() {
 
   IF '?' 0
     IF l -100
-      p '%8F %n %2F'
+      setf 8
+      p ' %n '
+      setf 2
       chevl
     ELSE; FI
 
-    p '%6F '
+    setf 6
+    p ' '
 
     IF l -100
       p '%4~'
@@ -65,14 +69,16 @@ function _rc_g_prompt_ps1_line2() {
       p '%2~'
     FI
 
-    p ' %2F'
+    p ' '
+    setf 2
     chevl
   ELSE
     IF l -100
-      p '%0K%5F %n '
+      setn 0 5
+      p ' %n '
       setl 9 0
     ELSE;
-      p '%9K%0F'
+      setn 9 0
     FI
     p ' '
 
@@ -139,16 +145,20 @@ function _rc_g_prompt_ps1_git() {
 }
 
 function _rc_g_prompt_rps1() {
-  p ' %2F'
+  p ' '
+  setf 2
   chevr
 
-  p '%6F %D{%H:%M}'
+  setf 6
+  p ' %D{%H:%M}'
 
   IF l -100
-    p ' %2F'
+    p ' '
+    setf 2
     chevr
 
-    p '%8F %D{%d/%m/%y}'
+    setf 8
+    p ' %D{%d/%m/%y}'
   ELSE; FI
 
   IF '?' 0; ELSE
@@ -159,7 +169,8 @@ function _rc_g_prompt_rps1() {
 }
 
 function _rc_g_prompt_ps2() {
-  p '%0K '
+  setk 0
+  p ' '
   setl 2 0
   p ' '
 
@@ -175,10 +186,12 @@ function _rc_g_prompt_ps2() {
 }
 
 function _rc_g_prompt_rps2() {
-  p ' %2F'
+  p ' '
+  setf 2
   chevr
 
-  p '%6F '
+  setf 6
+  p ' '
 
   IF l -150
     p '%^'
@@ -188,22 +201,26 @@ function _rc_g_prompt_rps2() {
 }
 
 function _rc_g_prompt_ps3() {
-  p '%2F '
+  p ' '
+  setf 2
   chevl
   p ' '
 }
 
 function _rc_g_prompt_ps4() {
-  p '%0F'
+  setf 0
 
   for i in {1..$(print -Pn "%e")}; do p " :"; done
 
-  p ' %e %2F'
+  p ' %e '
+  setf 2
   chevl
-  p '%6F '
+  setf 6
+  p ' '
   truncl -100 ..
-  p '%x:%I %2F'
+  p '%x:%I '
   etrunc
+  setf 2
   chevl
   p ' '
 }

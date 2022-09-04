@@ -1,7 +1,8 @@
 _rc_g_prompt_begin
 
 function _rc_l_compl_prompt() {
-  p '%2K%0F Completing '
+  setn 2 0
+  p ' Completing '
   setl 0 3
   p ' %d '
   setl 2 0
@@ -10,7 +11,8 @@ function _rc_l_compl_prompt() {
 }
 
 function _rc_l_list_prompt() {
-  p '%2K%0F Hit TAB for more '
+  setn 2 0
+  p ' Hit TAB for more '
   setl 0 3
   p ' %l '
   setl 2 0
@@ -19,7 +21,8 @@ function _rc_l_list_prompt() {
 }
 
 function _rc_l_scroll_prompt() {
-  p '%2K%0F Scrolling active '
+  setn 2 0
+  p ' Scrolling active '
   setl 0 3
   p ' %l '
   setl 2 0

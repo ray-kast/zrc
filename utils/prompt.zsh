@@ -1,9 +1,15 @@
 function _rc_g_prompt_begin {
   alias p="print -${1}n" # usage: printflags (namely P for non-prompt use)
 
-  alias setl='() { p "%${1}F%S\ue0b0%s%${1}K%${2}F" }' # usage: bg, fg
-  alias endl='() { p "%${1}F%k\ue0b0%${2}" }' # usage: oldbg, formatspec
-  alias setr='() { p "%${1}F\ue0b2%${1}K%${2}F" }' # usage: bg, fg
+  # TODO: setn, setk, and setf are present because it appears a zsh 5.8 bug
+  #       prevents the use of %#F and %#K
+  alias setn='() { p "%K{${1}}%F{${2}}" }' # usage: bg, fg
+  alias setk='() { p "%K{${1}}" }' # usage: bg
+  alias setf='() { p "%F{${1}}" }' # usage: fg
+
+  alias setl='() { p "%F{${1}}%S\ue0b0%s%K{${1}}%F{${2}}" }' # usage: bg, fg
+  alias endl='() { p "%F{${1}}%k\ue0b0%${2}" }' # usage: oldbg, formatspec
+  alias setr='() { p "%F{${1}}\ue0b2%K{${1}}%F{${2}}" }' # usage: bg, fg
 
   alias chevl="p $'\ue0b1'"
   alias chevr="p $'\ue0b3'"
@@ -18,5 +24,10 @@ function _rc_g_prompt_begin {
 }
 
 function _rc_g_prompt_end() {
-  unalias p setl endl setr chevl chevr IF ELSE FI truncl truncr etrunc
+  unalias p \
+    setn setk setf \
+    setl endl setr \
+    chevl chevr \
+    IF ELSE FI \
+    truncl truncr etrunc
 }
