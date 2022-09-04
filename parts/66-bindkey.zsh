@@ -11,6 +11,7 @@ bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 bindkey "^[[3~" delete-char
 bindkey "^[[3;5~" kill-word
+bindkey "^[[127;5u" backward-kill-word
 bindkey "^[[5~" up-history
 bindkey "^[[6~" down-history
 bindkey "^[[A" up-line-or-beginning-search
