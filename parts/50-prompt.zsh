@@ -98,16 +98,20 @@ function _rc_g_prompt_ps1_line2() {
 #  - U+27A6 detached-head arrow
 #  - U+E0A0 (powerline) branch symbol
 function _rc_g_prompt_ps1_git() {
-  local git_dir ref ref_sym=$'\u27a6' bkgd=6
+  local git_dir ref ref_sym=$'\u27a6' bkgd=6 skip=''
   typeset -a mode=()
   typeset -A dirty=()
 
   git_dir="$(git rev-parse --git-dir 2>/dev/null)" || return
 
   for line in "${(@0)$(git status -z 2>/dev/null)}"; do
+    [[ -n "$skip" ]] && { skip=''; continue; }
     [[ "${line:0:1}" =~ '[^? ]' ]] && dirty[+]=1
     [[ "${line:1:1}" =~ '[^? ]' ]] && dirty[u]=1
     [[ "${line:0:2}" = '??' ]] && dirty[?]=1
+
+    # Fun new terrible little Git thing I discovered
+    [[ "${line:0:1}" =~ 'R|C' ]] && skip='r'
   done
 
   (( ${#dirty} > 0 )) && bkgd=3
