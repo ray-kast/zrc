@@ -215,24 +215,36 @@ function _rc_g_fn_update_pacman() {
   for new in ${(f)pacnews}; do
     old=${new%.pacnew}
 
-    if [[ $(_rc_g_yn "View diff for $new? [Y/n] " y) == 'y' ]]; then
-      # Using git diff because it can handle colors in less properly
-      sudo git diff --no-index -- "$old" "$new"
+    local action
+    while [[ -e "$new" ]]; do
+      print "Found $new" >&2
+      print -Pn "%Bd%biff, %Bk%beep, %Br%beplace, %Bp%batch, or do %Bn%bothing: " >&2
 
-      if [[ $(_rc_g_yn "Replace $old with $new? [y/N] " n) == 'y' ]]; then
-        sudo mv "$new" "$old"
-      else
-        if [[ $(_rc_g_yn "Patch $old? [Y/n] " y) == 'y' ]]; then
-          if sudo -E nvim -d "$new" "$old" && [[ $(_rc_g_yn "Delete $new? [Y/n] " y) == 'y' ]]; then
-            sudo rm "$new"
-          fi
-        else
-          if [[ $(_rc_g_yn "Delete $new? [y/N] " n) == 'y' ]]; then
-            sudo rm "$new"
-          fi
-        fi
-      fi
-    fi
+      read -k1 action
+
+      case $action in
+        d|D)
+          echo >&2
+          # Using git diff because it can handle colors in less properly
+          sudo git diff --no-index -- "$old" "$new"
+          ;;
+        k|K)
+          echo >&2
+          sudo rm -i "$new"
+          ;;
+        r|R)
+          echo >&2
+          sudo mv -i "$new" "$old"
+          ;;
+        p|P)
+          echo >&2
+          sudo -E nvim -d "$new" "$old"
+          ;;
+        n|N) break ;;
+        $'\n') ;;
+        *) echo >&2 ;;
+      esac
+    done
   done
 
   if ! [[ -z $pacsaves ]]; then

@@ -1,7 +1,7 @@
 function _rc_g_yn() {
   local yn
 
-  while true; do
+  while :; do
     echo -n "$1" >&2
 
     read -k1 yn
