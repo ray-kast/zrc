@@ -1,7 +1,5 @@
 function kgb() {
-  local newfile
-
-  newfile="$HISTFILE.new"
+  local newfile="$HISTFILE.new"
 
   grep -Pva "${(F)@}" "$HISTFILE" >"$newfile"
 

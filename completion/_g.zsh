@@ -8,7 +8,8 @@ function _g() {
 
     _message "'$words[1,2]'"
   else
-    typeset -a args cmds cmds_disp expl key matching maxlen sep
+    local key maxlen sep
+    typeset -a alts cmds disp cmds_disp expl matching
 
     for key in ${(k)_rc_g_fn_gcmds}; do
       alts+=("_rc_sh_$key:$_rc_g_fn_gcmds[$key]:$key")

@@ -4,7 +4,7 @@
 false && alias _='print' || alias _=':'
 
 _ rxvt # Weird edge-case logic to try to fix rxvt issues with ssh
-(( SHLVL == 1 )) && export TERM="${TERM/rxvt(-unicode|)/xterm}"
+[[ "$SHLVL" -eq 1 && -n "$TERM" ]] && export TERM="${TERM/rxvt(-unicode|)/xterm}"
 
 # Not exporting .zrc/bin because it's really just interactive utilities
 
@@ -12,15 +12,18 @@ _ locale
 [[ -v LC_ALL ]] || export LC_ALL="en_US.UTF-8"
 [[ -v LC_CTYPE ]] || export LC_CTYPE="en_US.UTF-8"
 
-if [[ -z "$TERMINAL" ]]; then
-  _ terminal
-  for term in kitty1 kitty terminal; do
-    if (( $+commands[$term] )) >/dev/null; then
-      export TERMINAL="$commands[$term]"
-      break
-    fi
-  done
-fi
+() {
+  if [[ -z "$TERMINAL" ]]; then
+    _ terminal
+    local term
+    for term in kitty1 kitty terminal; do
+      if (( $+commands[$term] )) >/dev/null; then
+        export TERMINAL="$commands[$term]"
+        break
+      fi
+    done
+  fi
+}
 
 if (( $+commands[snap] )); then
   _ snap # doing this first because it's system-level
@@ -62,13 +65,17 @@ fi
   export SSH_AUTH_SOCK="$gpg_sock"
 }
 
-for f in /usr/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do
-  if [[ -s "$f" ]]; then
-    _ nvm
-    . "$f"
-    break
-  fi
-done
+() {
+  local f
+
+  for f in /usr/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do
+    if [[ -s "$f" ]]; then
+      _ nvm
+      . "$f"
+      break
+    fi
+  done
+}
 
 if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
   _ rvm

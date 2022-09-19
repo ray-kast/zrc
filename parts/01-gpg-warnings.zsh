@@ -6,6 +6,7 @@ function _rc_l_git() {
     return 1
   fi
 
+  local cfg
   for cfg in commit push tag; do
     if [[ "$(git config --global $cfg.gpgSign)" != *true* ]]; then
       _rc_i_status_reset

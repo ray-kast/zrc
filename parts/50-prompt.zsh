@@ -98,9 +98,9 @@ function _rc_g_prompt_ps1_line2() {
 #  - U+27A6 detached-head arrow
 #  - U+E0A0 (powerline) branch symbol
 function _rc_g_prompt_ps1_git() {
-  local git_dir ref ref_sym=$'\u27a6' bkgd=6 skip=''
-  typeset -a mode=()
-  typeset -A dirty=()
+  local git_dir ref ref_sym=$'\u27a6' line bkgd=6 skip=''
+  typeset -a mode
+  typeset -A dirty
 
   git_dir="$(git rev-parse --git-dir 2>/dev/null)" || return
 
@@ -214,6 +214,7 @@ function _rc_g_prompt_ps3() {
 function _rc_g_prompt_ps4() {
   setf 0
 
+  local i
   for i in {1..$(print -Pn "%e")}; do p " :"; done
 
   p ' %e '

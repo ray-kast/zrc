@@ -18,7 +18,10 @@ export zle_highlight=(
   paste:fg=0,bg=3
 )
 
-for _rc_l_name in {up,down}-line-or-beginning-search; do
-  autoload -U $_rc_l_name
-  zle -N $_rc_l_name
-done
+() {
+  local name
+  for name in {up,down}-line-or-beginning-search; do
+    autoload -U $name
+    zle -N $name
+  done
+}

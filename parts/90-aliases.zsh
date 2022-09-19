@@ -47,13 +47,17 @@ alias -s exe="mono"
 alias -s js="node"
 alias -s pdf="evince"
 
-if _rc_g_has gio; then
-  for x in png jpg gif; do alias -s $x="gio open"; done
-fi
+() {
+  local x
 
-if _rc_g_has firefox; then
-  for x in svg html; do alias -s $x="firefox"; done
-fi
+  if _rc_g_has gio; then
+    for x in png jpg gif; do alias -s $x="gio open"; done
+  fi
+
+  if _rc_g_has firefox; then
+    for x in svg html; do alias -s $x="firefox"; done
+  fi
+}
 
 () {
   typeset -A pairs=(\

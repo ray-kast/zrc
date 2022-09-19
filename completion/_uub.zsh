@@ -3,6 +3,7 @@
 function _uub() {
   words[1]="uub"
 
+  local fld fil
   typeset -a devs
 
   for fld in '/dev/disk/by-label/' '/dev/'; do

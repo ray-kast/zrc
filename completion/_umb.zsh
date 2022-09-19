@@ -3,6 +3,7 @@
 function _umb() {
   words[1]="umb"
 
+  local fld fil
   typeset -a devs
 
   for fld in '/dev/disk/by-label/' '/dev/'; do

@@ -7,7 +7,6 @@ function reinit() {
   esac
 
   typeset -a args
-  args=()
 
   [[ -o login ]] && args+=(-l)
   [[ -o interactive ]] && args=(-i)

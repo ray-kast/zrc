@@ -47,10 +47,10 @@ function _rc_g_fn_update_nvim() {
 
   _rc_g_fn_update_notify 'Starting nvim package upgrade...'
 
-  local basedir dirty dir head origin common
+  local basedir dir name
+  typeset -a dirty
 
   basedir="$HOME/.config/nvim/pack"
-  dirty=()
 
   for dir in "$basedir"/**/.git(/N); do
     dir="$(realpath "$dir/..")"

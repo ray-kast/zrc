@@ -77,8 +77,7 @@ _rc_g_fn_gcmds+=(
 )
 
 function _rc_g_fn_gcmd() {
-  local cmd
-  cmd=${_rc_g_fn_gcmds[$1]}
+  local cmd="${_rc_g_fn_gcmds[$1]}"
 
   [[ -n "$cmd" ]] && echo -n "$cmd" || echo -n "$1"
 }
@@ -90,9 +89,9 @@ function g() {
     return $?
   fi
 
-  cmd=$(_rc_g_fn_gcmd "$1")
+  local cmd="$(_rc_g_fn_gcmd "$1")"
   shift
 
-  git ${(s: :)cmd[@]} $@
+  git "${(@s: :)cmd}" $@
   return $?
 }

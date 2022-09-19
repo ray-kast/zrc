@@ -2,7 +2,7 @@ function smart-sudo() {
   if (( # > 0 )); then
     [[ $+functions[__rc_i_s_cmd] ]] && unset 'functions[__rc_i_s_cmd]'
 
-    cmd="$@"
+    local cmd="$@"
     functions[__rc_i_s_cmd]=$cmd
 
     if [[ $+functions[__rc_i_s_cmd] ]]; then
