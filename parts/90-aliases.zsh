@@ -58,6 +58,7 @@ fi
 () {
   typeset -A pairs=(\
     batcat bat
+    fdfind fd
     podman docker
   )
 
