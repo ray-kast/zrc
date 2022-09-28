@@ -1,3 +1,5 @@
+# usage: _rc_g_retry <tries> <name> <cmd...>
+#   if tries < 0 then the user is prompted every time
 function _rc_g_retry() {
   local tries="$1" name="$2" ret=1
   shift 2 || return -1
