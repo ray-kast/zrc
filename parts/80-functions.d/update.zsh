@@ -210,12 +210,11 @@ function _rc_g_fn_update_pacman() {
     _rc_g_fn_update_notify 'Resolving .pacnew files...'
   fi
 
-  local new old
+  local new old action
 
   for new in ${(f)pacnews}; do
     old=${new%.pacnew}
 
-    local action
     while [[ -e "$new" ]]; do
       print "Found $new" >&2
       print -Pn "%Bd%biff, %Bk%beep, %Br%beplace, %Bp%batch, or do %Bn%bothing: " >&2
