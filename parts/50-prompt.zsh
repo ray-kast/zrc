@@ -18,19 +18,27 @@ function _rc_g_prompt_ps1_line1() {
 
   setl 0 3
   p ' %M '
-  setl 2 0
-  p ' '
 
-  IF L 2; p '%L '; ELSE; FI
+  IF L 2
+    setl 2 0
+    p ' %L '
+  ELSE; FI
+
+  IF j 1
+    setl 4 0
+    p ' %j '
+  ELSE; FI
 
   if [[ -n "$vcs" ]]; then
     p "$vcs"
   else
     IF j 1
-      setl 4 0
-      p ' %j '
       endl 4 f
     ELSE
+      IF L 2; ELSE
+        setl 2 0
+        p ' '
+      FI
       endl 2 f
     FI
   fi
