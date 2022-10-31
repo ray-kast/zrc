@@ -74,7 +74,7 @@ function _rc_g_fn_update_nvim() {
       0) echo; dirty+=("$dir") ;;
       1) echo " up-to-date" ;;
       130) echo; return 130 ;;
-      255) echo " \x1b[1;38;5;1failed\x1b[m" ;;
+      255) echo " \x1b[1;38;5;1mfailed\x1b[m" ;;
       *) echo " unknown status $?" ;;
     esac
   done
@@ -196,12 +196,11 @@ function _rc_g_fn_update_pacman() {
     yay -Sca --noconfirm
   fi
 
-  echo ':: Searching for .pacnew and .pacsave files...'
+  echo ':: Searching for .pacnew files...'
 
   local pacnews pacsaves
 
   pacnews=$(find-pacnews)
-  pacsaves=$(fd -ig '*.pacsave' / -uu --one-file-system)
 
   if ! [[ -z $pacnews ]]; then
     echo ":: Resolving .pacnew files..."
@@ -244,6 +243,10 @@ function _rc_g_fn_update_pacman() {
       esac
     done
   done
+
+  echo ':: Searching for .pacsave files...'
+
+  pacsaves=$(fd -ig '*.pacsave' / -uu --one-file-system)
 
   if ! [[ -z $pacsaves ]]; then
     echo ":: Resolving .pacsave files..."
