@@ -56,19 +56,18 @@ function _rc_g_fn_update_nvim() {
     dir="$(realpath "$dir/..")"
 
     (
-      cd "$dir"
+      cd "$dir" || exit 255
       echo -n " $(basename "$dir")"
 
       { timeout 10s git fetch -q 2>&1 | cat } || exit 255
+      (( pipestatus[1] == 0 )) || exit 255
 
-      head="$(git rev-parse HEAD)"
-      origin="$(git rev-parse '@{u}')"
+      head="$(git rev-parse HEAD)" || exit 255
+      origin="$(git rev-parse '@{u}')" || exit 255
 
-      if [[ "$origin" == "$head" ]]; then
-        exit 1
-      fi
+      [[ "$origin" == "$head" ]] || exit 0
 
-      exit 0
+      exit 1
     )
 
     case "$?" in
