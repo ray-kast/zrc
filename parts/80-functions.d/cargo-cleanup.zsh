@@ -10,6 +10,11 @@ function cargo-cleanup() {
   fi
 
   if [[ ! -d "$dir" ]]; then
+    echo "$dir is not a directory!" >&2
+    dir=''
+  fi
+
+  if [[ -z "$dir" ]]; then
     cat >&2 <<EOF
 Usage: cargo-cleanup [root]
 Recursively cleans up Cargo projects contained within root.
