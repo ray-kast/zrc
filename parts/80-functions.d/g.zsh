@@ -92,6 +92,7 @@ function g() {
   local cmd="$(_rc_g_fn_gcmd "$1")"
   shift
 
+  _rc_g_fix_gpg_tty
   git "${(@s: :)cmd}" $@
   return $?
 }
