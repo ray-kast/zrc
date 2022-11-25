@@ -1,5 +1,5 @@
 function gprune() {
-  git fetch -ap || return $?
+  g fetch -ap || return $?
 
   local ref parsed any head
 
