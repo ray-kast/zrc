@@ -30,7 +30,7 @@ if (( $+commands[snap] )); then
   export PATH="$PATH:/snap/bin"
 fi
 
-if (( $+commands[cargo] )); then
+if (( $+commands[cargo] )) || [[ -x "$HOME/.cargo/bin/rustup" ]]; then
   _ cargo
   export PATH="$PATH:/usr/lib/cargo/bin:$HOME/.cargo/bin"
 fi
@@ -58,8 +58,20 @@ fi
   if [[ "$SSH_AGEND_PID" -ne 0 || (-n "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$gpg_sock") ]]
     then _rc_g_gpg[already-running]=1 fi
 
+  # If this is an interactive session and we can probably spawn gpg-agent
+  # without causing trouble, do it.
+  if [[ ! -S "$gpg_sock" && -o interactive ]] \
+    && (( $+commands[gpg-connect-agent] && ! $+commands[systemd] )); then
+    [[ -t 2 ]] && echo $'\x1b[1;38;5;2mSpawning gpg-agent\x1b[m'
+    gpg-connect-agent /bye
+    gpg_sock="$(gpgconf --list-dirs agent-ssh-socket)"
+  fi
+
   [[ -S "$gpg_sock" ]] || return 0
   _rc_g_gpg[found]=1
+
+  if [[ "$(uname)" == 'Darwin' ]] || [[ "$DISPLAY" == :* ]]
+    then _rc_g_gpg[gui]=1 fi
 
   export SSH_AGENT_PID=''
   export SSH_AUTH_SOCK="$gpg_sock"

@@ -5,16 +5,23 @@ _rc_g_set_gpg_tty() {
 }
 
 _rc_g_reset_gpg() {
-  timeout 5s systemctl --user restart gpg-agent.service
+  if _rc_g_has systemd; then
+    timeout 5s systemctl --user restart gpg-agent.service
+  else
+    timeout 5s gpg-connect-agent killagent /bye | rg -Fv OK
+    return $((pipestatus[1]))
+  fi
 }
 
 _rc_g_fix_gpg_tty() {
-  if [[ "$DISPLAY" == :* ]]; then
+  (( $+_rc_g_gpg[found] )) || return -1
+
+  if (( $+_rc_g_gpg[gui] )) ; then
     local old_tty="$GPG_TTY"
 
     unset GPG_TTY
 
-    if [[ -n "$old_tty" ]] && _rc_g_has systemd; then
+    if [[ -n "$old_tty" ]]; then
       ! [[ -t 2 ]] || echo $'\x1b[1;38;5;2mUnsetting GPG_TTY\x1b[m' >&2
 
       _rc_g_reset_gpg
