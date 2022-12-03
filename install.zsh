@@ -56,7 +56,7 @@ function put_file() {
     err "Cannot write to '$dest' - not a file"
     return -1
   elif diff -q "$src" "$dest" >/dev/null; then
-    note "Contents of '$src' and '$dest' match - skipping"
+    note "Contents match - skipping"
     chmod "$mode" "$dest"
     return
   fi
@@ -305,7 +305,7 @@ chmod go-rwx . completion # Appease compaudit
 
 head "Updating installation version..."
 
-cat "$version" >"$target"/.zrc-ver
+echo -n "$version" >"$target"/.zrc-ver
 
 ######## Done!
 
