@@ -16,6 +16,26 @@ fi
 
 _rc_i_basedir="$(dirname "$0")"
 
+function reinstall() {
+  local file="$ZDOTDIR"/.zrc-ver curr="$_rc_i_basedir/VERSION"
+
+  _rc_i_status zrc-ver
+
+  [[ ! -f "$file" || "$(cat "$file")" -lt "$(cat "$curr")" ]] || return
+
+  _rc_i_status_reset
+  echo $'\x1b[1;38;5;9mzrc installation out of date!\x1b[m'
+
+  [[ "$(_rc_g_yn 'Update installation? [y/N] ' n)" == 'y' ]] || return
+
+  "$_rc_i_basedir"/install.zsh || {
+    echo $'\x1b[1;38;5;3mInstaller failed.\x1b[m'
+    return
+  }
+
+  echo $'\x1b[1;38;5;2mInstallation succeeded.  A restart may be required.\x1b[m'
+}
+
 () {
   local file
 
@@ -26,25 +46,7 @@ _rc_i_basedir="$(dirname "$0")"
     unset -m '_rc_l_*'
   done
 
-  () {
-    local file="$ZDOTDIR"/.zrc-ver curr="$_rc_i_basedir/VERSION"
-
-    _rc_i_status zrc-ver
-
-    [[ ! -f "$file" || "$(cat "$file")" -lt "$(cat "$curr")" ]] || return
-
-    _rc_i_status_reset
-    echo $'\x1b[1;38;5;9mzrc installation out of date!\x1b[m'
-
-    [[ "$(_rc_g_yn 'Update installation? [y/N] ' n)" == 'y' ]] || return
-
-    "$_rc_i_basedir"/install.zsh || {
-      echo $'\x1b[1;38;5;3mInstaller failed.\x1b[m'
-      return
-    }
-
-    echo $'\x1b[1;38;5;2mInstallation succeeded.  A restart may be required.\x1b[m'
-  }
+  reinstall
 
   if [[ -t 1 ]] && (( $+commands[ssh-add] )); then
     . "$_rc_i_basedir"/gpg.zsh
@@ -131,6 +133,7 @@ _rc_i_basedir="$(dirname "$0")"
         [[ "$(_rc_g_yn "Update ~/.zrc? [Y/n] " y)" == 'y' ]] || exit 0
 
         git pull
+        reinstall
       ) || { _rc_i_status_reset; echo "WARNING: update check failed"; return }
 
       touch "$file"
