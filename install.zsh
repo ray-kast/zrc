@@ -23,6 +23,28 @@ else
   function ask() { print -n "$1" | sed 's/%[[:digit:]]*[[:alpha:]]//' >&2 }
 fi
 
+function cmd() {
+  for c in "${(@)@}"; do
+    (( $+commands[$c] )) || continue
+    echo "$c"
+    return
+  done
+}
+
+function patch_dest() {
+  local vim="$(cmd nvim vim)" cat="$(cmd bat batcat cat)"
+
+  if [[ -z "$vim" ]]; then
+    return -1
+  fi
+
+  "$vim" -d "$src" "$dest" || return 1
+  chmod "$mode" "$dest"
+
+  "$cat" "$dest" || true
+  [[ "$(yn "Does this look correct? [y/N] " n)" == y ]] || return 2
+}
+
 function put_file() {
   local mode="$1" src="$2" dest="$3" action
   shift 3
@@ -63,34 +85,17 @@ function put_file() {
         mv -f "$dest" "$tmp"
         install -m"$mode" "$src" "$dest"
         rm -i "$tmp" || warn "Removal of temp file '$tmp' failed"
-        return
-        ;;
+        return ;;
       p|P)
         echo >&2
-        local found
-        for e in nvim vim; do
-          (( $+commands[$e] )) || continue
-          found=t
-
-          "$e" -d "$src" "$dest" || break
-          chmod "$mode" "$dest"
-
-          for c in bat cat; do
-            (( $+commands[$c] )) || continue
-
-            "$c" "$dest" || true
-            break
-          done
-
-          [[ "$(yn "Does this look correct? [y/N] " n)" == y ]] && return
+        while ! patch_dest; do
+          case "$?" in
+            -1) err "This option requires vim to be installed"; break ;;
+            1) err "Patching '$dest' failed"; return 1 ;;
+            2) ;;
+          esac
         done
-
-        if [[ -n "$found" ]]; then
-          err "Patching '$dest' failed"
-        else
-          err "This option requires vim to be installed"
-        fi
-        ;;
+        return ;;
       $'\n') ;;
       *) echo >&2 ;;
     esac
@@ -300,7 +305,7 @@ chmod go-rwx . completion # Appease compaudit
 
 head "Updating installation version..."
 
-cat VERSION >"$target"/.zrc-ver
+cat "$version" >"$target"/.zrc-ver
 
 ######## Done!
 
