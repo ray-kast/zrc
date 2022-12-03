@@ -1,0 +1,1 @@
+. "$HOME/.zrc/profile.zsh"

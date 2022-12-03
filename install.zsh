@@ -1,11 +1,105 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 
-function say() {
-  [[ -t 2 ]] && echo $'\x1b[1m==> '$@$'\x1b[m' >&2 || echo '==> '$@ >&2
+######## Init
+
+set -e
+cd "$(dirname "$0")"
+
+######## Helper functions
+
+if [[ -t 2 ]]; then
+  function head() { print -P "%B%12F==>%f $1%b" >&2 }
+  function say() { print -P " %B%2F->%f%b $1" >&2 }
+  function note() { print -P "  %6F->%f $1" >&2 }
+  function warn() { print -P " %B%11F-> WARNING:%f%b $1" >&2 }
+  function err() { print -P " %B%9F-> ERROR: $1%f%b" >&2 }
+  function ask() { print -Pn "$1" }
+else
+  function head() { print "==> $1" >&2 }
+  function say() { print " -> $1" >&2 }
+  function note() { print "  -> $1" >&2 }
+  function warn() { print " !> WARNING: $1" >&2 }
+  function err() { print " !> ERROR: $1" >&2 }
+  function ask() { print -n "$1" | sed 's/%[[:digit:]]*[[:alpha:]]//' >&2 }
+fi
+
+function put_file() {
+  local mode="$1" src="$2" dest="$3" action
+  shift 3
+
+  if [[ ! -e "$dest" ]]; then
+    install -m"$mode" "$src" "$dest"
+    return
+  elif [[ ! -f "$dest" ]]; then
+    err "Cannot write to '$dest' - not a file"
+    return -1
+  elif diff -q "$src" "$dest" >/dev/null; then
+    note "Contents of '$src' and '$dest' match - skipping"
+    chmod "$mode" "$dest"
+    return
+  fi
+
+  while :; do
+    ask "%Bd%biff, %Bk%beep, %Br%beplace, or %Bp%batch existing file: "
+
+    read -k1 action
+
+    case "$action" in
+      d|D)
+        echo >&2
+        if (( $+commands[git] )); then
+          git diff --no-index -- "$dest" "$src" || true
+        else
+          err "This option requires git to be installed"
+        fi
+        ;;
+      k|K)
+        echo >&2
+        warn "Skipping install of '$dest'"
+        return ;;
+      r|R)
+        echo >&2
+        local tmp="$(mktemp "$dest".bk.XXXXX)"
+        mv -f "$dest" "$tmp"
+        install -m"$mode" "$src" "$dest"
+        rm -i "$tmp" || warn "Removal of temp file '$tmp' failed"
+        return
+        ;;
+      p|P)
+        echo >&2
+        local found
+        for e in nvim vim; do
+          (( $+commands[$e] )) || continue
+          found=t
+
+          "$e" -d "$src" "$dest" || break
+          chmod "$mode" "$dest"
+
+          for c in bat cat; do
+            (( $+commands[$c] )) || continue
+
+            "$c" "$dest" || true
+            break
+          done
+
+          [[ "$(yn "Does this look correct? [y/N] " n)" == y ]] && return
+        done
+
+        if [[ -n "$found" ]]; then
+          err "Patching '$dest' failed"
+        else
+          err "This option requires vim to be installed"
+        fi
+        ;;
+      $'\n') ;;
+      *) echo >&2 ;;
+    esac
+  done
 }
 
-function warn() {
-  [[ -t 2 ]] && echo $'\x1b[1;38;5;1m=!> '$@$'\x1b[m' >&2 || echo '=!>'$@ >&2
+function unhome() {
+  [[ -d "$(dirname "$1")" ]] && 1="$(realpath "$1")"
+  echo "${1/$(realpath "$HOME")/\$HOME}"
 }
 
 function yn() {
@@ -38,96 +132,176 @@ function yn() {
   done
 }
 
+######## Preliminary checks
+
+head "Checking your environment..."
+
+if [[ "$(realpath "$PWD")" != "$(realpath "$HOME/.zrc")" ]]; then
+  err "The zrc repo must be placed in '\$HOME/.zrc'"
+  exit -1
+fi
+
+######## CLI
+
 function usage() {
   cat <<EOF >&2
 Usage: install.zsh [flags]
 
 Flags:
-  -b        Back up files instead of overwriting
   -h        Display this message
-  -t [dir]  Use dir as the target directory (defaults to ~/.zsh)
-  -u        Same as -h
+  -t [dir]  Use dir as the target directory
+            (default: \$ZDOTDIR or else \$HOME/.zsh)
 EOF
 }
 
-# ===== Parse flags =====
+# Try to infer target from $ZDOTDIR (and by extension previous zrc installs)
+pretty_target="${ZDOTDIR:+$(unhome "$ZDOTDIR")}"
 
-typeset -a INSTALL_OPTS
+# Otherwise default to $HOME/.zsh
+pretty_target="${target:-\$HOME/.zsh}"
 
-INSTALL_OPTS=()
-
-TARGET='$HOME/.zsh'
-
-while getopts "bht:u" opt; do
-  case $opt in
-    b)
-      INSTALL_OPTS+=-b
-      BACKUP=1
-      ;;
-    h|u)
-      usage
-      exit 0
-      ;;
-    t)
-      TARGET="$OPTARG"
-      ;;
-    \?)
-      usage
-      exit 1
-      ;;
+while getopts 'ht:' opt; do
+  case "$opt" in
+    h) usage; exit 0 ;;
+    t) pretty_target="$(unhome "$OPTARG")" ;;
+    \?) usage; exit 1 ;;
   esac
 done
 
-REAL_TARGET=${(e)TARGET}
-
-# ===== Warn about replaced/overwritten and ignored files =====
-
-if [[ -n $BACKUP ]]; then
-  OVERSTR="backed up and replaced"
-else
-  OVERSTR="overwritten"
+if ! [[ -d "$(dirname "${(e)pretty_target}")" ]]; then
+  err "Invalid target directory '$pretty_target'"
+  exit -1
 fi
 
-if [[ -f "$HOME"/.zshenv ]]; then
-  warn "~/.zshenv exists already - it will be $OVERSTR"
+target="$(realpath "${(e)pretty_target}")"
+
+######## Installation - write temporary files
+
+# Used in the sed command
+if [[ "$pretty_target" == *\x01* ]]; then
+  err "Target contained \\x01 byte!"
+  exit -1
 fi
 
-if [[ -n $ZDOTDIR ]]; then
-  DOTDIR="$ZDOTDIR"
-else
-  DOTDIR="$HOME"
+function drop_temps() {
+  rm -f "$env_f" || true
+}
+
+function sig_drop_temps() {
+  echo >&2
+  drop_temps
+  exit 1
+}
+
+trap drop_temps EXIT
+trap sig_drop_temps INT
+trap sig_drop_temps TERM
+trap sig_drop_temps HUP
+
+env_f="$(mktemp zrc-bootstrap.XXXXX)"
+sed -e $'s\x01@TARGET@\x01'"$pretty_target"$'\x01' install/bootstrap.zsh.in >"$env_f"
+
+######## Installation - define manifest
+
+ver_file="$target"/.zrc-ver
+version="$(cat VERSION)"
+
+# If, for some deranged reason, /etc/zshenv sets ZDOTDIR, this should catch that
+base_dotdir="$(env -i zsh -o norcs -c 'print -n "$ZDOTDIR"')"
+base_dotdir="${base_dotdir:-$HOME}"
+
+typeset -A manifest=(
+  "$base_dotdir"/.zshenv  "$env_f"
+  "$target"/.zshenv       install/.zshenv
+  "$target"/.zprofile     install/.zprofile
+  "$target"/.zshrc        install/.zshrc
+)
+
+######## Installation - check for newer versions
+
+head "Installer version: $version"
+
+if [[ -f "$ver_file" ]]; then
+  curr_version="$(cat "$ver_file")"
+
+  if [[ "$curr_version" -gt "$version" ]]; then
+    warn "Newer install version '$curr_version' detected!"
+
+    [[ "$(yn 'Continue anyway? [y/N] ' n)" == y ]]
+  elif [[ "$curr_version" -eq "$version" ]]; then
+    warn "zrc installation already exists - reinstalling"
+  fi
 fi
 
-for f in .zshenv .zshrc; do
-  if [[ -f "$REAL_TARGET"/"$f" ]]; then
-    warn "$TARGET/$f exists already - it will be $OVERSTR"
+######## Installation - confirm config with user
+
+head "Checking install configuration..."
+say "Target directory: '$target' (will be formatted as '$pretty_target')"
+
+any_existing=''
+for f in "${(@k)manifest}"; do
+  if [[ -f "$f" ]]; then
+    [[ -n "$any_existing" ]] || warn "The following file(s) already exist:"
+    any_existing=t
+
+    note "$f"
   fi
 done
 
-if [[ "$ZDOTDIR" != "$HOME/.zsh" ]]; then
-  for f in .zshenv .zprofile .zshrc .zlogin; do
-    if [[ -f "$ZDOTDIR"/"$f" ]]; then
-      warn "\$ZDOTDIR/$f exists, but will be ignored by zsh after installation"
-    fi
+if [[ -n "$any_existing" ]]; then
+  say "You will be prompted for how to handle each existing file"
+fi
+
+curr_dotdir="${ZDOTDIR:-$HOME}"
+pretty_curr_dotdir="$(unhome "$curr_dotdir")"
+
+if [[ "$(realpath "$curr_dotdir")" != "$target" ]]; then
+  warn "\$ZDOTDIR will be changed to '$pretty_target' from '$pretty_curr_dotdir'"
+
+  any_existing=''
+  for f in \
+    .zshenv .zprofile .zshrc .zlogin .zlogout \
+    .zcompdump .zcompcache .ztcp_sessions .zkbd .chpwd-recent-dirs \
+    .zcalcrc \
+    .zsh_history
+  do
+    [[ -f "$curr_dotdir/$f" ]] || continue
+
+    [[ -n "$any_existing" ]] || warn "The following file(s) will become ignored:"
+    any_existing=t
+
+    note "$pretty_curr_dotdir/$f"
   done
+
+  if [[ -n "$any_existing" ]]; then
+    say "You may need to manually restore each of these files"
+  fi
 fi
 
-# ===== Warn about bad target directories =====
+[[ $(yn 'Continue with installation? [y/N] ' n) == y ]]
 
-if [[ "$(head -c1 <<<"$TARGET")" == '/' ]]; then
-  warn "The target directory you chose appears to be an absolute path"
-  say  "If you used \$HOME or ~, you may need to escape them"
-fi
+######## Installation - install files
 
-# ===== Actually perform the install =====
+head "Installing files..."
 
-say "Target directory: '$REAL_TARGET' (as '$TARGET')"
+[[ -d "$target" ]] && chmod 755 "$target" || install -dm755 "$target"
 
-[[ $(yn "Continue with installation? [y/N] " n) == 'y' ]] || exit 1
+for dest in "${(@k)manifest}"; do
+  src="${manifest[$dest]}"
 
-# NB: I'm making the assumption that the target path doesn't contain U+0001
-install "${INSTALL_OPTS[@]}" -Dm755 -T =(sed -e $'s\x01@TARGET@\x01'"$TARGET"$'\x01' install/bootstrap.zsh.in) "$HOME"/.zshenv || exit -1
-install "${INSTALL_OPTS[@]}" -Dm755 -t "$REAL_TARGET" install/{.zshenv,.zshrc} || exit -1
-chmod go-rwx . completion # Appease compaudit.
+  say "Installing '$src' as '$dest'..."
 
-say "Installation complete."
+  put_file 644 "$src" "$dest"
+done
+
+chmod go-rwx . completion # Appease compaudit
+
+######## Installation - update install version
+
+head "Updating installation version..."
+
+cat VERSION >"$target"/.zrc-ver
+
+######## Done!
+
+head "zrc successfully installed!"
