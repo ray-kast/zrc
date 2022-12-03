@@ -55,7 +55,7 @@ fi
   (( $+commands[gpgconf] )) || return 0
   local gpg_sock="$(gpgconf --list-dirs agent-ssh-socket)"
 
-  if [[ "$SSH_AGEND_PID" -ne 0 || (-n "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$gpg_sock") ]]
+  if [[ "$SSH_AGENT_PID" -ne 0 || (-n "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$gpg_sock") ]]
     then _rc_g_gpg[already-running]=1 fi
 
   # If this is an interactive session and we can probably spawn gpg-agent
