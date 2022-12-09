@@ -25,6 +25,7 @@ bindkey "^[k" describe-key-briefly
 bindkey "^]" expand-or-complete
 
 bindkey ",," vi-cmd-mode
+bindkey "^[v" vi-cmd-mode
 
 if [[ "$TERM" == 'xterm' ]]; then
   bindkey "^H" backward-delete-char
