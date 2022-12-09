@@ -4,6 +4,11 @@ false && alias _='print' || alias _=':'
 
 ######## Begin alternate system-level package managers
 
+if [[ -d "$HOME/.local/bin" ]]; then
+  _ local-bin
+  export PATH="$PATH:$HOME/.local/bin"
+fi
+
 if (( $+commands[snap] )); then
   _ snap
   export PATH="$PATH:/snap/bin"
