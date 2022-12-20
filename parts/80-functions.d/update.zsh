@@ -52,14 +52,16 @@ function _rc_g_fn_update_nvim() {
 
   basedir="$HOME/.config/nvim/pack"
 
+  _rc_g_fix_gpg_tty
   for dir in "$basedir"/**/.git(/N); do
     dir="$(realpath "$dir/..")"
 
+    _rc_g_fix_gpg_tty q
     (
       cd "$dir" || exit 255
       echo -n " $(basename "$dir")"
 
-      { timeout 10s g fetch -q 2>&1 | cat } || exit 255
+      { timeout 10s git fetch -q 2>&1 | cat } || exit 255
       (( pipestatus[1] == 0 )) || exit 255
 
       head="$(git rev-parse HEAD)" || exit 255
@@ -86,9 +88,11 @@ function _rc_g_fn_update_nvim() {
 
   [[ "$(_rc_g_yn 'Proceed? [Y/n] ' y)" == 'y' ]] || return 0
 
+  _rc_g_fix_gpg_tty
   for dir in "${dirty[@]}"; do
     name="$(basename "$dir")"
 
+    _rc_g_fix_gpg_tty q
     (
       cd "$dir"
 
@@ -114,7 +118,7 @@ function _rc_g_fn_update_nvim() {
 
           [[ "$(_rc_g_yn "Push them? [y/N] " n)" == 'n' ]] || exit 1
 
-          g push
+          git push
         fi
 
         exit 0
