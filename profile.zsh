@@ -21,9 +21,9 @@ fi
 
 ######## End system-level package managers
 
-if (( $+commands[cargo] )) || [[ -x "$HOME/.cargo/bin/rustup" ]]; then
+if (( $+commands[cargo] )) || (( $+commands[rustup] )) || [[ -x "$HOME/.cargo/bin/rustup" ]]; then
   _ cargo
-  export PATH="$PATH:/usr/lib/cargo/bin:$HOME/.cargo/bin"
+  export PATH="/usr/lib/cargo/bin:$HOME/.cargo/bin:$PATH"
 fi
 
 if (( $+commands[ruby] )) && (( $+commands[gem] )); then
