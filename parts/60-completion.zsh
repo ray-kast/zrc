@@ -87,5 +87,3 @@ export ZCOMPDUMP=$ZDOTDIR/.zcompdump
 
 compinit -d $ZCOMPDUMP
 _comp_options+=(globdots)
-
-_rc_g_has kitty && kitty + complete setup zsh | source /dev/stdin
