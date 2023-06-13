@@ -166,7 +166,7 @@ function _rc_g_fn_update_pacman() {
     # TODO: Find a way to suppress this if we're doing nothing
     _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
-    MAKEFLAGS=-j _rc_g_retry -1 'yay' yay -Syua
+    MAKEFLAGS="-j$(nproc)" _rc_g_retry -1 'yay' yay -Syua
   fi
 
   echo ":: Cleaning up packages..."
