@@ -83,12 +83,20 @@ end
 # Run fzf and process the result
 path = nil
 
-Open3.pipeline_r(
-  [*%W[fd -uu . --base-directory=#{dir || Dir.getwd}], *("-t#{type}" if type)],
-  %w[fzf]
-) do |out, threads|
-  path = out.read.sub(/\n$/, '')
-  threads.each(&:join)
+%w[fd fdfind].each do |fd|
+  begin
+    Open3.pipeline_r(
+      [*%W[#{fd} -uu . --base-directory=#{dir || Dir.getwd}], *("-t#{type}" if type)],
+      %w[fzf]
+    ) do |out, threads|
+      path = out.read.sub(/\n$/, '')
+      threads.each(&:join)
+    end
+  rescue Errno::ENOENT
+    next
+  end
+
+  break
 end
 
 exit 1 if path.empty?
