@@ -61,14 +61,17 @@ _ gpg
   done
 }
 
-if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
+if (( $+commands[rbenv] )); then
+  _ rbenv
+  . <(rbenv init - zsh | cat)
+elif [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
   _ rvm
   . "$HOME/.rvm/scripts/rvm"
 fi
 
 if [[ -d "$HOME/.rakudobrew" ]]; then
   _ rakudobrew
-  source <("$HOME/.rakudobrew/bin/rakudobrew" init -)
+  . <("$HOME/.rakudobrew/bin/rakudobrew" init - | cat)
 fi
 
 if (( $+commands[yarn] )); then
