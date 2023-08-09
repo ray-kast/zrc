@@ -71,7 +71,7 @@ unless command.empty?
       ENV['PATH'].split(':').each do |path|
         joined = File.join(path, argv0)
 
-        throw(:found, joined) if File.exists?(joined)
+        throw(:found, joined) if File.exist?(joined)
       end
 
       $stderr << "f: command not found: #{argv0}\n"
