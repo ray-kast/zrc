@@ -242,6 +242,20 @@ if not vim.g.lazy_did_setup then
       end,
     },
     {
+      'NeogitOrg/neogit',
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+        'nvim-telescope/telescope.nvim',
+        'sindrets/diffview.nvim',
+      },
+      config = function(_, opts)
+        local neogit = require('neogit')
+        neogit.setup(opts)
+
+        vim.keymap.set('n', '<Leader>g', neogit.open)
+      end,
+    },
+    {
       'numToStr/Comment.nvim',
       opts = {
         toggler = {
@@ -264,7 +278,7 @@ if not vim.g.lazy_did_setup then
       config = function()
         local b = require('telescope.builtin')
 
-        vim.keymap.set('n', '<Leader>aa', b.find_files)
+        vim.keymap.set('n', '<Leader>af', b.find_files)
         vim.keymap.set('n', '<Leader>ag', b.live_grep)
         vim.keymap.set('n', '<Leader>ab', b.buffers)
         vim.keymap.set('n', '<Leader>ah', b.help_tags)
