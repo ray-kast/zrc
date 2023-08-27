@@ -11,6 +11,18 @@ vim.o.splitright = true
 vim.o.scrolloff = 3
 vim.o.sidescrolloff = 7
 vim.o.spelllang = 'en_us'
+vim.opt.sessionoptions = {
+  'blank',
+  'buffers',
+  'curdir',
+  'folds',
+  'help',
+  'tabpages',
+  'winsize',
+  'winpos',
+  'terminal',
+  'localoptions',
+}
 
 -- feedback
 vim.o.errorbells = true
@@ -56,7 +68,22 @@ vim.o.timeoutlen = 500
 
 -- mappings
 do
-  local map = function(lhs, rhs, args) vim.keymap.set('n', lhs, rhs, args) end
+  local map = function(l, r, o) vim.keymap.set('n', l, r, o) end
+  local imap = function(l, r, o) vim.keymap.set('i', l, r, o) end
+  local tmap = function(l, r, o) vim.keymap.set('t', l, r, o) end
+
+  map('gl', ':tablast<CR>')
+
+  map(',qw', ':wq<CR>')
+  imap(',qw', '<C-c>:wq<CR>')
+  map(',w', ':wa<CR>')
+  imap(',w', '<C-c>:wa<CR>')
+  tmap(',.', '<C-\\><C-n>')
+
+  map(',m', ':checkt<CR>')
+  map(',s', ':nohlsearch<CR>')
+  imap(',s', '<C-c>:nohlsearch<CR>a')
+  map(',t', ':tabe | term<CR>')
 
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('LspBinds', {}),
@@ -199,6 +226,13 @@ if not vim.g.lazy_did_setup then
       end
     },
     {
+      'kevinhwang91/rnvimr',
+      config = function()
+        vim.keymap.set('n', '<Leader>r', ':RnvimrToggle<CR>')
+        vim.keymap.set('t', '<Leader>r', '<C-\\><C-n>:RnvimrToggle<CR>')
+      end,
+    },
+    {
       'numToStr/Comment.nvim',
       opts = {
         toggler = {
@@ -220,7 +254,6 @@ if not vim.g.lazy_did_setup then
     },
     {
       'phaazon/hop.nvim',
-      opts = { keys = 'wft' },
       config = function(_, opts)
         local hop = require('hop')
         local directions = require('hop.hint').HintDirection
@@ -230,11 +263,12 @@ if not vim.g.lazy_did_setup then
           hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = false })
         end, { remap = true })
 
-        vim.keymap.set('', 'b', function()
+        vim.keymap.set('', 'F', function()
           hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = false })
         end, { remap = true })
-      end
+      end,
     },
+    { 'rmagatti/auto-session', config = true },
   }, {
     root = lazyroot,
   })
