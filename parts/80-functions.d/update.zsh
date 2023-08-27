@@ -88,6 +88,7 @@ function _rc_g_fn_update_nvim() {
 
   [[ "$(_rc_g_yn 'Proceed? [Y/n] ' y)" == 'y' ]] || return 0
 
+  local any=''
   _rc_g_fix_gpg_tty
   for dir in "${dirty[@]}"; do
     name="$(basename "$dir")"
@@ -125,12 +126,14 @@ function _rc_g_fn_update_nvim() {
       fi
 
       git merge '@{u}' --ff-only && git gc --aggressive
-    ) || echo " \x1b[1;38;5;1mfailed to update $name\x1b[m"
+    ) && any='t' || echo " \x1b[1;38;5;1mfailed to update $name\x1b[m"
   done
 
-  for dir in "$basedir"/**/doc(/N); do
-    nvim -c "helptags $dir" -c "qa"
-  done
+  if [[ -n "$any" ]]; then
+    for dir in "$basedir"/**/doc(/N); do
+      nvim -c "helptags $dir" -c "qa"
+    done
+  fi
 
   return 0
 }
