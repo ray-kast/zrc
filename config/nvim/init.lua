@@ -64,6 +64,7 @@ vim.o.laststatus = 2
 
 -- leader key
 vim.g.mapleader = ','
+vim.g.maplocalleader = '\\'
 vim.o.timeoutlen = 500
 
 -- mappings
@@ -226,6 +227,14 @@ if not vim.g.lazy_did_setup then
       end
     },
     {
+      'Julian/lean.nvim',
+      event = { 'BufReadPre *.lean', 'BufNewFile *.lean' },
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+      },
+      config = true,
+    },
+    {
       'kevinhwang91/rnvimr',
       config = function()
         vim.keymap.set('n', '<Leader>r', ':RnvimrToggle<CR>')
@@ -245,6 +254,21 @@ if not vim.g.lazy_did_setup then
         },
       },
       lazy = false
+    },
+    {
+      'nvim-telescope/telescope.nvim',
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+        'nvim-treesitter/nvim-treesitter',
+      },
+      config = function()
+        local b = require('telescope.builtin')
+
+        vim.keymap.set('n', '<Leader>aa', b.find_files)
+        vim.keymap.set('n', '<Leader>ag', b.live_grep)
+        vim.keymap.set('n', '<Leader>ab', b.buffers)
+        vim.keymap.set('n', '<Leader>ah', b.help_tags)
+      end,
     },
     {
       'nvim-treesitter/nvim-treesitter',
