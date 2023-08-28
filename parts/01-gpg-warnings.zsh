@@ -7,7 +7,7 @@ function _rc_l_git() {
   fi
 
   local cfg
-  for cfg in commit push tag; do
+  for cfg in commit tag; do # TODO: add signed push eventually
     if [[ "$(git config --global $cfg.gpgSign)" != *true* ]]; then
       _rc_i_status_reset
       echo "\x1b[1;38;5;1mGit is not configured to use GPG signing for scope \`$cfg\`!\x1b[m"
@@ -17,6 +17,15 @@ function _rc_l_git() {
       fi
     fi
   done
+
+  if [[ "$(git config --global push.gpgSign)" == *true* ]]; then
+    _rc_i_status_reset
+    echo "\x1b[1;38;5;1mSigned pushes are enabled, you probably don't want this.\x1b[m"
+
+    if [[ "$(_rc_g_yn "Fix this? [Y/n] " y)" == 'y' ]]; then
+      git config --global --unset-all "push.gpgSign"
+    fi
+  fi
 }
 
 if [[ -z "$ZRC_NO_GPG" ]]; then

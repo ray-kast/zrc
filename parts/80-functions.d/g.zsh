@@ -44,9 +44,10 @@ _rc_g_fn_gcmds+=(
   p   'push'
   pd  'push -d --no-verify'
   pu  'push -u'
-  pn  'push --no-signed'
-  pnd 'push --no-signed -d --no-verify'
-  pnu 'push --no-signed -u'
+  # TODO: re-enable these if we re-enable signed pushes by default
+  # pn  'push --no-signed'
+  # pnd 'push --no-signed -d --no-verify'
+  # pnu 'push --no-signed -u'
   r   'remote'
   ra  'remote add'
   rv  'remote -v'
