@@ -28,6 +28,20 @@ function _rc_g_fn_update_cabal() {
   return 0
 }
 
+function _rc_g_fn_update_elan() {
+  _rc_g_has elan || return 0
+
+  echo ":: Running elan upgrade..."
+
+  _rc_g_fn_update_notify 'Running elan update...'
+
+  elan self update
+
+  elan update
+
+  return 0
+}
+
 function _rc_g_fn_update_flatpak() {
   _rc_g_has flatpak || return 0
 
@@ -343,6 +357,7 @@ function update() {
 
   # ...then run other updaters
   _rc_g_fn_update_cabal
+  _rc_g_fn_update_elan
   _rc_g_fn_update_flatpak
   _rc_g_fn_update_nvim
   _rc_g_fn_update_rustup

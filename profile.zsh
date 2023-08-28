@@ -26,6 +26,11 @@ if (( $+commands[cargo] )) || (( $+commands[rustup] )) || [[ -x "$HOME/.cargo/bi
   export PATH="/usr/lib/cargo/bin:$HOME/.cargo/bin:$PATH"
 fi
 
+if  [[ -x "$HOME/.elan/bin/elan" ]]; then
+  _ elan
+  export PATH="$HOME/.elan/bin:$PATH"
+fi
+
 if (( $+commands[ruby] )) && (( $+commands[gem] )); then
   _ gem
   export PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
