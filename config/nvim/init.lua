@@ -64,7 +64,7 @@ vim.o.laststatus = 2
 
 -- leader key
 vim.g.mapleader = ','
-vim.g.maplocalleader = '\\'
+vim.g.maplocalleader = ' '
 vim.o.timeoutlen = 500
 
 -- mappings
@@ -72,6 +72,7 @@ do
   local map = function(l, r, o) vim.keymap.set('n', l, r, o) end
   local imap = function(l, r, o) vim.keymap.set('i', l, r, o) end
   local tmap = function(l, r, o) vim.keymap.set('t', l, r, o) end
+  local _map = vim.keymap.set
 
   map('gl', ':tablast<CR>')
 
@@ -79,12 +80,15 @@ do
   imap(',qw', '<C-c>:wq<CR>')
   map(',w', ':wa<CR>')
   imap(',w', '<C-c>:wa<CR>')
+  _map({ 'n', 'i' }, ',.', '<C-c>')
   tmap(',.', '<C-\\><C-n>')
 
   map(',m', ':checkt<CR>')
-  map(',s', ':nohlsearch<CR>')
-  imap(',s', '<C-c>:nohlsearch<CR>a')
   map(',t', ':tabe | term<CR>')
+
+  map('gn', vim.diagnostic.goto_next, args)
+  map('gN', vim.diagnostic.goto_prev, args)
+  map('<Leader>k', vim.diagnostic.open_float, args)
 
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('LspBinds', {}),
@@ -116,44 +120,22 @@ if not vim.g.lazy_did_setup then
   end
   vim.opt.runtimepath:prepend(lazypath)
 
+  -- vimscript plugin config
+  vim.g.rnvimr_enable_ex = 1
+  vim.g.rnvimr_enable_picker = 1
+
   require('lazy').setup({
     { 'folke/lazy.nvim', tag = 'stable' },
 
     {
       'hrsh7th/nvim-cmp',
       dependencies = {
+        'hrsh7th/cmp-cmdline',
         'hrsh7th/cmp-buffer',
         'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-path',
         { 'L3MON4D3/LuaSnip', build = 'make install_jsregexp' },
-        {
-          'neovim/nvim-lspconfig',
-          dependencies = {
-            {
-              'lvimuser/lsp-inlayhints.nvim',
-              opts = {
-                inlay_hints = {
-                  highlight = 'Comment',
-                },
-              },
-              config = function(_, opts)
-                local ih = require('lsp-inlayhints')
-                ih.setup(opts)
-
-                vim.api.nvim_create_autocmd("LspAttach", {
-                  group = vim.api.nvim_create_augroup("LspAttachInlayHints", {}),
-                  callback = function(args)
-                    if not (args.data and args.data.client_id) then
-                      return
-                    end
-
-                    local client = vim.lsp.get_client_by_id(args.data.client_id)
-                    ih.on_attach(client, args.buf)
-                  end,
-                })
-              end,
-            },
-          },
-        },
+        'neovim/nvim-lspconfig',
         'saadparwaiz1/cmp_luasnip',
       },
       config = function()
@@ -207,6 +189,22 @@ if not vim.g.lazy_did_setup then
           })
         })
 
+        cmp.setup.cmdline({ '/', '?' }, {
+          mapping = cmp.mapping.preset.cmdline(),
+          sources = {
+            { name = 'buffer' },
+          },
+        })
+
+        cmp.setup.cmdline(':', {
+          mapping = cmp.mapping.preset.cmdline(),
+          sources = cmp.config.sources({
+            { name = 'path' },
+          }, {
+            { name = 'cmdline' },
+          }),
+        })
+
         local caps = require('cmp_nvim_lsp').default_capabilities()
 
         for lsp, opts in pairs({
@@ -227,12 +225,23 @@ if not vim.g.lazy_did_setup then
       end
     },
     {
+      'j-hui/fidget.nvim',
+      tag = 'legacy', -- TODO
+      event = 'LspAttach',
+      config = true,
+    },
+    {
       'Julian/lean.nvim',
       event = { 'BufReadPre *.lean', 'BufNewFile *.lean' },
       dependencies = {
         'nvim-lua/plenary.nvim',
       },
-      config = true,
+      opts = {
+        mappings = true,
+        infoview = {
+          autoopen = false,
+        },
+      },
     },
     {
       'kevinhwang91/rnvimr',
@@ -254,6 +263,35 @@ if not vim.g.lazy_did_setup then
 
         vim.keymap.set('n', '<Leader>g', neogit.open)
       end,
+    },
+    {
+      'neovim/nvim-lspconfig',
+      dependencies = {
+        {
+          'lvimuser/lsp-inlayhints.nvim',
+          opts = {
+            inlay_hints = {
+              highlight = 'Comment',
+            },
+          },
+          config = function(_, opts)
+            local ih = require('lsp-inlayhints')
+            ih.setup(opts)
+
+            vim.api.nvim_create_autocmd("LspAttach", {
+              group = vim.api.nvim_create_augroup("LspAttachInlayHints", {}),
+              callback = function(args)
+                if not (args.data and args.data.client_id) then
+                  return
+                end
+
+                local client = vim.lsp.get_client_by_id(args.data.client_id)
+                ih.on_attach(client, args.buf)
+              end,
+            })
+          end,
+        },
+      },
     },
     {
       'numToStr/Comment.nvim',
@@ -306,7 +344,12 @@ if not vim.g.lazy_did_setup then
         end, { remap = true })
       end,
     },
-    { 'rmagatti/auto-session', config = true },
+    {
+      'rmagatti/auto-session',
+      opts = {
+        bypass_session_save_file_types = 1,
+      },
+    },
   }, {
     root = lazyroot,
   })

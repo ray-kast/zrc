@@ -49,6 +49,16 @@ alias -s js="node"
 alias -s pdf="evince"
 
 () {
+  local f
+
+  for f in /opt/esp-idf/export.sh; do
+    if [[ -f "$f" ]]; then
+      alias espidf=". $f"
+    fi
+  done
+}
+
+() {
   local x
 
   if _rc_g_has gio; then

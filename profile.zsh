@@ -26,16 +26,6 @@ if (( $+commands[cargo] )) || (( $+commands[rustup] )) || [[ -x "$HOME/.cargo/bi
   export PATH="/usr/lib/cargo/bin:$HOME/.cargo/bin:$PATH"
 fi
 
-() {
-  local f
-
-  for f in /opt/esp-idf/export.sh; do
-    if [[ -f "$f" ]]; then
-      . "$f"
-    fi
-  done
-}
-
 if (( $+commands[ruby] )) && (( $+commands[gem] )); then
   _ gem
   export PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
