@@ -54,6 +54,7 @@ alias -s pdf="evince"
   for f in /opt/esp-idf/export.sh; do
     if [[ -f "$f" ]]; then
       alias espidf=". $f"
+      break
     fi
   done
 }
