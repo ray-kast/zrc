@@ -11,5 +11,7 @@ function fnv() {
 
   [[ "${(q)cmd}" == "$cmd" ]] && esc="$cmd" || esc="${(qq)cmd}"
 
-  nvim -c "$cmd" && print -s nvim -c "$esc"
+  echo -en $'\e]2;'"nvim -c $esc"$'\a' && \
+    nvim -c "$cmd" && \
+    print -s nvim -c "$esc"
 }
