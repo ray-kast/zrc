@@ -74,6 +74,9 @@ do
   local tmap = function(l, r, o) vim.keymap.set('t', l, r, o) end
   local _map = vim.keymap.set
 
+  map('gy', 'gvy')
+  imap('<M-BS>', '<C-w>')
+
   map('gl', '<Cmd>tablast<CR>')
 
   map(',qw', '<Cmd>wq<CR>')
@@ -101,6 +104,7 @@ do
       map('gr', vim.lsp.buf.references, args)
       map('K', vim.lsp.buf.hover, args)
       map('<C-k>', vim.lsp.buf.signature_help, args)
+      map('<Leader>f', vim.lsp.buf.format, args)
     end
   })
 end
@@ -249,6 +253,12 @@ if not vim.g.lazy_did_setup then
         vim.keymap.set('n', '<Leader>r', ':RnvimrToggle<CR>')
         vim.keymap.set('t', '<Leader>r', '<C-\\><C-n>:RnvimrToggle<CR>')
       end,
+    },
+    {
+      'kylechui/nvim-surround',
+      version = '*',
+      event = 'VeryLazy',
+      config = true,
     },
     {
       'NeogitOrg/neogit',

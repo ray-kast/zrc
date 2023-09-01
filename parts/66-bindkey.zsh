@@ -27,6 +27,9 @@ bindkey "^]" expand-or-complete
 bindkey ",," vi-cmd-mode
 bindkey "^[v" vi-cmd-mode
 
+bindkey ",f" fzf-history-search
+bindkey ",F" fzf-history-search-accept
+
 if [[ "$TERM" == 'xterm' ]]; then
   bindkey "^H" backward-delete-char
   bindkey "^?" backward-kill-word
