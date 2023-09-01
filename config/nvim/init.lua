@@ -74,17 +74,17 @@ do
   local tmap = function(l, r, o) vim.keymap.set('t', l, r, o) end
   local _map = vim.keymap.set
 
-  map('gl', ':tablast<CR>')
+  map('gl', '<Cmd>tablast<CR>')
 
-  map(',qw', ':wq<CR>')
-  imap(',qw', '<C-c>:wq<CR>')
-  map(',w', ':wa<CR>')
-  imap(',w', '<C-c>:wa<CR>')
+  map(',qw', '<Cmd>wq<CR>')
+  imap(',qw', '<Cmd>wq<CR>')
+  map(',w', '<Cmd>wa<CR>')
+  imap(',w', '<C-c><Cmd>wa<CR>')
   _map({ 'n', 'i' }, ',.', '<C-c>')
   tmap(',.', '<C-\\><C-n>')
 
-  map(',m', ':checkt<CR>')
-  map(',t', ':tabe | term<CR>')
+  map(',m', '<Cmd>checkt<CR>')
+  map(',t', '<Cmd>tabe | term<CR>')
 
   map('gn', vim.diagnostic.goto_next, args)
   map('gN', vim.diagnostic.goto_prev, args)
@@ -347,7 +347,7 @@ if not vim.g.lazy_did_setup then
     {
       'rmagatti/auto-session',
       opts = {
-        bypass_session_save_file_types = 1,
+        bypass_session_save_file_types = { 'leaninfo' },
       },
     },
   }, {
