@@ -216,10 +216,11 @@ if not vim.g.lazy_did_setup then
           rust_analyzer = {
             ['rust-analyzer'] = {
               cargo = {
-                features = "all",
+                features = 'all',
               },
               check = {
-                features = "all",
+                command = 'clippy',
+                features = 'all',
               },
             },
           },
@@ -258,6 +259,10 @@ if not vim.g.lazy_did_setup then
       'kylechui/nvim-surround',
       version = '*',
       event = 'VeryLazy',
+      dependencies = {
+        'nvim-treesitter/nvim-treesitter',
+        'nvim-treesitter/nvim-treesitter-textobjects',
+      },
       config = true,
     },
     {
@@ -288,8 +293,8 @@ if not vim.g.lazy_did_setup then
             local ih = require('lsp-inlayhints')
             ih.setup(opts)
 
-            vim.api.nvim_create_autocmd("LspAttach", {
-              group = vim.api.nvim_create_augroup("LspAttachInlayHints", {}),
+            vim.api.nvim_create_autocmd('LspAttach', {
+              group = vim.api.nvim_create_augroup('LspAttachInlayHints', {}),
               callback = function(args)
                 if not (args.data and args.data.client_id) then
                   return
