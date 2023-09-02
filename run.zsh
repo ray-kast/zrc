@@ -15,9 +15,10 @@ else
 fi
 
 _rc_i_basedir="$(dirname "$0")"
+_rc_i_verfile="$ZDOTDIR/.zrc-ver"
 
 function reinstall() {
-  local file="$ZDOTDIR"/.zrc-ver curr="$_rc_i_basedir/VERSION"
+  local file="$_rc_i_verfile" curr="$_rc_i_basedir/VERSION"
 
   _rc_i_status zrc-ver
 
@@ -82,10 +83,21 @@ function reinstall() {
       local file
 
       file="$ZDOTDIR"/.zrc-update
+      [[ -f "$file" ]] && rm -rf "$file" # old location
+
+      file="$_rc_i_verfile"
 
       [[ -n "$(find "$file" -daystart -atime +0 2>/dev/null)" || (! -f "$file") ]] || return
 
       _rc_i_status "Checking for updates..."
+
+      local lock="$file.lck"
+      [[ -f "$lock" ]] && return
+      echo -n >"$lock" || {
+        _rc_i_status_reset
+        echo 'WARNING: Update check failed, unable to lock'
+        return
+      }
 
       (
         cd "$HOME"/.zrc
@@ -137,6 +149,7 @@ function reinstall() {
       ) || { _rc_i_status_reset; echo "WARNING: update check failed"; return }
 
       touch "$file"
+      rm -rf "$lock"
     }
   fi
 
@@ -147,11 +160,6 @@ function reinstall() {
     unset -m '_rc_l_*'
   done
 }
-
-if [[ -f ~/.zrc-local.zsh ]]; then
-  _rc_i_status zrc-local
-  . ~/.zrc-local.zsh
-fi
 
 _rc_i_status_reset
 
