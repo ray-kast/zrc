@@ -89,9 +89,9 @@ do
   map(',m', '<Cmd>checkt<CR>')
   map(',t', '<Cmd>tabe | term<CR>')
 
-  map('gn', vim.diagnostic.goto_next, args)
-  map('gN', vim.diagnostic.goto_prev, args)
-  map('<Leader>k', vim.diagnostic.open_float, args)
+  map('gn', vim.diagnostic.goto_next)
+  map('gN', vim.diagnostic.goto_prev)
+  map('<Leader>k', vim.diagnostic.open_float)
 
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('LspBinds', {}),
@@ -103,8 +103,19 @@ do
       map('gi', vim.lsp.buf.implementation, args)
       map('gr', vim.lsp.buf.references, args)
       map('K', vim.lsp.buf.hover, args)
-      map('<C-k>', vim.lsp.buf.signature_help, args)
+      _map({ 'n', 'i' }, '<C-k>', vim.lsp.buf.signature_help, args)
+      map('<Leader>a', vim.lsp.buf.code_action, args)
       map('<Leader>f', vim.lsp.buf.format, args)
+      map('<Leader>R', vim.lsp.buf.rename, args)
+      map('<Leader>x', function() require('trouble').open('workspace_diagnostics') end)
+
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'InsertLeave' }, {
+        group = vim.api.nvim_create_augroup('LspCodelens', {}),
+        buffer = ev.buf,
+        callback = function(ev)
+          vim.lsp.codelens.refresh()
+        end
+      })
     end
   })
 end
@@ -131,6 +142,22 @@ if not vim.g.lazy_did_setup then
   require('lazy').setup({
     { 'folke/lazy.nvim', tag = 'stable' },
 
+    {
+      'folke/trouble.nvim',
+      opts = {
+        icons = false,
+        fold_open = '-',
+        fold_closed = '+',
+        signs = {
+          error = 'E',
+          warning = 'W',
+          hint = 'H',
+          information = 'I',
+          other = 'N',
+        },
+        use_diagnostic_signs = true,
+      },
+    },
     {
       'hrsh7th/nvim-cmp',
       dependencies = {
@@ -319,16 +346,38 @@ if not vim.g.lazy_did_setup then
           line = ',c',
           block = ',b',
         },
+        ignore = '^%s*$',
       },
-      lazy = false
+      lazy = false,
+      config = function(_, opts)
+        opts.pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook()
+        require('Comment').setup(opts)
+      end
     },
     {
       'nvim-telescope/telescope.nvim',
       dependencies = {
         'nvim-lua/plenary.nvim',
         'nvim-treesitter/nvim-treesitter',
+        'folke/trouble.nvim',
       },
-      config = function()
+      config = function(_, opts)
+        local trouble = require('trouble.providers.telescope')
+
+        require('telescope').setup({
+          defaults = {
+            mappings = {
+              i = {
+                ['<C-k>'] = trouble.open_with_trouble,
+              },
+              n = {
+                ['<C-k>'] = trouble.open_with_trouble,
+              },
+            },
+          },
+        })
+
+        -- TODO: move this (and other plugin keymaps) to the keymap section
         local b = require('telescope.builtin')
 
         vim.keymap.set('n', '<Leader>af', b.find_files)
