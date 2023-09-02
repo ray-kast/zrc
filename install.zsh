@@ -163,7 +163,7 @@ EOF
 pretty_target="${ZDOTDIR:+$(unhome "$ZDOTDIR")}"
 
 # Otherwise default to $HOME/.zsh
-pretty_target="${target:-\$HOME/.zsh}"
+pretty_target="${pretty_target:-\$HOME/.zsh}"
 
 while getopts 'ht:' opt; do
   case "$opt" in
@@ -258,9 +258,9 @@ if [[ -n "$any_existing" ]]; then
 fi
 
 curr_dotdir="${ZDOTDIR:-$HOME}"
-pretty_curr_dotdir="$(unhome "$curr_dotdir")"
 
 if [[ "$(realpath "$curr_dotdir")" != "$target" ]]; then
+  pretty_curr_dotdir="$(unhome "$curr_dotdir")"
   warn "\$ZDOTDIR will be changed to '$pretty_target' from '$pretty_curr_dotdir'"
 
   any_existing=''
