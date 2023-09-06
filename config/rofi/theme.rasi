@@ -1,0 +1,165 @@
+* {
+  v-background: #171d23d8;
+
+  v-black: #41505e;
+  v-red: #d95468;
+  v-green: #8bd49c;
+  v-yellow: #ebbf83;
+  v-blue: #539afc;
+  v-magenta: #d94f82;
+  v-aqua: #70e1e8;
+  v-white: #ffffff;
+
+  v-gray: #555555;
+  v-turquoise: #008b94;
+
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  border-color: var(v-gray);
+  text-color: var(v-white);
+}
+
+window {
+  background-color: var(v-background);
+  border: 1px;
+  border-color: var(v-green);
+}
+
+inputbar {
+  children: [
+    textbox--prompt-l1,
+    textbox--prompt-l2,
+    prompt,
+    textbox--prompt-r1,
+    textbox--prompt-r2,
+    entry,
+    textbox--rows-left,
+    num-filtered-rows,
+    textbox--rows-mid,
+    num-rows,
+    case-indicator
+  ];
+}
+
+textbox--prompt-l1,
+textbox--prompt-l2,
+prompt,
+textbox--prompt-r1,
+textbox--prompt-r2,
+textbox--rows-left,
+num-filtered-rows,
+textbox--rows-mid,
+num-rows {
+  expand: false;
+  margin: 0 -2px 0 0;
+}
+
+textbox--prompt-l1 {
+  str: " ";
+  background-color: var(v-green);
+}
+
+textbox--prompt-l2 {
+  str: "";
+  background-color: var(v-black);
+  text-color: var(v-green);
+}
+
+prompt {
+  padding: 0 8px 0;
+  background-color: var(v-black);
+  text-color: var(v-yellow);
+}
+
+textbox--prompt-r1 {
+  str: " ";
+  background-color: var(v-green);
+  text-color: var(v-black);
+}
+
+textbox--prompt-r2 {
+  str: " ";
+  text-color: var(v-green);
+}
+
+textbox--rows-left {
+  str: " ";
+  text-color: var(v-green);
+}
+
+num-rows, num-filtered-rows {
+  text-color: var(v-aqua);
+}
+
+textbox--rows-mid {
+  str: "/";
+  padding: 0 6px;
+  text-color: var(v-black);
+}
+
+case-indicator {
+  margin: 0 6px 0;
+  text-color: var(v-black);
+}
+
+listview {
+  padding: 8px;
+  scrollbar: true;
+}
+
+scrollbar {
+  margin: -1px 0 0 4px;
+  handle-width: 8px;
+  handle-color: var(v-white);
+  border: 1px;
+  border-color: var(v-black);
+  border-radius: 4;
+}
+
+element {
+  padding: 2px;
+  border-radius: 4px;
+}
+
+element normal.normal,
+element alternate.normal {
+  text-color: var(v-white);
+}
+
+element normal.urgent,
+element alternate.urgent {
+  text-color: var(v-red);
+}
+
+element normal.active,
+element alternate.active {
+  text-color: var(v-blue);
+}
+
+element selected.normal {
+  background-color: var(v-black);
+  text-color: var(v-yellow);
+}
+
+element selected.urgent {
+  background-color: var(v-red);
+  text-color: var(v-white);
+}
+
+element selected.active {
+  background-color: var(v-blue);
+  text-color: var(v-white);
+}
+
+element-icon {
+  size: 1em;
+  margin: 0 4px 0 0;
+}
+
+element-text {
+  text-color: inherit;
+  highlight: bold underline #d95468;
+}
+
+/* vim:set ft=css: */

@@ -1,0 +1,157 @@
+[global]
+  font = Inter Medium 12
+
+  dmenu = "rofi -dmenu"
+
+  # allow faux-html
+  markup = yes
+
+  # %a - appname
+  # %s - summary
+  # %b - body
+  # %i - iconname (with path)
+  # %I - iconname (without path)
+  # %p - progress (0-100%) if set
+  format = "<b>%s </b><i>(%a)</i> %p\n%b"
+
+  # sort by urgency
+  sort = yes
+
+  # give a summary of hidden notifications
+  indicate_hidden = yes
+
+  # text alignment (left, center, right)
+  alignment = left
+
+  # show message age after awhile
+  show_age_threshold = 60
+
+  # set to yes to join lines
+  ignore_newline = yes
+
+  # window geometry
+  width = (300, 600)
+  height = 100
+  origin = left-center
+  offset = 32x0
+  notification_limit = 4
+
+  # text wrap/trim
+  word_wrap = yes
+  ellipsize = middle
+
+  transparency = 35
+
+  # don't hide notifications on idle
+  idle_threshold = 30
+
+  # which output to use if multiple exist (mouse/keyboard/none)
+  follow = none
+
+  # which output to use if follow = none
+  monitor = 1
+
+  # hold notifications in fullscreen
+  # TODO: this doesn't work?
+  fullscreen = pushback
+
+  # keep recalled notifications open
+  sticky_history = yes
+
+  history_length = 40
+
+  # (U) and (A) indicators
+  show_indicators = yes
+
+  # border between notifications
+  separator_height = 1
+
+  # vertical padding
+  padding = 16
+
+  # horizontal padding
+  horizontal_padding = 16
+
+  frame_width = 1
+  separator_color = frame
+
+  # use rofi in dmenu mode
+  dmenu = /usr/bin/rofi -dmenu -p dunst
+
+  # browser to open urls
+  browser = /usr/bin/firefox
+
+  # icon positioning
+  icon_position = left
+  max_icon_size = 48
+
+[urgency_low]
+  background = "#171D23"
+  foreground = "#888888"
+  frame_color = "#222222"
+  timeout = 3
+
+[urgency_normal]
+  background = "#171D23"
+  foreground = "#70E1E8"
+  frame_color = "#8BD49C"
+  timeout = 10
+
+[urgency_critical]
+  background = "#D95468"
+  foreground = "#ffffff"
+  frame_color = "#D95468"
+  timeout = 0
+
+[discord]
+  appname = discord
+  background = "#5865F2"
+  foreground = "#FFFFFF"
+  frame_color = "#23272A"
+
+[firefox]
+  appname = Firefox
+  background = "#B5007F"
+  foreground = "#FFFFFF"
+  frame_color = "#7D004F"
+
+# [notify-send]
+#   appname = notify-send
+#   background = "#E49D1F"
+#   foreground = "#FFFFFF"
+
+[pa-applet]
+  appname = pa-applet
+  background = "#000000"
+  foreground = "#FFFFFF"
+  frame_color = "#222222"
+  fullscreen = show
+  timeout = 2
+
+[slack]
+  appname = Slack
+  foreground = "#FFFFFF"
+  background = "#921D21"
+  frame_color = "#DE8969"
+
+[spotify]
+  appname = Spotify
+  background = "#1DB954"
+  foreground = "#FFFFFF"
+  frame_color = "#191414"
+  timeout = 5
+
+[telegram]
+  appname = Telegram Desktop
+  background = "#172A45"
+  foreground = "#FFFFFF"
+  frame_color = "#276852"
+
+[xfce4-power-manager]
+  appname = xfce4-power-manager
+  background = "#171D23"
+  foreground = "#EBBF83"
+  frame_color = "#D34A29"
+  fullscreen = show
+
+# vim:ft=cfg sw=2
