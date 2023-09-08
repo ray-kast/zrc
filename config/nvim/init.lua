@@ -380,7 +380,7 @@ if not vim.g.lazy_did_setup then
         -- TODO: move this (and other plugin keymaps) to the keymap section
         local b = require('telescope.builtin')
 
-        vim.keymap.set('n', '<Leader>af', b.find_files)
+        vim.keymap.set('n', '<Leader>af', function() b.find_files({ hidden = true }) end)
         vim.keymap.set('n', '<Leader>ag', b.live_grep)
         vim.keymap.set('n', '<Leader>ab', b.buffers)
         vim.keymap.set('n', '<Leader>ah', b.help_tags)
