@@ -36,6 +36,7 @@ alias tn="tmux new-session -A -s"
 alias tls="tmux ls"
 alias venv="python -m venv"
 alias xc="xclip -selection clipboard"
+alias yay='MAKEFLAGS="-j$(nproc)" command yay'
 alias z="zstd --long --ultra -22 -T0 -B0 -vvv"
 
 alias :q="exit"
