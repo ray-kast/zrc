@@ -21,7 +21,7 @@
   [[ -S "$gpg_sock" ]] || return 0
   _rc_g_gpg[found]=1
 
-  if [[ "$(uname)" == 'Darwin' ]] || [[ "$DISPLAY" == :* ]]
+  if [[ "$(uname)" == 'Darwin' ]] || [[ "$DISPLAY" == :* ]] || [[ -n "$WAYLAND_DISPLAY" ]]
     then _rc_g_gpg[gui]=1 fi
 
   export SSH_AGENT_PID=''
