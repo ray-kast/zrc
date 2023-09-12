@@ -87,7 +87,9 @@ do
   tmap(',.', '<C-\\><C-n>')
 
   map(',m', '<Cmd>checkt<CR>')
-  map(',t', '<Cmd>tabe | term<CR>')
+  map(',d', '<Cmd>tab split<CR>')
+  map(',d', '<Cmd>tab split<CR>')
+  map(',t', '<Cmd>tabnew +term<CR>')
 
   map('gn', vim.diagnostic.goto_next)
   map('gN', vim.diagnostic.goto_prev)
@@ -98,8 +100,9 @@ do
     callback = function(ev)
       args = { buffer = ev.buf }
 
-      map('gD', vim.lsp.buf.declaration, args)
       map('gd', vim.lsp.buf.definition, args)
+      map('gdd', vim.lsp.buf.declaration, args)
+      map('gdt', vim.lsp.buf.type_definition, args)
       map('gi', vim.lsp.buf.implementation, args)
       map('gr', vim.lsp.buf.references, args)
       map('K', vim.lsp.buf.hover, args)
