@@ -79,17 +79,16 @@ do
 
   map('gl', '<Cmd>tablast<CR>')
 
-  map(',qw', '<Cmd>wq<CR>')
-  imap(',qw', '<Cmd>wq<CR>')
-  map(',w', '<Cmd>wa<CR>')
-  imap(',w', '<C-c><Cmd>wa<CR>')
+  map('<Leader>qw', '<Cmd>wq<CR>')
+  imap('<Leader>qw', '<Cmd>wq<CR>')
+  map('<Leader>w', '<Cmd>wa<CR>')
+  imap('<Leader>w', '<C-c><Cmd>wa<CR>')
   _map({ 'n', 'i' }, ',.', '<C-c>')
-  tmap(',.', '<C-\\><C-n>')
+  tmap('<Leader>.', '<C-\\><C-n>')
 
-  map(',m', '<Cmd>checkt<CR>')
-  map(',d', '<Cmd>tab split<CR>')
-  map(',d', '<Cmd>tab split<CR>')
-  map(',t', '<Cmd>tabnew +term<CR>')
+  map('<Leader>m', '<Cmd>checkt<CR>')
+  map('<Leader>d', '<Cmd>tab split<CR>')
+  map('<Leader>t', '<Cmd>tabnew +term<CR>')
 
   map('gn', vim.diagnostic.goto_next)
   map('gN', vim.diagnostic.goto_prev)
@@ -108,6 +107,7 @@ do
       map('K', vim.lsp.buf.hover, args)
       _map({ 'n', 'i' }, '<C-k>', vim.lsp.buf.signature_help, args)
       map('<Leader>a', vim.lsp.buf.code_action, args)
+      map('<Leader>aa', vim.lsp.codelens.run, args)
       map('<Leader>f', vim.lsp.buf.format, args)
       map('<Leader>R', vim.lsp.buf.rename, args)
       map('<Leader>x', function() require('trouble').open('workspace_diagnostics') end)
