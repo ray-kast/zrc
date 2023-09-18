@@ -39,7 +39,7 @@ function mime-default-select() {
   typeset -a sel_types
   sel_types=("${(@ps:\0:)${$(echo -n "${(kpj:\0:)types}" | fzf --read0 --print0 -m --cycle --bind ctrl-a:select-all)%$'\0'}}") || return "$?"
 
-  xdg-mime default "$selected" "${(@)sel_types}" || return "$?"
+  xdg-mime default "$(basename "$selected")" "${(@)sel_types}" || return "$?"
 
   echo "Handler for $#sel_types MIME type(s) updated successfully."
 }

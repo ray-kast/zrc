@@ -270,6 +270,9 @@ if not vim.g.lazy_did_setup then
                 onOpenAndSave = true,
                 onEdit = true,
               },
+              latexindent = {
+                modifyLineBreaks = true,
+              },
             },
           },
         }) do
