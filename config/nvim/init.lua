@@ -112,13 +112,22 @@ do
       map('<Leader>R', vim.lsp.buf.rename, args)
       map('<Leader>x', function() require('trouble').open('workspace_diagnostics') end)
 
-      vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'InsertLeave' }, {
-        group = vim.api.nvim_create_augroup('LspCodelens', {}),
-        buffer = ev.buf,
-        callback = function(ev)
-          vim.lsp.codelens.refresh()
+      local codelens = false
+      for _, client in ipairs(vim.lsp.get_active_clients({ bufnre = ev.buf })) do
+        if client.supports_method('textDocument/codeLens') then
+          codelens = true
         end
-      })
+      end
+
+      if codelens then
+        vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'InsertLeave' }, {
+          group = vim.api.nvim_create_augroup('LspCodelens', { clear = false }),
+          buffer = ev.buf,
+          callback = function(ev) vim.lsp.codelens.refresh() end,
+        })
+      else
+        vim.notify('Not enabling code lenses for buffer ' .. ev.buf, vim.log.levels.INFO)
+      end
     end
   })
 end
@@ -239,6 +248,7 @@ if not vim.g.lazy_did_setup then
           }),
         })
 
+        local conf = require('lspconfig')
         local caps = require('cmp_nvim_lsp').default_capabilities()
 
         for lsp, opts in pairs({
@@ -254,8 +264,16 @@ if not vim.g.lazy_did_setup then
               },
             },
           },
+          texlab = {
+            texlab = {
+              chktex = {
+                onOpenAndSave = true,
+                onEdit = true,
+              },
+            },
+          },
         }) do
-          require('lspconfig')[lsp].setup({ capabilities = caps, settings = opts })
+          conf[lsp].setup({ capabilities = caps, settings = opts })
         end
       end
     },
