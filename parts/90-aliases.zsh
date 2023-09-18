@@ -64,8 +64,32 @@ alias -s pdf="evince"
 () {
   local x
 
-  if _rc_g_has gio; then
-    for x in png jpg gif; do alias -s $x="gio open"; done
+  if [[ -n "$KITTY_WINDOW_ID" ]]; then
+    alias icat="kitty +kitten icat"
+  fi
+
+  typeset -A openers=(
+    xdg-open 'xdg-open'
+    gio 'gio open'
+    open 'open'
+  )
+
+  local open='false'
+  for x in "${(@k)openers}"; do
+    if _rc_g_has "$x"; then
+      open="$x"
+      break
+    fi
+  done
+
+  if [[ "$open" != false ]]; then
+    alias open="command $open"
+
+    (( $+aliases[icat] )) || alias icat=open
+  fi
+
+  if (( $+aliases[icat] )); then
+    for x in png jpg gif; do alias -s $x=icat; done
   fi
 
   if _rc_g_has firefox; then
