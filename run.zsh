@@ -92,7 +92,12 @@ function reinstall() {
       _rc_i_status "Checking for updates..."
 
       local lock="$file.lck"
-      [[ -f "$lock" ]] && return
+      if [[ -f "$lock" ]]; then
+        _rc_i_status_reset
+        echo 'WARNING: Update lockfile exists, skipping update check'
+        return
+      fi
+
       echo -n >"$lock" || {
         _rc_i_status_reset
         echo 'WARNING: Update check failed, unable to lock'
