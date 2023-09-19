@@ -155,6 +155,10 @@ if not vim.g.lazy_did_setup then
     { 'folke/lazy.nvim', tag = 'stable' },
 
     {
+      'digitaltoad/vim-pug',
+      ft = 'pug',
+    },
+    {
       'folke/trouble.nvim',
       opts = {
         icons = false,
@@ -252,6 +256,7 @@ if not vim.g.lazy_did_setup then
         local caps = require('cmp_nvim_lsp').default_capabilities()
 
         for lsp, opts in pairs({
+          dartls = {},
           leanls = {},
           rust_analyzer = {
             ['rust-analyzer'] = {

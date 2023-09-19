@@ -64,7 +64,7 @@ alias -s pdf="evince"
 () {
   local x
 
-  if [[ -n "$KITTY_WINDOW_ID" ]]; then
+  if [[ -n "$ZRC_KITTY_DETECTED" ]]; then
     alias icat="kitty +kitten icat"
   fi
 

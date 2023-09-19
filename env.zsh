@@ -22,4 +22,8 @@ _ locale
   fi
 }
 
+if [[ "$TERM" = *kitty* || -n "$KITTY_WINDOW_ID" ]]; then
+  export ZRC_KITTY_DETECTED="$TERM"
+fi
+
 unalias _
