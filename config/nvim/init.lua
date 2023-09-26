@@ -79,10 +79,12 @@ do
 
   map('gl', '<Cmd>tablast<CR>')
 
+  map('<Leader>e', '<Cmd>e<CR>')
+  imap('<Leader>e', '<Cmd>e<CR>')
   map('<Leader>qw', '<Cmd>wq<CR>')
   imap('<Leader>qw', '<Cmd>wq<CR>')
   map('<Leader>w', '<Cmd>wa<CR>')
-  imap('<Leader>w', '<C-c><Cmd>wa<CR>')
+  imap('<Leader>w', '<C-c><Cmd>wa<CR>', { remap = true })
   _map({ 'n', 'i' }, ',.', '<C-c>')
   tmap('<Leader>.', '<C-\\><C-n>')
 
@@ -111,6 +113,41 @@ do
       map('<Leader>f', vim.lsp.buf.format, args)
       map('<Leader>R', vim.lsp.buf.rename, args)
       map('<Leader>x', function() require('trouble').open('workspace_diagnostics') end)
+      -- Mostly stolen from nvim-lspconfig
+      map('<Leader>lr', function()
+        local detach = {}
+        for _, client in ipairs(vim.lsp.get_active_clients({ bufnr = ev.buf })) do
+          client.stop()
+          vim.lsp.codelens.clear(client.id)
+
+          if vim.tbl_count(client.attached_buffers) > 0 then
+            detach[client.name] = { client, client.attached_buffers }
+          end
+        end
+
+        local timer = vim.loop.new_timer()
+        timer:start(
+          500,
+          100,
+          vim.schedule_wrap(function()
+            for name, pair in pairs(detach) do
+              local client, bufs = unpack(pair)
+
+              if client.is_stopped() then
+                for buf in pairs(bufs) do
+                  require('lspconfig.configs')[name].launch(buf)
+                end
+
+                detach[name] = nil
+              end
+            end
+
+            if next(detach) == nil and not timer:is_closing() then
+              timer:close()
+            end
+          end)
+        )
+      end)
 
       local codelens = false
       for _, client in ipairs(vim.lsp.get_active_clients({ bufnre = ev.buf })) do

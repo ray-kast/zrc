@@ -105,6 +105,8 @@ function reinstall() {
       }
 
       (
+        trap 'rm -rf "$lock"' EXIT
+        trap 'exit -1' INT
         cd "$HOME"/.zrc
 
         if [[ -n $(git status --porcelain | head -n1) ]]; then
@@ -154,7 +156,6 @@ function reinstall() {
       ) || { _rc_i_status_reset; echo "WARNING: update check failed"; return }
 
       touch "$file"
-      rm -rf "$lock"
     }
   fi
 
