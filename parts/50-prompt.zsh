@@ -1,12 +1,5 @@
 _rc_g_prompt_begin
 
-function _rc_g_prompt_ps1() {
-  _rc_g_prompt_ps1_line1
-  p $'\n'
-  _rc_g_prompt_ps1_line2
-  p ' '
-}
-
 function _rc_g_prompt_ps1_line1() {
   setn 2 0
 
@@ -44,7 +37,7 @@ function _rc_g_prompt_ps1_line1() {
   fi
 }
 
-function _rc_g_prompt_ps1_line2() {
+function _rc_l_prompt_ps1_line2() {
   IF !
     setn 3 0
     p ' %B!!%b '
@@ -99,6 +92,13 @@ function _rc_g_prompt_ps1_line2() {
     p ' '
     endl 9 f
   FI
+}
+
+function _rc_l_prompt_ps1() {
+  p $'$(_rc_g_prompt_ps1_line1)'
+  p $'\n'
+  _rc_l_prompt_ps1_line2
+  p ' '
 }
 
 # TODO: consider porting this to vcs_info
@@ -156,7 +156,7 @@ function _rc_g_prompt_ps1_git() {
   endl $bkgd f
 }
 
-function _rc_g_prompt_rps1() {
+function _rc_l_prompt_rps1() {
   p ' '
   setf 2
   chevr
@@ -180,7 +180,7 @@ function _rc_g_prompt_rps1() {
   FI
 }
 
-function _rc_g_prompt_ps2() {
+function _rc_l_prompt_ps2() {
   setk 0
   p ' '
   setl 2 0
@@ -197,7 +197,7 @@ function _rc_g_prompt_ps2() {
   p ' '
 }
 
-function _rc_g_prompt_rps2() {
+function _rc_l_prompt_rps2() {
   p ' '
   setf 2
   chevr
@@ -212,14 +212,14 @@ function _rc_g_prompt_rps2() {
   FI
 }
 
-function _rc_g_prompt_ps3() {
+function _rc_l_prompt_ps3() {
   p ' '
   setf 2
   chevl
   p ' '
 }
 
-function _rc_g_prompt_ps4() {
+function _rc_l_prompt_ps4() {
   setf 0
 
   local i
@@ -239,11 +239,11 @@ function _rc_g_prompt_ps4() {
 }
 
 setopt prompt_bang prompt_subst
-PS1='%{%f%b%k%}$(_rc_g_prompt_ps1)%{%f%b%k%}'
-PS2='%{%f%b%k%}$(_rc_g_prompt_ps2)%{%f%b%k%}'
-PS3='%{%f%b%k%}$(_rc_g_prompt_ps3)%{%f%b%k%}'
-PS4='%{%f%b%k%}$(_rc_g_prompt_ps4)%{%f%b%k%}'
-RPS1='%{%f%b%k%}$(_rc_g_prompt_rps1)%{%f%b%k%}'
-RPS2='%{%f%b%k%}$(_rc_g_prompt_rps2)%{%f%b%k%}'
+PS1="%{%f%b%k%}$(_rc_l_prompt_ps1)%{%f%b%k%}"
+PS2="%{%f%b%k%}$(_rc_l_prompt_ps2)%{%f%b%k%}"
+PS3="%{%f%b%k%}$(_rc_l_prompt_ps3)%{%f%b%k%}"
+PS4="%{%f%b%k%}$(_rc_l_prompt_ps4)%{%f%b%k%}"
+RPS1="%{%f%b%k%}$(_rc_l_prompt_rps1)%{%f%b%k%}"
+RPS2="%{%f%b%k%}$(_rc_l_prompt_rps2)%{%f%b%k%}"
 
 _rc_g_prompt_end
