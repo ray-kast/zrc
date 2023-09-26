@@ -67,6 +67,14 @@ vim.g.mapleader = ','
 vim.g.maplocalleader = ' '
 vim.o.timeoutlen = 500
 
+-- misc autocmds
+vim.api.nvim_create_autocmd('TermLeave', {
+  group = vim.api.nvim_create_augroup('TermCheckt', {}),
+  callback = function(ev)
+    vim.cmd.checkt()
+  end,
+})
+
 -- mappings
 do
   local map = function(l, r, o) vim.keymap.set('n', l, r, o) end
@@ -327,6 +335,10 @@ if not vim.g.lazy_did_setup then
       tag = 'legacy', -- TODO
       event = 'LspAttach',
       config = true,
+    },
+    {
+      'jparise/vim-graphql',
+      ft = 'graphql',
     },
     {
       'Julian/lean.nvim',

@@ -87,7 +87,7 @@ function reinstall() {
 
       file="$_rc_i_verfile"
 
-      [[ -n "$(find "$file" -daystart -atime +0 2>/dev/null)" || (! -f "$file") ]] || return
+      [[ -n "$file"(#qN.md+1) || (! -f "$file") ]] || return
 
       _rc_i_status "Checking for updates..."
 
