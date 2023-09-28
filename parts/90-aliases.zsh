@@ -69,15 +69,17 @@ alias -s pdf="evince"
   fi
 
   typeset -A openers=(
-    xdg-open 'xdg-open'
     gio 'gio open'
     open 'open'
+    xdg-open 'xdg-open'
   )
 
+  typeset -a opener_order=(xdg-open open gio)
+
   local open='false'
-  for x in "${(@k)openers}"; do
+  for x in "${(@)opener_order}"; do
     if _rc_g_has "$x"; then
-      open="$x"
+      open="$openers[$x]"
       break
     fi
   done
