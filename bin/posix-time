@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'time'
+
+loop do
+  inp = begin
+    ARGF.readline
+  rescue => e
+    $stderr << e << "\n"
+    exit 1
+  end
+
+  begin
+    $t = Time.parse(inp.strip)
+    break
+  rescue => e
+    $stderr << e << "\n"
+  end
+end
+
+$stderr << $t << "\n"
+
+$stdout << $t.to_i
+$stdout << "\n" if $stdout.tty?

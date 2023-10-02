@@ -10,6 +10,7 @@ vim.o.splitbelow = true
 vim.o.splitright = true
 vim.o.scrolloff = 3
 vim.o.sidescrolloff = 7
+vim.o.spell = true
 vim.o.spelllang = 'en_us'
 vim.opt.sessionoptions = {
   'blank',
@@ -68,6 +69,15 @@ vim.g.maplocalleader = ' '
 vim.o.timeoutlen = 500
 
 -- misc autocmds
+vim.api.nvim_create_autocmd('TermOpen', {
+  group = vim.api.nvim_create_augroup('TermInit', {}),
+  callback = function(ev)
+    for _, win in ipairs(vim.fn.win_findbuf(ev.buf)) do
+      vim.wo[win].spell = false
+    end
+  end
+})
+
 vim.api.nvim_create_autocmd('TermLeave', {
   group = vim.api.nvim_create_augroup('TermCheckt', {}),
   callback = function(ev)
@@ -75,10 +85,26 @@ vim.api.nvim_create_autocmd('TermLeave', {
   end,
 })
 
+-- commands
+vim.api.nvim_create_user_command('Scratch', function(evt)
+  vim.api.nvim_cmd({
+    cmd = 'split',
+    mods = {
+      horizontal = evt.smods.horizontal,
+      vertical = evt.smods.vertical,
+      tab = evt.smods.tab,
+    },
+  }, { output = false })
+  local win = vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_create_buf(true, true)
+  vim.api.nvim_win_set_buf(win, buf)
+end, {})
+
 -- mappings
 do
   local map = function(l, r, o) vim.keymap.set('n', l, r, o) end
-  local imap = function(l, r, o) vim.keymap.set('i', l, r, o) end
+  local imap = function(l, r, o) vim.keymap.set({ 'i', 's' }, l, r, o) end
+  local nimap = function(l, r, o) vim.keymap.set({ 'n', 'i', 's' }, l, r, o) end
   local tmap = function(l, r, o) vim.keymap.set('t', l, r, o) end
   local _map = vim.keymap.set
 
@@ -87,22 +113,43 @@ do
 
   map('gl', '<Cmd>tablast<CR>')
 
-  map('<Leader>e', '<Cmd>e<CR>')
-  imap('<Leader>e', '<Cmd>e<CR>')
-  map('<Leader>qw', '<Cmd>wq<CR>')
-  imap('<Leader>qw', '<Cmd>wq<CR>')
+  map('<Leader>d', '<Cmd>tab split<CR>')
+  nimap('<Leader>e', '<Cmd>e<CR>')
+  map('<Leader>m', '<Cmd>checkt<CR>')
+  nimap('<Leader>qw', '<Cmd>wq<CR>')
+  map('<Leader>s', '<Cmd>Scratch<CR>')
+  map('<Leader>sv', '<Cmd>vertical Scratch<CR>')
+  map('<Leader>st', '<Cmd>tab Scratch<CR>')
+  map('<Leader>t', '<Cmd>tabnew +term<CR>')
   map('<Leader>w', '<Cmd>wa<CR>')
   imap('<Leader>w', '<C-c><Cmd>wa<CR>', { remap = true })
-  _map({ 'n', 'i' }, ',.', '<C-c>')
+  nimap('<Leader>.', '<C-c>')
   tmap('<Leader>.', '<C-\\><C-n>')
-
-  map('<Leader>m', '<Cmd>checkt<CR>')
-  map('<Leader>d', '<Cmd>tab split<CR>')
-  map('<Leader>t', '<Cmd>tabnew +term<CR>')
 
   map('gn', vim.diagnostic.goto_next)
   map('gN', vim.diagnostic.goto_prev)
   map('<Leader>k', vim.diagnostic.open_float)
+
+  local tab = vim.api.nvim_replace_termcodes('<Tab>', true, false, true)
+  local s_tab = vim.api.nvim_replace_termcodes('<S-Tab>', true, false, true)
+
+  imap('<Tab>', function()
+    local luasnip = require('luasnip')
+    if luasnip.expand_or_jumpable() then
+      luasnip.expand_or_jump()
+    else
+      vim.api.nvim_feedkeys(tab, 'nt', false)
+    end
+  end)
+
+  imap('<S-Tab>', function()
+    local luasnip = require('luasnip')
+    if luasnip.jumpable(-1) then
+      luasnip.jump(-1)
+    else
+      vim.api.nvim_feedkeys(s_tab, 'nt', false)
+    end
+  end)
 
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('LspBinds', {}),
@@ -252,26 +299,26 @@ if not vim.g.lazy_did_setup then
             ['<C-e>'] = cmp.mapping.abort(),
             ['<Esc>'] = cmp.mapping.abort(),
             ['<CR>'] = cmp.mapping.confirm({ select = true }),
-            ['<Tab>'] = cmp.mapping(function(fbk)
-              if cmp.visible() then
-                cmp.select_next_item()
-              elseif luasnip.expand_or_jumpable() then
-                luasnip.expand_or_jump()
-              elseif has_words_before() then
-                cmp.complete()
-              else
-                fbk()
-              end
-            end, { 'i', 's' }),
-            ['<S-Tab>'] = cmp.mapping(function(fbk)
-              if cmp.visible() then
-                cmp.select_prev_item()
-              elseif luasnip.jumpable(-1) then
-                luasnip.jump(-1)
-              else
-                fbk()
-              end
-            end, { 'i', 's' }),
+            -- ['<Tab>'] = cmp.mapping(function(fbk)
+            --   if cmp.visible() then
+            --     cmp.select_next_item()
+            --   elseif luasnip.expand_or_jumpable() then
+            --     luasnip.expand_or_jump()
+            --   elseif has_words_before() then
+            --     cmp.complete()
+            --   else
+            --     fbk()
+            --   end
+            -- end, { 'i', 's' }),
+            -- ['<S-Tab>'] = cmp.mapping(function(fbk)
+            --   if cmp.visible() then
+            --     cmp.select_prev_item()
+            --   elseif luasnip.jumpable(-1) then
+            --     luasnip.jump(-1)
+            --   else
+            --     fbk()
+            --   end
+            -- end, { 'i', 's' }),
           }),
           sources = cmp.config.sources({
             { name = 'nvim_lsp' },

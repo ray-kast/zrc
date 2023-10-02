@@ -36,7 +36,6 @@ alias t="tree -pah"
 alias tn="tmux new-session -A -s"
 alias tls="tmux ls"
 alias venv="python -m venv"
-alias xc="xclip -selection clipboard"
 alias yay='MAKEFLAGS="-j$(nproc)" command yay'
 alias z="zstd --long --ultra -22 -T0 -B0 -vvv"
 
@@ -49,6 +48,24 @@ alias rice="neofetch"
 alias -s exe="mono"
 alias -s js="node"
 alias -s pdf="evince"
+
+() {
+  local c
+
+  typeset -A clipboards=(
+    pbcopy pbcopy
+    xclip 'xclip -selection clipboard'
+  )
+
+  typeset -a clipboard_order=(pbcopy xclip)
+
+  for c in "${(@)clipboard_order}"; do
+    if _rc_g_has "$c"; then
+      alias xc="$clipboards[$c]"
+      break
+    fi
+  done
+}
 
 () {
   local f
