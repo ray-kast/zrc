@@ -372,6 +372,7 @@ if not vim.g.lazy_did_setup then
               },
             },
           },
+          tsserver = {},
         }) do
           conf[lsp].setup({ capabilities = caps, settings = opts })
         end
