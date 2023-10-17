@@ -74,9 +74,13 @@ function reinstall() {
     if ! { ssh-add -l >/dev/null 2>/dev/null }; then
       _rc_i_status_reset
 
-      for i in {1..3}; do
-        ssh-add && break
-      done
+      (
+        trap 'exit 1' INT
+
+        for i in {1..3}; do
+          ssh-add && break
+        done
+      )
     fi
 
     () {
