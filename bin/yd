@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+require 'open3'
+
+formats, status = Open3.capture2(*%W[yt-dlp -vqF], *ARGV)
+
+unless status.success?
+  $stderr << "yd: yt-dlp exited with status #{status.to_s}\n"
+  exit status.exitstatus || -1
+end
+
+format, status = Open3.capture2(*%W[fzf --cycle --tac], stdin_data: formats)
+
+unless status.success?
+  $stderr << "yd: fzf exited with status #{status.to_s}\n"
+  exit status.exitstatus || -1
+end
+
+if format.empty?
+  $stderr << "yd: fzf returned nothing\n"
+  exit 1
+end
+
+format.strip!
+format.gsub!(/\s+.*$/, '')
+
+pid = spawn(*%W[yt-dlp -f#{format}], *ARGV)
+_, status = Process.wait2(pid)
+
+unless status.success?
+  $stderr << "yd: yt-dlp exited with status #{status.to_s}\n"
+  exit status.exitstatus || -1
+end
+
