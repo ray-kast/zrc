@@ -85,6 +85,18 @@ vim.api.nvim_create_autocmd('TermLeave', {
   end,
 })
 
+local ftgroup = vim.api.nvim_create_augroup('FiletypeConfig', {})
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = ftgroup,
+  pattern = 'swift',
+  callback = function(ev)
+    for _, win in ipairs(vim.fn.win_findbuf(ev.buf)) do
+      vim.wo[win].spell = false
+    end
+  end,
+})
+
 -- commands
 vim.api.nvim_create_user_command('Scratch', function(evt)
   vim.api.nvim_cmd({
@@ -361,6 +373,9 @@ if not vim.g.lazy_did_setup then
               },
             },
           },
+          sourcekit = {
+            { "swift", "c", "cpp", "objc", "objective-c", "objective-cpp" },
+          },
           texlab = {
             texlab = {
               chktex = {
@@ -374,7 +389,18 @@ if not vim.g.lazy_did_setup then
           },
           tsserver = {},
         }) do
-          conf[lsp].setup({ capabilities = caps, settings = opts })
+          if opts[1] ~= nil then
+            conf[lsp].setup{
+              capabilities = caps,
+              filetypes = opts[1],
+              settings = opts[2] or {},
+            }
+          else
+            conf[lsp].setup{
+              capabilities = caps,
+              settings = opts,
+            }
+          end
         end
       end
     },
