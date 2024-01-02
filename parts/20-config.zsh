@@ -38,6 +38,18 @@ export LESSEDIT="%E %f?lm\:%lm."
 # ls
 source <(dircolors -b)
 
+# nvm
+() {
+  local f
+
+  for f in /{usr,opt/local}/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do
+    if [[ -s "$f" ]]; then
+      . "$f"
+      break
+    fi
+  done
+}
+
 # rvm
 export PATH="$PATH:$HOME/.rvm/bin"
 

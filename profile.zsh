@@ -44,18 +44,6 @@ fi
 _ gpg
 . "$(dirname "$0")"/gpg.zsh
 
-() {
-  local f
-
-  for f in /usr/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do
-    if [[ -s "$f" ]]; then
-      _ nvm
-      . "$f"
-      break
-    fi
-  done
-}
-
 if (( $+commands[rbenv] )); then
   _ rbenv
   . <(rbenv init - zsh | cat)
