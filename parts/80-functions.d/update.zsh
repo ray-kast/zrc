@@ -397,7 +397,8 @@ function _rc_g_fn_update-cleanup_pacman() {
 function _rc_g_fn_update-cleanup_port() {
   _rc_g_has port || return 0
 
-  sudo port uninstall inactive && sudo port uninstall leaves || return $?
+  sudo port reclaim || return $?
+  # sudo port uninstall inactive && sudo port uninstall leaves || return $?
 
   return 0
 }
