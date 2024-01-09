@@ -284,6 +284,7 @@ if not vim.g.lazy_did_setup then
         'hrsh7th/cmp-cmdline',
         'hrsh7th/cmp-buffer',
         'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-nvim-lsp-signature-help',
         'hrsh7th/cmp-path',
         { 'L3MON4D3/LuaSnip', build = 'make install_jsregexp' },
         'neovim/nvim-lspconfig',
@@ -334,6 +335,7 @@ if not vim.g.lazy_did_setup then
           }),
           sources = cmp.config.sources({
             { name = 'nvim_lsp' },
+            { name = 'nvim_lsp_signature_help' },
             { name = 'luasnip' },
           }, {
             { name = 'buffer' },
@@ -361,6 +363,8 @@ if not vim.g.lazy_did_setup then
 
         for lsp, opts in pairs({
           dartls = {},
+          eslint = {},
+          jsonls = {},
           leanls = {},
           rust_analyzer = {
             ['rust-analyzer'] = {
@@ -376,6 +380,7 @@ if not vim.g.lazy_did_setup then
           sourcekit = {
             { "swift", "c", "cpp", "objc", "objective-c", "objective-cpp" },
           },
+          tailwindcss = {},
           texlab = {
             texlab = {
               chktex = {
