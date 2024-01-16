@@ -47,9 +47,9 @@ vim.o.incsearch = true
 vim.o.gdefault = true
 
 -- visual
-vim.cmd.syntax('on')
-vim.cmd.colorscheme('slate')
-vim.cmd.filetype('plugin indent on')
+vim.cmd.syntax'on'
+vim.cmd.colorscheme'slate'
+vim.cmd.filetype'plugin indent on'
 vim.o.background = 'dark'
 vim.o.number = true
 vim.o.relativenumber = true
@@ -57,7 +57,7 @@ vim.o.list = true
 vim.opt.listchars = { tab = '› ', space = '·', trail = '·' }
 vim.o.showbreak = '»'
 vim.o.showmatch = true
-vim.opt.matchpairs:append('<:>')
+vim.opt.matchpairs:append'<:>'
 vim.opt.colorcolumn = { 80, 100 }
 vim.opt.completeopt = { 'menu', 'menuone', 'longest', 'noinsert', 'preview' }
 vim.opt.diffopt = { 'vertical', 'iwhiteall', 'internal', 'filler', 'hiddenoff', algorithm = 'histogram' }
@@ -146,7 +146,7 @@ do
   local s_tab = vim.api.nvim_replace_termcodes('<S-Tab>', true, false, true)
 
   imap('<Tab>', function()
-    local luasnip = require('luasnip')
+    local luasnip = require'luasnip'
     if luasnip.expand_or_jumpable() then
       luasnip.expand_or_jump()
     else
@@ -155,7 +155,7 @@ do
   end)
 
   imap('<S-Tab>', function()
-    local luasnip = require('luasnip')
+    local luasnip = require'luasnip'
     if luasnip.jumpable(-1) then
       luasnip.jump(-1)
     else
@@ -179,7 +179,7 @@ do
       map('<Leader>aa', vim.lsp.codelens.run, args)
       map('<Leader>f', vim.lsp.buf.format, args)
       map('<Leader>R', vim.lsp.buf.rename, args)
-      map('<Leader>x', function() require('trouble').open('workspace_diagnostics') end)
+      map('<Leader>x', function() require'trouble'.open'workspace_diagnostics' end)
       -- Mostly stolen from nvim-lspconfig
       map('<Leader>lr', function()
         local detach = {}
@@ -202,7 +202,7 @@ do
 
               if client.is_stopped() then
                 for buf in pairs(bufs) do
-                  require('lspconfig.configs')[name].launch(buf)
+                  require'lspconfig.configs'[name].launch(buf)
                 end
 
                 detach[name] = nil
@@ -218,7 +218,7 @@ do
 
       local codelens = false
       for _, client in ipairs(vim.lsp.get_active_clients({ bufnre = ev.buf })) do
-        if client.supports_method('textDocument/codeLens') then
+        if client.supports_method'textDocument/codeLens' then
           codelens = true
         end
       end
@@ -237,7 +237,7 @@ do
 end
 
 if not vim.g.lazy_did_setup then
-  local lazyroot = vim.fn.stdpath('data') .. '/lazy'
+  local lazyroot = vim.fn.stdpath'data' .. '/lazy'
   local lazypath = lazyroot .. '/lazy.nvim'
   if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
@@ -255,7 +255,7 @@ if not vim.g.lazy_did_setup then
   vim.g.rnvimr_enable_ex = 1
   vim.g.rnvimr_enable_picker = 1
 
-  require('lazy').setup({
+  require'lazy'.setup({
     { 'folke/lazy.nvim', tag = 'stable' },
 
     {
@@ -291,18 +291,18 @@ if not vim.g.lazy_did_setup then
         'saadparwaiz1/cmp_luasnip',
       },
       config = function()
-        local cmp = require('cmp')
-        local luasnip = require('luasnip')
+        local cmp = require'cmp'
+        local luasnip = require'luasnip'
 
         local has_words_before = function()
           local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-          return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
+          return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match'%s' == nil
         end
 
         cmp.setup({
           snippet = {
             expand = function(args)
-              require('luasnip').lsp_expand(args.body)
+              require'luasnip'.lsp_expand(args.body)
             end,
           },
           mapping = cmp.mapping.preset.insert({
@@ -358,8 +358,8 @@ if not vim.g.lazy_did_setup then
           }),
         })
 
-        local conf = require('lspconfig')
-        local caps = require('cmp_nvim_lsp').default_capabilities()
+        local conf = require'lspconfig'
+        local caps = require'cmp_nvim_lsp'.default_capabilities()
 
         for lsp, opts in pairs({
           dartls = {},
@@ -378,7 +378,7 @@ if not vim.g.lazy_did_setup then
             },
           },
           sourcekit = {
-            { "swift", "c", "cpp", "objc", "objective-c", "objective-cpp" },
+            { 'swift', 'c', 'cpp', 'objc', 'objective-c', 'objective-cpp' },
           },
           tailwindcss = {},
           texlab = {
@@ -440,6 +440,127 @@ if not vim.g.lazy_did_setup then
       end,
     },
     {
+      'nvim-treesitter/nvim-treesitter',
+      lazy = false,
+      dependencies = {
+        'nvim-treesitter/nvim-treesitter-textobjects',
+        'JoosepAlviste/nvim-ts-context-commentstring',
+        'windwp/nvim-ts-autotag',
+      },
+      build = ':TSUpdate',
+      opts = {
+        ensure_installed = {
+          'bash',
+          'c',
+          'c_sharp',
+          'comment',
+          'cmake',
+          'cpp',
+          'css',
+          'csv',
+          'dart',
+          'diff',
+          'dockerfile',
+          'dot',
+          'git_config',
+          'git_rebase',
+          'gitattributes',
+          'gitcommit',
+          'gitignore',
+          'go',
+          'graphql',
+          'haskell',
+          'html',
+          'ini',
+          'javascript',
+          'json',
+          'json5',
+          'julia',
+          'lalrpop',
+          'latex',
+          'lua',
+          'luadoc',
+          'luap',
+          'make',
+          'meson',
+          'ninja',
+          'nix',
+          'norg',
+          'objc',
+          'perl',
+          'proto',
+          'pug',
+          'python',
+          'rasi',
+          're2c',
+          'regex',
+          'ron',
+          'ruby',
+          'rust',
+          'scheme',
+          'scss',
+          'sql',
+          'ssh_config',
+          'swift',
+          'toml',
+          'tsv',
+          'tsx',
+          'typescript',
+          'vim',
+          'vimdoc',
+          'vue',
+          'xml',
+          'yaml',
+          'zig',
+        },
+        auto_install = true,
+        autotag = {
+          enable = true,
+          -- TODO: verify these filetypes are actually correct
+          filetypes = { 'html', 'xml', 'javascript', 'typescript', 'jsx', 'tsx' },
+        },
+        highlight = {
+          enable = true,
+          additional_vim_regex_highlighting = false,
+        },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = 'gnn',
+            node_incremental = 'grn',
+            scope_incremental = 'grc',
+            node_decremental = 'grm',
+          },
+        },
+        indent = {
+          enable = true,
+        },
+        select = {
+          enable = true,
+          keymaps = {
+            -- TODO: flesh this out more later
+            ['af'] = '@function.outer',
+            ['if'] = '@function.inner',
+            ['ac'] = '@class.outer',
+            ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+            ['as'] = { query = '@scope', query_group = 'locals', desc = 'Select language scope' },
+          },
+        },
+      },
+      config = function(_, opts)
+        local ts = require'nvim-treesitter.configs'
+        ts.setup(opts)
+
+        vim.o.foldmethod = 'expr'
+        vim.o.foldexpr = ts.foldexpr
+        vim.o.foldenable = false
+      end,
+    },
+    {
+      'JoosepAlviste/nvim-ts-context-commentstring',
+      dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    },
+    {
       'kylechui/nvim-surround',
       version = '*',
       event = 'VeryLazy',
@@ -457,7 +578,7 @@ if not vim.g.lazy_did_setup then
         'sindrets/diffview.nvim',
       },
       config = function(_, opts)
-        local neogit = require('neogit')
+        local neogit = require'neogit'
         neogit.setup(opts)
 
         vim.keymap.set('n', '<Leader>g', neogit.open)
@@ -474,7 +595,7 @@ if not vim.g.lazy_did_setup then
             },
           },
           config = function(_, opts)
-            local ih = require('lsp-inlayhints')
+            local ih = require'lsp-inlayhints'
             ih.setup(opts)
 
             vim.api.nvim_create_autocmd('LspAttach', {
@@ -506,9 +627,12 @@ if not vim.g.lazy_did_setup then
         ignore = '^%s*$',
       },
       lazy = false,
+      dependencies = {
+        'JoosepAlviste/nvim-ts-context-commentstring',
+      },
       config = function(_, opts)
-        opts.pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook()
-        require('Comment').setup(opts)
+        opts.pre_hook = require'ts_context_commentstring.integrations.comment_nvim'.create_pre_hook()
+        require'Comment'.setup(opts)
       end
     },
     {
@@ -519,9 +643,9 @@ if not vim.g.lazy_did_setup then
         'folke/trouble.nvim',
       },
       config = function(_, opts)
-        local trouble = require('trouble.providers.telescope')
+        local trouble = require'trouble.providers.telescope'
 
-        require('telescope').setup({
+        require'telescope'.setup({
           defaults = {
             mappings = {
               i = {
@@ -535,7 +659,7 @@ if not vim.g.lazy_did_setup then
         })
 
         -- TODO: move this (and other plugin keymaps) to the keymap section
-        local b = require('telescope.builtin')
+        local b = require'telescope.builtin'
 
         vim.keymap.set('n', '<Leader>af', function() b.find_files({ hidden = true }) end)
         vim.keymap.set('n', '<Leader>ag', b.live_grep)
@@ -544,17 +668,11 @@ if not vim.g.lazy_did_setup then
       end,
     },
     {
-      'nvim-treesitter/nvim-treesitter',
-      dependencies = {
-        'JoosepAlviste/nvim-ts-context-commentstring',
-      },
-    },
-    {
       -- 'phaazon/hop.nvim', -- TODO: ded
       'smoka7/hop.nvim',
       config = function(_, opts)
-        local hop = require('hop')
-        local directions = require('hop.hint').HintDirection
+        local hop = require'hop'
+        local directions = require'hop.hint'.HintDirection
         hop.setup(opts)
 
         vim.keymap.set('', 'f', function()
