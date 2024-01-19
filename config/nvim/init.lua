@@ -16,7 +16,6 @@ vim.opt.sessionoptions = {
   'blank',
   'buffers',
   'curdir',
-  'folds',
   'help',
   'tabpages',
   'winsize',
@@ -45,6 +44,11 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.incsearch = true
 vim.o.gdefault = true
+
+-- folding
+vim.o.foldmethod = 'expr'
+vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.o.foldenable = false
 
 -- visual
 vim.cmd.syntax'on'
@@ -547,14 +551,7 @@ if not vim.g.lazy_did_setup then
           },
         },
       },
-      config = function(_, opts)
-        local ts = require'nvim-treesitter.configs'
-        ts.setup(opts)
-
-        vim.o.foldmethod = 'expr'
-        vim.o.foldexpr = ts.foldexpr
-        vim.o.foldenable = false
-      end,
+      main = 'nvim-treesitter.configs',
     },
     {
       'JoosepAlviste/nvim-ts-context-commentstring',
