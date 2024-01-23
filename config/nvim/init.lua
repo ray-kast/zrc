@@ -567,20 +567,20 @@ if not vim.g.lazy_did_setup then
       },
       config = true,
     },
-    {
-      'NeogitOrg/neogit',
-      dependencies = {
-        'nvim-lua/plenary.nvim',
-        'nvim-telescope/telescope.nvim',
-        'sindrets/diffview.nvim',
-      },
-      config = function(_, opts)
-        local neogit = require'neogit'
-        neogit.setup(opts)
+    -- {
+    --   'NeogitOrg/neogit',
+    --   dependencies = {
+    --     'nvim-lua/plenary.nvim',
+    --     'nvim-telescope/telescope.nvim',
+    --     'sindrets/diffview.nvim',
+    --   },
+    --   config = function(_, opts)
+    --     local neogit = require'neogit'
+    --     neogit.setup(opts)
 
-        vim.keymap.set('n', '<Leader>g', neogit.open)
-      end,
-    },
+    --     vim.keymap.set('n', '<Leader>g', neogit.open)
+    --   end,
+    -- },
     {
       'neovim/nvim-lspconfig',
       dependencies = {
@@ -702,6 +702,9 @@ if not vim.g.lazy_did_setup then
       opts = {
         bypass_session_save_file_types = { 'leaninfo' },
       },
+    },
+    {
+      'tpope/vim-fugitive',
     },
   }, {
     root = lazyroot,
