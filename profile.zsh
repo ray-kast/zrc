@@ -44,6 +44,21 @@ fi
 _ gpg
 . "$(dirname "$0")"/gpg.zsh
 
+() {
+  local f="$commands[nodenv]"
+
+  if [[ -z "$f" && -d "$HOME/.nodenv" ]]; then
+    export PATH="$PATH:$HOME/.nodenv/bin"
+
+    f="$commands[nodenv]"
+  else
+    return
+  fi
+
+  _ nodenv
+  . <("$f" init - zsh | cat)
+}
+
 if (( $+commands[rbenv] )); then
   _ rbenv
   . <(rbenv init - zsh | cat)
