@@ -36,6 +36,8 @@ _rc_g_fn_gcmds+=(
   gra 'graph --all'
   h   'show'
   hs  'show --stat'
+  id  'diff --ignore-all-space'
+  idc 'diff --ignore-all-space --cached'
   l   'pull -p'
   la  'pull -p --all'
   m   'merge'

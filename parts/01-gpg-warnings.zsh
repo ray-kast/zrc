@@ -8,7 +8,8 @@ function _rc_l_git() {
 
   local cfg
   for cfg in commit tag; do # TODO: add signed push eventually
-    if [[ "$(git config --global $cfg.gpgSign)" != *true* ]]; then
+    # HACK: is this a git bug?  Why does --global not work with includes?
+    if [[ "$(cd ~ && git config --show-scope $cfg.gpgSign)" != *global*true* ]]; then
       _rc_i_status_reset
       echo "\x1b[1;38;5;1mGit is not configured to use GPG signing for scope \`$cfg\`!\x1b[m"
 
