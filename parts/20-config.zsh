@@ -42,12 +42,12 @@ source <(dircolors -b)
 () {
   local f
 
-  (( $+functions[nodenv] )) && return
+  (( $+functions[nodenv] || $+commands[nodenv] )) && return
 
   for f in /{usr,opt/local}/share/nvm/init-nvm.sh "$HOME/.nvm/nvm.sh"; do
-    echo $'\e[1;38;5;1mWARNING:\e[0;1m nvm found but not nodenv\x1b[m'
-
     if [[ -s "$f" ]]; then
+      echo $'\e[1;38;5;1mWARNING:\e[0;1m nvm found but not nodenv\x1b[m'
+
       . "$f"
       break
     fi
