@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'yaml'
+
+$code = 0
+
+ARGV.each do |filename|
+  basedir = filename == '-' ? Dir::getwd : File::dirname(filename)
+
+  puts "Starting in #{basedir.inspect}"
+
+  manifest = YAML::load(File.read(filename)).to_h
+
+  outdir = File::join(basedir, manifest['out'])
+  last_track = nil
+  yes = false
+
+  manifest['tags'] ||= {}
+
+  for tags in manifest['files']
+    file = tags.delete('in')
+    raise 'Missing filename' if file.nil?
+
+    puts "==> #{file}"
+
+    # Load pattern-based tags
+    ptags = manifest['tags']
+      .filter{|(p, _)| File::fnmatch(p, file) }
+      .reduce({}) {|t, (_, u)| t.merge(u) }
+
+    tags = ptags.merge(tags)
+
+
+    # Load special tags after processing patterns
+    meta = tags.delete('map-metadata')
+    cover = tags.delete('cover')
+
+    # Special handling for track #
+    if tags.include?('track') && tags['track'].nil?
+      raise 'Cannot auto-increment track number for the first file!' if last_track.nil?
+
+      tags['track'] = last_track + 1
+    end
+
+    last_track = tags['track'].to_i
+
+    # Convert tags to ffmpeg arguments
+    tag_pairs = tags
+      .each
+      .map{|(k, v)| "#{k.upcase}=#{v.to_s}" }
+
+    tag_pairs.each do |pair|
+      s = pair
+        .split("\n")
+        .flat_map{|l| l.chars.each_slice(60).map{|s| s.join } }
+        .join("\n       ")
+
+      puts "  -> #{s}"
+    end
+
+    # Compute file names
+    (fhead, _, ftail) = file.rpartition(File::extname(file))
+    outfile = "#{fhead}.flac#{ftail}"
+
+    filepath = File::join(basedir, file)
+    metapath = File::join(basedir, meta) if meta
+    coverpath = File::join(basedir, cover) if cover
+    outpath = File::join(outdir, outfile)
+
+    free_stream = 0
+    stream = lambda do |url, &block|
+      idx = free_stream
+      free_stream += 1
+
+      block.(idx)
+      ['-i', url]
+    end
+
+    fileidx = nil
+    metaidx = nil
+    coveridx = nil
+
+    # Call ffmpeg
+    flags = [
+      'ffmpeg',
+      *('-y' if yes),
+      *stream.(filepath) {|i| fileidx = i },
+      *(%w[-map_metadata -1] if meta == false),
+      *([
+        *stream.(metapath) {|i| metaidx = i },
+        *%W[-map_metadata #{metaidx}],
+      ] if metapath),
+      *([
+        *stream.(coverpath) {|i| coveridx = i },
+        *%W[-map #{coveridx}:v -c:v copy -disposition:v attached_pic],
+      ] if coverpath),
+      *tag_pairs.flat_map{|p| ['-metadata', p] },
+      *%W[-map #{fileidx}:a -c:a flac -compression_level 12 -exact_rice_parameters 1],
+      outpath,
+    ]
+
+    puts "  -> Reading #{filepath.inspect}"
+    puts "  -> Writing #{outpath.inspect}"
+    puts "  -> #{flags.map{|f| f.inspect[0...60] }.join("\n       ")}"
+
+    FileUtils::mkdir_p(File::dirname(outpath))
+    pid = Process::spawn(*flags)
+    pid, status = Process.wait2(pid)
+    unless status.success?
+      $stderr << "ffmpeg exited unsuccessfully: #{status}"
+      $code = 1 if $code == 0
+      break
+    end
+
+    # Wait until successfull ffmpeg invocation to disable warnings
+    yes = true
+  end
+
+  for file in manifest['copy']
+    src = File::join(basedir, file)
+    dst = File::join(outdir, file)
+
+    FileUtils::cp_r(src, dst, verbose: true)
+  end
+end
+
+exit $code
