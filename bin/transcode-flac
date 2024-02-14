@@ -1,9 +1,52 @@
 #!/usr/bin/env ruby
 
+require 'etc'
 require 'fileutils'
+require 'json'
+require 'open3'
 require 'yaml'
 
 $code = 0
+
+def flac_params(file, subset: false)
+  rate = 96_000
+
+  if subset
+    out, status = Open3.capture2(
+      *%w[ffprobe -show_streams -of json=c=1 -v 8],
+      file,
+    )
+    out = JSON.parse(out)
+
+    unless status.success? && out['streams']
+      throw "Invalid input file #{file.inspect}"
+    end
+
+    rate = nil
+    for stream in out['streams']
+      next if stream['sample_rate'].nil?
+      r = Integer(stream['sample_rate'])
+      throw "Conflicting sample rates found for #{file.inspect}" unless rate.nil? || rate == r
+      rate = r
+    end
+  end
+
+  %W[
+    -threads #{Etc.nprocessors}
+    -frame_size #{rate <= 48_000 ? 4096 : 8192}
+    -lpc_coeff_precision 15
+    -lpc_type cholesky
+    -lpc_passes 4
+    -min_partition_order 0
+    -max_partition_order 8
+    -prediction_order_method search
+    -ch_mode auto
+    -exact_rice_parameters true
+    -multi_dim_quant false
+    -min_prediction_order 1
+    -max_prediction_order #{rate <= 48_000 ? 12 : 32}
+  ]
+end
 
 ARGV.each do |filename|
   basedir = filename == '-' ? Dir::getwd : File::dirname(filename)
@@ -33,8 +76,9 @@ ARGV.each do |filename|
 
 
     # Load special tags after processing patterns
-    meta = tags.delete('map-metadata')
+    inc = tags.delete('include')
     cover = tags.delete('cover')
+    seek_points = tags.delete('seek-points') || '100x'
 
     # Special handling for track #
     if tags.include?('track') && tags['track'].nil?
@@ -64,7 +108,7 @@ ARGV.each do |filename|
     outfile = "#{fhead}.flac#{ftail}"
 
     filepath = File::join(basedir, file)
-    metapath = File::join(basedir, meta) if meta
+    incpath = File::join(basedir, inc) if inc
     coverpath = File::join(basedir, cover) if cover
     outpath = File::join(outdir, outfile)
 
@@ -78,25 +122,29 @@ ARGV.each do |filename|
     end
 
     fileidx = nil
-    metaidx = nil
+    incidx = nil
     coveridx = nil
 
     # Call ffmpeg
     flags = [
       'ffmpeg',
       *('-y' if yes),
+
+      # Inputs
       *stream.(filepath) {|i| fileidx = i },
-      *(%w[-map_metadata -1] if meta == false),
-      *([
-        *stream.(metapath) {|i| metaidx = i },
-        *%W[-map_metadata #{metaidx}],
-      ] if metapath),
-      *([
-        *stream.(coverpath) {|i| coveridx = i },
-        *%W[-map #{coveridx}:v -c:v copy -disposition:v attached_pic],
-      ] if coverpath),
+      *(stream.(incpath) {|i| incidx = i } if incpath),
+      *(stream.(coverpath) {|i| coveridx = i } if coverpath),
+
+      # Mappings
+      *%W[-map:0 #{fileidx}:a -c:0 flac],
+      *flac_params(filepath),
+      *(%W[
+        -map:1 #{coveridx || incidx}:v#{'?' if !coveridx}
+        -c:1 copy
+        -disposition:1 attached_pic
+      ] if coveridx || incidx),
+      *(%w[-map_metadata -1] if inc == false),
       *tag_pairs.flat_map{|p| ['-metadata', p] },
-      *%W[-map #{fileidx}:a -c:a flac -compression_level 12 -exact_rice_parameters 1],
       outpath,
     ]
 
@@ -113,7 +161,20 @@ ARGV.each do |filename|
       break
     end
 
-    # Wait until successfull ffmpeg invocation to disable warnings
+    # Call metaflac
+    [
+      %w[--remove --block-type SEEKTABLE],
+      ['--add-seekpoint', seek_points],
+    ].each do |op|
+      pid = Process::spawn('metaflac', *op, outpath)
+      pid, status = Process.wait2(pid)
+      unless status.success?
+        $stderr << "metaflac exited unsuccessfully: #{status}"
+        $code = 1 if $code == 0
+      end
+    end
+
+    # Wait until successfull invocation to disable warnings
     yes = true
   end
 
