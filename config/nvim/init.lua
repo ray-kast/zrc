@@ -64,7 +64,7 @@ vim.o.showmatch = true
 vim.opt.matchpairs:append'<:>'
 vim.opt.colorcolumn = { 80, 100 }
 vim.opt.completeopt = { 'menu', 'menuone', 'longest', 'noinsert', 'preview' }
-vim.opt.diffopt = { 'vertical', 'iwhiteall', 'internal', 'filler', 'hiddenoff', algorithm = 'histogram' }
+vim.opt.diffopt = { 'vertical', 'iwhiteall', 'internal', 'filler', 'hiddenoff', 'algorithm:histogram' }
 vim.o.laststatus = 2
 
 -- leader key
