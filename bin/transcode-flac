@@ -33,7 +33,7 @@ def flac_params(file, subset: false)
 
   %W[
     -threads #{Etc.nprocessors}
-    -frame_size #{rate <= 48_000 ? 4096 : 8192}
+    -frame_size #{rate <= 48_000 ? 4806 : 9612}
     -lpc_coeff_precision 15
     -lpc_type cholesky
     -lpc_passes 4
@@ -143,6 +143,7 @@ ARGV.each do |filename|
         -c:1 copy
         -disposition:1 attached_pic
       ] if coveridx || incidx),
+      *(%W[-map_metadata #{incidx}] if incidx),
       *(%w[-map_metadata -1] if inc == false),
       *tag_pairs.flat_map{|p| ['-metadata', p] },
       outpath,
@@ -156,7 +157,7 @@ ARGV.each do |filename|
     pid = Process::spawn(*flags)
     pid, status = Process.wait2(pid)
     unless status.success?
-      $stderr << "ffmpeg exited unsuccessfully: #{status}"
+      $stderr << "ffmpeg exited unsuccessfully: #{status}\n"
       $code = 1 if $code == 0
       break
     end
@@ -169,7 +170,7 @@ ARGV.each do |filename|
       pid = Process::spawn('metaflac', *op, outpath)
       pid, status = Process.wait2(pid)
       unless status.success?
-        $stderr << "metaflac exited unsuccessfully: #{status}"
+        $stderr << "metaflac exited unsuccessfully: #{status}\n"
         $code = 1 if $code == 0
       end
     end
@@ -178,11 +179,13 @@ ARGV.each do |filename|
     yes = true
   end
 
-  for file in manifest['copy']
-    src = File::join(basedir, file)
-    dst = File::join(outdir, file)
+  if manifest['copy']
+    for file in manifest['copy']
+      src = File::join(basedir, file)
+      dst = File::join(outdir, file)
 
-    FileUtils::cp_r(src, dst, verbose: true)
+      FileUtils::cp_r(src, dst, verbose: true)
+    end
   end
 end
 
