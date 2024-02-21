@@ -1,0 +1,125 @@
+#!/usr/bin/env ruby
+
+require 'getoptlong'
+require 'pp'
+
+def help
+  $stderr << <<~EOF
+    Usage:
+      ffgut [options] -o <output> -- <input>
+      ffgut [options] -t <target dir> -- <input>
+
+    Zero the content streams from a media file using ffmpeg, leaving only
+    metadata.
+
+    Options:
+      --force, -f   Do not prompt for confirmation before overwriting an
+                    existing file.
+      --help, -h    Print this message and quit.
+      --out, -o     Specity the output file path.
+      --target, -t  Specify the output directory.
+  EOF
+end
+
+outpath = nil
+yes = false
+filepath = nil
+
+opts = GetoptLong.new(
+  ['--force', '-f', GetoptLong::NO_ARGUMENT],
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--out', '-o', GetoptLong::REQUIRED_ARGUMENT],
+  ['--target', '-t', GetoptLong::REQUIRED_ARGUMENT],
+)
+opts.quiet = true
+
+err = catch(:inval) do
+  out = nil
+  target = nil
+
+  begin
+    opts.each do |opt, arg|
+      case opt
+        when '--force'; yes = true
+        when '--help'
+          help
+          exit 0
+        when '--out'; out = arg
+        when '--target'; target = arg
+      end
+    end
+  rescue GetoptLong::InvalidOption => e
+    throw :inval, "#{e.message.capitalize}."
+  end
+
+  case ARGV.length
+    when 0
+      throw :inval, "Missing input file path."
+    when 1
+      filepath = ARGV[0]
+    else
+      throw :inval, "Invalid arguments."
+  end
+
+  unless out.nil?
+    outpath = out
+  end
+
+  unless target.nil?
+    throw :inval, "Cannot combine --out and --target" unless outpath.nil?
+    outpath = File.join(target, File.basename(filepath))
+  end
+
+  if outpath.nil?
+    throw :inval, "Missing output file path."
+  end
+
+  nil
+end
+
+unless err.nil?
+  $stderr << err << "\n"
+  help
+  exit 1
+end
+
+free_stream = 0
+stream = lambda do |url, format: nil, &block|
+  idx = free_stream
+  free_stream += 1
+
+  block.(idx)
+  [
+    *(['-f', format] if format),
+    '-i',
+    url,
+  ]
+end
+
+fileidx = nil
+anullidx = nil
+
+flags = [
+  'ffmpeg',
+  *('-y' if yes),
+
+  *stream.(filepath) {|i| fileidx = i },
+  *stream.('anullsrc=cl=mono:44100:1:1', format: 'lavfi') {|i| anullidx = i },
+
+  *%W[
+    -map #{fileidx}
+    -map -#{fileidx}:a
+    -map #{anullidx}:a
+    -c:v copy
+  ],
+
+  outpath,
+]
+
+pid = Process::spawn(*flags)
+pid, status = Process.wait2(pid)
+unless status.success?
+  $stderr << "ffmpeg exited unsuccessfully: #{status}\n"
+  exit -1
+end
+
