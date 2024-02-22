@@ -36,7 +36,7 @@ def flac_params(file, subset: false)
     -frame_size #{rate <= 48_000 ? 4806 : 9612}
     -lpc_coeff_precision 15
     -lpc_type cholesky
-    -lpc_passes 4
+    -lpc_passes 16
     -min_partition_order 0
     -max_partition_order 8
     -prediction_order_method search
