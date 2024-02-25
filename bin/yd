@@ -9,7 +9,7 @@ unless status.success?
   exit status.exitstatus || -1
 end
 
-format, status = Open3.capture2(*%W[fzf --cycle --tac], stdin_data: formats)
+format, status = Open3.capture2(*%W[fzf --cycle --tac --multi --print0], stdin_data: formats)
 
 unless status.success?
   $stderr << "yd: fzf exited with status #{status.to_s}\n"
@@ -22,7 +22,7 @@ if format.empty?
 end
 
 format.strip!
-format.gsub!(/\s+.*$/, '')
+format = format.split(/\0/).map{|f| f.gsub!(/\s+.*$/, '') }.join('+')
 
 pid = spawn(*%W[yt-dlp -f#{format}], *ARGV)
 _, status = Process.wait2(pid)

@@ -530,7 +530,7 @@ if not vim.g.lazy_did_setup then
         incremental_selection = {
           enable = true,
           keymaps = {
-            init_selection = 'gnn',
+            init_selection = 'gr',
             node_incremental = 'grn',
             scope_incremental = 'grc',
             node_decremental = 'grm',
