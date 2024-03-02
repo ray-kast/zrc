@@ -180,7 +180,7 @@ do
       map('K', vim.lsp.buf.hover, args)
       _map({ 'n', 'i' }, '<C-k>', vim.lsp.buf.signature_help, args)
       map('<Leader>a', vim.lsp.buf.code_action, args)
-      map('<Leader>aa', vim.lsp.codelens.run, args)
+      map('<Leader>A', vim.lsp.codelens.run, args)
       map('<Leader>f', vim.lsp.buf.format, args)
       map('<Leader>R', vim.lsp.buf.rename, args)
       map('<Leader>x', function() require'trouble'.open'workspace_diagnostics' end)
@@ -631,6 +631,27 @@ if not vim.g.lazy_did_setup then
         opts.pre_hook = require'ts_context_commentstring.integrations.comment_nvim'.create_pre_hook()
         require'Comment'.setup(opts)
       end
+    },
+    {
+      'nvim-neorg/neorg',
+      build = ':Neorg sync-parsers',
+      lazy = false,
+      dependencies = { 'nvim-lua/plenary.nvim' },
+      config = function() 
+        require'neorg'.setup{
+          load = {
+            ["core.defaults"] = {},
+            ["core.concealer"] = {},
+            ["core.dirman"] = {
+              config = {
+                workspaces = {
+                  notes = "~/Documents/Notes",
+                },
+              },
+            },
+          },
+        }
+      end,
     },
     {
       'nvim-telescope/telescope.nvim',
