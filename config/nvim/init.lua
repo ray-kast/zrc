@@ -138,7 +138,7 @@ do
   map('<Leader>st', '<Cmd>tab Scratch<CR>')
   map('<Leader>t', '<Cmd>tabnew +term<CR>')
   map('<Leader>w', '<Cmd>wa<CR>')
-  imap('<Leader>w', '<C-c><Cmd>wa<CR>', { remap = true })
+  -- imap('<Leader>w', '<C-c><Cmd>wa<CR>', { remap = true })
   nimap('<Leader>.', '<C-c>')
   tmap('<Leader>.', '<C-\\><C-n>')
 
