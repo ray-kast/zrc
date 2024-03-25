@@ -30,6 +30,9 @@ bindkey "^[v" vi-cmd-mode
 bindkey ",f" fzf-history-search
 bindkey ",F" fzf-history-search-accept
 
+bindkey "^[e" edit-command-line
+
+# TODO: surely there's a better way to do this
 if [[ "$TERM" == 'xterm' ]]; then
   bindkey "^H" backward-delete-char
   bindkey "^?" backward-kill-word

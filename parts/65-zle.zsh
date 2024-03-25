@@ -42,7 +42,7 @@ export zle_highlight=(
 
 () {
   local name
-  for name in {up,down}-line-or-beginning-search; do
+  for name in {up,down}-line-or-beginning-search edit-command-line; do
     autoload -U $name
     zle -N $name
   done
