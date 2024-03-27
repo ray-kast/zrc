@@ -1,7 +1,9 @@
 [alias]
 	graph = log --abbrev-commit --date=relative --graph --pretty=format:'%C(red bold)%h%Creset %C(yellow)%an,%Creset %C(white dim)%ar%Creset %C(blue)<%ae>%Creset%C(white bold)%d%Creset\n%C(green)%B%Creset'
-	word-diff = diff -w "--word-diff-regex='[a-zA-Z0-9]+|[^[:space:]]'"
-	word-show = show -w --word-diff-regex='[a-zA-Z0-9]+|[^[:space:]]'
+	word-diff = diff -w "--word-diff-regex='[[:alnum:]]+|[^[:space:]]'"
+	word-show = show -w --word-diff-regex='[[:alnum:]]+|[^[:space:]]'
+	big-word-diff = diff -w "--word-diff-regex='([^[:space:][:alnum:]][^[:alnum:]]*)?[^[:space:]]+'"
+	big-word-show = show -w "--word-diff-regex='([^[:space:][:alnum:]][^[:alnum:]]*)?[^[:space:]]+'"
 
 [difftool "vscode-diff"]
 	cmd = code --wait --diff $LOCAL $REMOTE
