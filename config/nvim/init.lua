@@ -634,10 +634,16 @@ if not vim.g.lazy_did_setup then
     },
     {
       'nvim-neorg/neorg',
-      build = ':Neorg sync-parsers',
       lazy = false,
-      dependencies = { 'nvim-lua/plenary.nvim' },
-      config = function() 
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+        {
+          "vhyrro/luarocks.nvim",
+          priority = 1000,
+          config = true,
+        },
+      },
+      config = function()
         require'neorg'.setup{
           load = {
             ["core.defaults"] = {},
