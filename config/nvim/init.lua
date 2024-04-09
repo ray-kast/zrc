@@ -14,14 +14,13 @@ vim.o.spell = true
 vim.o.spelllang = 'en_us'
 vim.opt.sessionoptions = {
   'blank',
-  'buffers',
   'curdir',
-  'help',
-  'tabpages',
-  'winsize',
-  'winpos',
-  'terminal',
+  'folds',
   'localoptions',
+  'skiprtp',
+  'tabpages',
+  'terminal',
+  'winsize',
 }
 
 -- feedback
@@ -727,7 +726,8 @@ if not vim.g.lazy_did_setup then
     {
       'rmagatti/auto-session',
       opts = {
-        bypass_session_save_file_types = { 'leaninfo' },
+        -- Turns out this doesn't work the way i was hoping :(
+        -- bypass_session_save_file_types = { 'norg', 'leaninfo' },
       },
     },
     {
