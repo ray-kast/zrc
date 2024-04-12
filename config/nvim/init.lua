@@ -50,6 +50,7 @@ vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
 vim.o.foldenable = false
 
 -- visual
+vim.o.termguicolors = true
 vim.cmd.syntax'on'
 vim.cmd.colorscheme'slate'
 vim.cmd.filetype'plugin indent on'
@@ -186,7 +187,7 @@ do
       -- Mostly stolen from nvim-lspconfig
       map('<Leader>lr', function()
         local detach = {}
-        for _, client in ipairs(vim.lsp.get_active_clients({ bufnr = ev.buf })) do
+        for _, client in ipairs(vim.lsp.get_active_clients{ bufnr = ev.buf }) do
           client.stop()
           vim.lsp.codelens.clear(client.id)
 
@@ -220,7 +221,7 @@ do
       end)
 
       local codelens = false
-      for _, client in ipairs(vim.lsp.get_active_clients({ bufnre = ev.buf })) do
+      for _, client in ipairs(vim.lsp.get_active_clients{ bufnre = ev.buf }) do
         if client.supports_method'textDocument/codeLens' then
           codelens = true
         end
@@ -243,14 +244,14 @@ if not vim.g.lazy_did_setup then
   local lazyroot = vim.fn.stdpath'data' .. '/lazy'
   local lazypath = lazyroot .. '/lazy.nvim'
   if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({
+    vim.fn.system{
       'git',
       'clone',
       '--filter=blob:none',
       'https://github.com/folke/lazy.nvim.git',
       '--branch=stable',
       lazypath,
-    })
+    }
   end
   vim.opt.runtimepath:prepend(lazypath)
 
@@ -302,19 +303,19 @@ if not vim.g.lazy_did_setup then
           return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match'%s' == nil
         end
 
-        cmp.setup({
+        cmp.setup{
           snippet = {
             expand = function(args)
               require'luasnip'.lsp_expand(args.body)
             end,
           },
-          mapping = cmp.mapping.preset.insert({
+          mapping = cmp.mapping.preset.insert{
             ['<C-b>'] = cmp.mapping.scroll_docs(-4),
             ['<C-f>'] = cmp.mapping.scroll_docs(4),
             ['<C-space>'] = cmp.mapping.complete(),
             ['<C-e>'] = cmp.mapping.abort(),
             ['<Esc>'] = cmp.mapping.abort(),
-            ['<CR>'] = cmp.mapping.confirm({ select = true }),
+            ['<CR>'] = cmp.mapping.confirm{ select = true },
             -- ['<Tab>'] = cmp.mapping(function(fbk)
             --   if cmp.visible() then
             --     cmp.select_next_item()
@@ -335,7 +336,7 @@ if not vim.g.lazy_did_setup then
             --     fbk()
             --   end
             -- end, { 'i', 's' }),
-          }),
+          },
           sources = cmp.config.sources({
             { name = 'nvim_lsp' },
             { name = 'nvim_lsp_signature_help' },
@@ -343,7 +344,7 @@ if not vim.g.lazy_did_setup then
           }, {
             { name = 'buffer' },
           })
-        })
+        }
 
         cmp.setup.cmdline({ '/', '?' }, {
           mapping = cmp.mapping.preset.cmdline(),
@@ -364,7 +365,7 @@ if not vim.g.lazy_did_setup then
         local conf = require'lspconfig'
         local caps = require'cmp_nvim_lsp'.default_capabilities()
 
-        for lsp, opts in pairs({
+        for lsp, opts in pairs{
           dartls = {},
           eslint = {},
           jsonls = {},
@@ -396,7 +397,7 @@ if not vim.g.lazy_did_setup then
             },
           },
           tsserver = {},
-        }) do
+        } do
           if opts[1] ~= nil then
             conf[lsp].setup{
               capabilities = caps,
@@ -668,7 +669,7 @@ if not vim.g.lazy_did_setup then
       config = function(_, opts)
         local trouble = require'trouble.providers.telescope'
 
-        require'telescope'.setup({
+        require'telescope'.setup{
           defaults = {
             mappings = {
               i = {
@@ -679,12 +680,12 @@ if not vim.g.lazy_did_setup then
               },
             },
           },
-        })
+        }
 
         -- TODO: move this (and other plugin keymaps) to the keymap section
         local b = require'telescope.builtin'
 
-        vim.keymap.set('n', '<Leader>af', function() b.find_files({ hidden = true }) end)
+        vim.keymap.set('n', '<Leader>af', function() b.find_files{ hidden = true } end)
         vim.keymap.set('n', '<Leader>ag', b.live_grep)
         vim.keymap.set('n', '<Leader>ab', b.buffers)
         vim.keymap.set('n', '<Leader>ah', b.help_tags)
@@ -699,27 +700,27 @@ if not vim.g.lazy_did_setup then
         hop.setup(opts)
 
         vim.keymap.set('', 'f', function()
-          hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = false })
+          hop.hint_char1{ direction = directions.AFTER_CURSOR, current_line_only = false }
         end, { remap = true })
 
         vim.keymap.set('', 'F', function()
-          hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = false })
+          hop.hint_char1{ direction = directions.BEFORE_CURSOR, current_line_only = false }
         end, { remap = true })
 
         vim.keymap.set('', 't', function()
-          hop.hint_char1({
+          hop.hint_char1{
             direction = directions.AFTER_CURSOR,
             current_line_only = false,
             hint_offset = -1,
-          })
+          }
         end, { remap = true })
 
         vim.keymap.set('', 'T', function()
-          hop.hint_char1({
+          hop.hint_char1{
             direction = directions.BEFORE_CURSOR,
             current_line_only = false,
             hint_offset = 1,
-          })
+          }
         end, { remap = true })
       end,
     },
