@@ -116,9 +116,81 @@ vim.api.nvim_create_user_command('Scratch', function(evt)
   vim.api.nvim_win_set_buf(win, buf)
 end, {})
 
+vim.api.nvim_create_user_command('CargoSearch', function(evt)
+  local name_pat = [===[^\([^=[:space:]]\+\)\s*=.*$]===]
+  local basic_pat = [===[^\([^=[:space:]]\+\s*=\s*"\)\([^"]\+\)\("\s*\%(#.*\)\?$\)]===]
+  local complex_pat = [===[^\([^=[:space:]]\+\s*=\s*{[^}]*version\s*=\s*"\)\([^"]\+\)\("[^}]*}\s*\%(#.*\)\?$\)]===]
+
+  local lines = {}
+  local any_changed = false
+
+  for i = evt.line1, evt.line2 do
+    local curr = vim.fn.getline(i)
+    local crate = vim.fn.substitute(curr, name_pat, [[\1]], '')
+
+    if string.len(crate) == 0 then crate = nil end
+
+    local result = {}
+    if crate then
+      result = vim.fn.split(
+        vim.fn.system(string.format("cargo search %s", vim.fn.shellescape(crate))),
+        '\n'
+      )
+    end
+
+    local found_ver = nil
+    for _, line in ipairs(result) do
+      local match = vim.fn.substitute(line, name_pat, [[\1]], '')
+
+      if match == crate then
+        found_ver = vim.fn.substitute(line, basic_pat, [[\2]], '')
+        break
+      end
+    end
+
+    if found_ver then
+      local repl = string.format([[\1%s\3]], found_ver)
+
+      local line, current_ver
+      if vim.fn.match(curr, basic_pat) then
+        current_ver = vim.fn.substitute(curr, basic_pat, [[\2]], '')
+        line = vim.fn.substitute(curr, basic_pat, repl, '')
+      elseif vim.fn.match(curr, complex_pat) then
+        current_ver = vim.fn.substitute(curr, complex_pat, [[\2]], '')
+        line = vim.fn.substitute(curr, complex_pat, repl, '')
+      else
+        current_ver = '???'
+        line = string.format('%s = "%s"', crate, found_ver)
+      end
+
+      table.insert(lines, line)
+
+      if line ~= curr then
+        vim.notify(
+          string.format("Update for %s: %s -> %s", crate, current_ver, found_ver),
+          vim.log.levels.INFO
+        )
+        any_changed = true
+      end
+    else
+      if crate then
+        vim.notify(string.format("No results found for crate '%s'!", crate), vim.log.levels.ERROR)
+      end
+      table.insert(lines, curr)
+    end
+  end
+
+  if any_changed then
+    vim.fn.setline(evt.line1, lines)
+  else
+    vim.notify(string.format("No updates available"), vim.log.levels.WARN)
+  end
+end, { range = true })
+
 -- mappings
 do
   local map = function(l, r, o) vim.keymap.set('n', l, r, o) end
+  local nvmap = function(l, r, o) vim.keymap.set({ 'n', 'v' }, l, r, o) end
   local imap = function(l, r, o) vim.keymap.set({ 'i', 's' }, l, r, o) end
   local nimap = function(l, r, o) vim.keymap.set({ 'n', 'i', 's' }, l, r, o) end
   local tmap = function(l, r, o) vim.keymap.set('t', l, r, o) end
@@ -166,6 +238,14 @@ do
       vim.api.nvim_feedkeys(s_tab, 'nt', false)
     end
   end)
+
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = "toml",
+    group = vim.api.nvim_create_augroup('TomlMap', {}),
+    callback = function(ev)
+      nvmap('<Leader>u', ':CargoSearch<CR>')
+    end
+  })
 
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('LspBinds', {}),
@@ -693,6 +773,9 @@ if not vim.g.lazy_did_setup then
     },
     {
       'rcarriga/nvim-notify',
+      config = function(_, opts)
+        vim.notify = require'notify'
+      end
     },
     {
       -- 'phaazon/hop.nvim', -- TODO: ded
