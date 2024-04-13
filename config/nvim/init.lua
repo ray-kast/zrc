@@ -692,6 +692,9 @@ if not vim.g.lazy_did_setup then
       end,
     },
     {
+      'rcarriga/nvim-notify',
+    },
+    {
       -- 'phaazon/hop.nvim', -- TODO: ded
       'smoka7/hop.nvim',
       config = function(_, opts)
