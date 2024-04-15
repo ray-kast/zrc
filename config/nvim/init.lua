@@ -450,6 +450,9 @@ if not vim.g.lazy_did_setup then
           eslint = {},
           jsonls = {},
           leanls = {},
+          omnisharp = {
+            cmd = { 'omnisharp' },
+          },
           rust_analyzer = {
             ['rust-analyzer'] = {
               cargo = {
@@ -483,11 +486,13 @@ if not vim.g.lazy_did_setup then
               capabilities = caps,
               filetypes = opts[1],
               settings = opts[2] or {},
+              cmd = opts['cmd'],
             }
           else
             conf[lsp].setup{
               capabilities = caps,
               settings = opts,
+              cmd = opts['cmd'],
             }
           end
         end
