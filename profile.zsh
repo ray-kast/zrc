@@ -26,6 +26,11 @@ if (( $+commands[cargo] )) || (( $+commands[rustup] )) || [[ -x "$HOME/.cargo/bi
   export PATH="/usr/lib/cargo/bin:$HOME/.cargo/bin:$PATH"
 fi
 
+if [[ -e '/opt/local/share/dotnet' ]]; then
+  _ dotnet
+  export DOTNET_ROOT='/opt/local/share/dotnet'
+fi
+
 if  [[ -x "$HOME/.elan/bin/elan" ]]; then
   _ elan
   export PATH="$HOME/.elan/bin:$PATH"
