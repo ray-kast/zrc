@@ -218,6 +218,10 @@ do
   map('gN', vim.diagnostic.goto_prev)
   map('<Leader>k', vim.diagnostic.open_float)
 
+  _map({'n', 'x', 'o'}, 'f',  '<Plug>(leap-forward)')
+  _map({'n', 'x', 'o'}, 'F',  '<Plug>(leap-backward)')
+  _map({'n', 'x', 'o'}, '<Leader>f', '<Plug>(leap-from-window)')
+
   local tab = vim.api.nvim_replace_termcodes('<Tab>', true, false, true)
   local s_tab = vim.api.nvim_replace_termcodes('<S-Tab>', true, false, true)
 
@@ -361,6 +365,13 @@ if not vim.g.lazy_did_setup then
         },
         use_diagnostic_signs = true,
       },
+    },
+    {
+      'ggandor/leap.nvim',
+      dependencies = {
+        'tpope/vim-repeat',
+      },
+      lazy = false,
     },
     {
       'hrsh7th/nvim-cmp',
@@ -782,39 +793,39 @@ if not vim.g.lazy_did_setup then
         vim.notify = require'notify'
       end
     },
-    {
-      -- 'phaazon/hop.nvim', -- TODO: ded
-      'smoka7/hop.nvim',
-      config = function(_, opts)
-        local hop = require'hop'
-        local directions = require'hop.hint'.HintDirection
-        hop.setup(opts)
+    -- {
+    --   -- 'phaazon/hop.nvim', -- TODO: ded
+    --   'smoka7/hop.nvim',
+    --   config = function(_, opts)
+    --     local hop = require'hop'
+    --     local directions = require'hop.hint'.HintDirection
+    --     hop.setup(opts)
 
-        vim.keymap.set('', 'f', function()
-          hop.hint_char1{ direction = directions.AFTER_CURSOR, current_line_only = false }
-        end, { remap = true })
+    --     vim.keymap.set('', 'f', function()
+    --       hop.hint_char1{ direction = directions.AFTER_CURSOR, current_line_only = false }
+    --     end, { remap = true })
 
-        vim.keymap.set('', 'F', function()
-          hop.hint_char1{ direction = directions.BEFORE_CURSOR, current_line_only = false }
-        end, { remap = true })
+    --     vim.keymap.set('', 'F', function()
+    --       hop.hint_char1{ direction = directions.BEFORE_CURSOR, current_line_only = false }
+    --     end, { remap = true })
 
-        vim.keymap.set('', 't', function()
-          hop.hint_char1{
-            direction = directions.AFTER_CURSOR,
-            current_line_only = false,
-            hint_offset = -1,
-          }
-        end, { remap = true })
+    --     vim.keymap.set('', 't', function()
+    --       hop.hint_char1{
+    --         direction = directions.AFTER_CURSOR,
+    --         current_line_only = false,
+    --         hint_offset = -1,
+    --       }
+    --     end, { remap = true })
 
-        vim.keymap.set('', 'T', function()
-          hop.hint_char1{
-            direction = directions.BEFORE_CURSOR,
-            current_line_only = false,
-            hint_offset = 1,
-          }
-        end, { remap = true })
-      end,
-    },
+    --     vim.keymap.set('', 'T', function()
+    --       hop.hint_char1{
+    --         direction = directions.BEFORE_CURSOR,
+    --         current_line_only = false,
+    --         hint_offset = 1,
+    --       }
+    --     end, { remap = true })
+    --   end,
+    -- },
     {
       'rmagatti/auto-session',
       opts = {
