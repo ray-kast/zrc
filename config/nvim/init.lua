@@ -118,7 +118,7 @@ end, {})
 
 vim.api.nvim_create_user_command('CargoSearch', function(evt)
   local name_pat = [===[^\([^=[:space:]]\+\)\s*=.*$]===]
-  local basic_pat = [===[^\([^=[:space:]]\+\s*=\s*"\)\([^"]\+\)\("\s*\%(#.*\)\?$\)]===]
+  local basic_pat =   [===[^\([^=[:space:]]\+\s*=\s*"\)\([^"]\+\)\("\s*\%(#.*\)\?$\)]===]
   local complex_pat = [===[^\([^=[:space:]]\+\s*=\s*{[^}]*version\s*=\s*"\)\([^"]\+\)\("[^}]*}\s*\%(#.*\)\?$\)]===]
 
   local lines = {}
@@ -152,12 +152,12 @@ vim.api.nvim_create_user_command('CargoSearch', function(evt)
       local repl = string.format([[\1%s\3]], found_ver)
 
       local line, current_ver
-      if vim.fn.match(curr, basic_pat) then
-        current_ver = vim.fn.substitute(curr, basic_pat, [[\2]], '')
-        line = vim.fn.substitute(curr, basic_pat, repl, '')
-      elseif vim.fn.match(curr, complex_pat) then
+      if vim.fn.match(curr, complex_pat) then
         current_ver = vim.fn.substitute(curr, complex_pat, [[\2]], '')
         line = vim.fn.substitute(curr, complex_pat, repl, '')
+      elseif vim.fn.match(curr, basic_pat) then
+        current_ver = vim.fn.substitute(curr, basic_pat, [[\2]], '')
+        line = vim.fn.substitute(curr, basic_pat, repl, '')
       else
         current_ver = '???'
         line = string.format('%s = "%s"', crate, found_ver)
