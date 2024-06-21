@@ -9,7 +9,7 @@ unless status.success?
   exit status.exitstatus || -1
 end
 
-format, status = Open3.capture2(*%W[fzf --cycle --tac --multi --print0], stdin_data: formats)
+format, status = Open3.capture2(*%W[fzf --cycle --tac --no-sort --multi --print0], stdin_data: formats)
 
 unless status.success?
   $stderr << "yd: fzf exited with status #{status.to_s}\n"
