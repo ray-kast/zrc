@@ -133,7 +133,7 @@ vim.api.nvim_create_user_command('CargoSearch', function(evt)
     local result = {}
     if crate then
       result = vim.fn.split(
-        vim.fn.system(string.format("cargo search %s", vim.fn.shellescape(crate))),
+        vim.fn.system(string.format('cargo search %s', vim.fn.shellescape(crate))),
         '\n'
       )
     end
@@ -167,14 +167,14 @@ vim.api.nvim_create_user_command('CargoSearch', function(evt)
 
       if line ~= curr then
         vim.notify(
-          string.format("Update for %s: %s -> %s", crate, current_ver, found_ver),
+          string.format('Update for %s: %s -> %s', crate, current_ver, found_ver),
           vim.log.levels.INFO
         )
         any_changed = true
       end
     else
       if crate then
-        vim.notify(string.format("No results found for crate '%s'!", crate), vim.log.levels.ERROR)
+        vim.notify(string.format([[No results found for crate '%s'!]], crate), vim.log.levels.ERROR)
       end
       table.insert(lines, curr)
     end
@@ -183,7 +183,7 @@ vim.api.nvim_create_user_command('CargoSearch', function(evt)
   if any_changed then
     vim.fn.setline(evt.line1, lines)
   else
-    vim.notify(string.format("No updates available"), vim.log.levels.WARN)
+    vim.notify(string.format('No updates available'), vim.log.levels.WARN)
   end
 end, { range = true })
 
@@ -244,7 +244,7 @@ do
   end)
 
   vim.api.nvim_create_autocmd('FileType', {
-    pattern = "toml",
+    pattern = 'toml',
     group = vim.api.nvim_create_augroup('TomlMap', {}),
     callback = function(ev)
       nvmap('<Leader>u', ':CargoSearch<CR>')
@@ -734,7 +734,7 @@ if not vim.g.lazy_did_setup then
       dependencies = {
         'nvim-lua/plenary.nvim',
         {
-          "vhyrro/luarocks.nvim",
+          'vhyrro/luarocks.nvim',
           priority = 1000,
           config = true,
         },
@@ -742,12 +742,12 @@ if not vim.g.lazy_did_setup then
       config = function()
         require'neorg'.setup{
           load = {
-            ["core.defaults"] = {},
-            ["core.concealer"] = {},
-            ["core.dirman"] = {
+            ['core.defaults'] = {},
+            ['core.concealer'] = {},
+            ['core.dirman'] = {
               config = {
                 workspaces = {
-                  notes = "~/Documents/Notes",
+                  notes = '~/Documents/Notes',
                 },
               },
             },
@@ -784,7 +784,7 @@ if not vim.g.lazy_did_setup then
         local files = function()
           b.find_files{
             hidden = true,
-            path_display = { "truncate" },
+            path_display = { 'truncate' },
           }
         end
 
