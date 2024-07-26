@@ -763,16 +763,15 @@ if not vim.g.lazy_did_setup then
         'folke/trouble.nvim',
       },
       config = function(_, opts)
-        local trouble = require'trouble.providers.telescope'
-
+        local trouble = require'trouble.sources.telescope'.open
         require'telescope'.setup{
           defaults = {
             mappings = {
               i = {
-                ['<C-k>'] = trouble.open_with_trouble,
+                ['<C-k>'] = trouble,
               },
               n = {
-                ['<C-k>'] = trouble.open_with_trouble,
+                ['<C-k>'] = trouble,
               },
             },
           },
