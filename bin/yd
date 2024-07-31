@@ -2,6 +2,8 @@
 
 require 'open3'
 
+ARGV << ($stdin.tty? ? $stdin.readline : $stdin.read) if ARGV.empty?
+
 formats, status = Open3.capture2(*%W[yt-dlp -vqF], *ARGV)
 
 unless status.success?
