@@ -267,7 +267,7 @@ do
       map('<Leader>A', vim.lsp.codelens.run, args)
       map('<Leader>f', vim.lsp.buf.format, args)
       map('<Leader>R', vim.lsp.buf.rename, args)
-      map('<Leader>x', function() require'trouble'.open'workspace_diagnostics' end)
+      map('<Leader>x', function() require'trouble'.open'diagnostics' end)
       -- Mostly stolen from nvim-lspconfig
       map('<Leader>lr', function()
         local detach = {}
@@ -353,15 +353,13 @@ if not vim.g.lazy_did_setup then
     {
       'folke/trouble.nvim',
       opts = {
-        icons = false,
-        fold_open = '-',
-        fold_closed = '+',
-        signs = {
-          error = 'E',
-          warning = 'W',
-          hint = 'H',
-          information = 'I',
-          other = 'N',
+        icons = {
+          indent = {
+            fold_closed = '+',
+            fold_open = '-',
+          },
+          folder_closed = '\\',
+          folder_open = '-',
         },
         use_diagnostic_signs = true,
       },
