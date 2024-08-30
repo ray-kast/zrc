@@ -318,7 +318,7 @@ do
           callback = function(ev) vim.lsp.codelens.refresh() end,
         })
       else
-        vim.notify('Not enabling code lenses for buffer ' .. ev.buf, vim.log.levels.INFO)
+        -- vim.notify('Not enabling code lenses for buffer ' .. ev.buf, vim.log.levels.INFO)
       end
     end
   })
@@ -455,6 +455,7 @@ if not vim.g.lazy_did_setup then
         local caps = require'cmp_nvim_lsp'.default_capabilities()
 
         for lsp, opts in pairs{
+          clangd = {},
           dartls = {},
           eslint = {},
           jsonls = {},
@@ -474,7 +475,7 @@ if not vim.g.lazy_did_setup then
             },
           },
           sourcekit = {
-            { 'swift', 'c', 'cpp', 'objc', 'objective-c', 'objective-cpp' },
+            { 'swift', 'objc', 'objective-c', 'objective-cpp' },
           },
           tailwindcss = {},
           texlab = {
