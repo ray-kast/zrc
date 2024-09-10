@@ -343,7 +343,7 @@ if not vim.g.lazy_did_setup then
   vim.g.rnvimr_enable_ex = 1
   vim.g.rnvimr_enable_picker = 1
 
-  require'lazy'.setup({
+  local pkgs = {
     { 'folke/lazy.nvim', tag = 'stable' },
 
     {
@@ -489,7 +489,7 @@ if not vim.g.lazy_did_setup then
               },
             },
           },
-          tsserver = {},
+          ts_ls = {},
         } do
           if opts[1] ~= nil then
             conf[lsp].setup{
@@ -811,7 +811,15 @@ if not vim.g.lazy_did_setup then
     {
       'tpope/vim-fugitive',
     },
-  }, {
+  }
+
+  if os.getenv("NVIM_USE_COPILOT") then
+    table.insert(pkgs, {
+      'github/copilot.vim',
+    })
+  end
+
+  require'lazy'.setup(pkgs, {
     root = lazyroot,
   })
 end
