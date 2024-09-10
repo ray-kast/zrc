@@ -347,6 +347,16 @@ if not vim.g.lazy_did_setup then
     { 'folke/lazy.nvim', tag = 'stable' },
 
     {
+      'andythigpen/nvim-coverage',
+      config = {
+        signs = {
+          covered = { hl = 'CoverageCovered', text = '▌' },
+          uncovered = { hl = 'CoverageUncovered', text = '▌' },
+          partial = { hl = 'CoveragePartial', text = '▌' },
+        },
+      },
+    },
+    {
       'digitaltoad/vim-pug',
       ft = 'pug',
     },
@@ -467,6 +477,7 @@ if not vim.g.lazy_did_setup then
             ['rust-analyzer'] = {
               cargo = {
                 features = 'all',
+                cfgs = { debug_assertions = nil, miri = nil },
               },
               check = {
                 command = 'clippy',
