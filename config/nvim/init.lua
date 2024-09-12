@@ -482,6 +482,7 @@ if not vim.g.lazy_did_setup then
               check = {
                 command = 'clippy',
                 features = 'all',
+                cfgs = { debug_assertions = nil, miri = nil, rust_analyzer = nil },
               },
             },
           },
