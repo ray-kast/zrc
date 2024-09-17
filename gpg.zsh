@@ -27,5 +27,3 @@
   export SSH_AGENT_PID=''
   export SSH_AUTH_SOCK="$gpg_sock"
 }
-
-
