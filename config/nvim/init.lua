@@ -152,10 +152,10 @@ vim.api.nvim_create_user_command('CargoSearch', function(evt)
       local repl = string.format([[\1%s\3]], found_ver)
 
       local line, current_ver
-      if vim.fn.match(curr, complex_pat) then
+      if vim.fn.match(curr, complex_pat) ~= -1 then
         current_ver = vim.fn.substitute(curr, complex_pat, [[\2]], '')
         line = vim.fn.substitute(curr, complex_pat, repl, '')
-      elseif vim.fn.match(curr, basic_pat) then
+      elseif vim.fn.match(curr, basic_pat) ~= -1 then
         current_ver = vim.fn.substitute(curr, basic_pat, [[\2]], '')
         line = vim.fn.substitute(curr, basic_pat, repl, '')
       else
