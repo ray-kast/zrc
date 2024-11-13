@@ -826,6 +826,10 @@ if not vim.g.lazy_did_setup then
   }
 
   if os.getenv("NVIM_USE_COPILOT") then
+    vim.g.copilot_filetypes = {
+        ['*'] = false,
+    }
+
     table.insert(pkgs, {
       'github/copilot.vim',
     })
