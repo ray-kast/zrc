@@ -24,7 +24,7 @@
 	algorithm = patience
 
 [init]
-	defaultBranch = master
+	defaultBranch = main
 
 [commit]
 	gpgSign = true
