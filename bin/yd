@@ -2,7 +2,13 @@
 
 require 'open3'
 
-ARGV << ($stdin.tty? ? $stdin.readline : $stdin.read) if ARGV.empty?
+if ARGV.empty?
+  if $stdout.tty?
+    $stdout << "URL: "
+    $stdout.flush
+  end
+  ARGV << ($stdin.tty? ? $stdin.readline : $stdin.read)
+end
 
 formats, status = Open3.capture2(*%W[yt-dlp -vqF], *ARGV)
 
