@@ -55,6 +55,7 @@ vim.cmd.syntax'on'
 vim.cmd.colorscheme'slate'
 vim.cmd.filetype'plugin indent on'
 vim.o.background = 'dark'
+vim.o.cursorline = true
 vim.o.number = true
 vim.o.relativenumber = true
 vim.o.list = true
