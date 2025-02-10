@@ -23,7 +23,11 @@ _ locale
 }
 
 if [[ "$TERM" = *kitty* || -n "$KITTY_WINDOW_ID" ]]; then
+  _ kitty
   export ZRC_KITTY_DETECTED="$TERM"
 fi
+
+_ dotnet
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 unalias _
