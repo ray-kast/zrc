@@ -7,26 +7,28 @@ cd "$(dirname "$0")"
 
 ######## Helper functions
 
+function newline() { print >&2 }
+
 if [[ -t 2 ]]; then
   function head() { print -P "%B%12F==>%f $1%b" >&2 }
   function say() { print -P " %B%2F->%f%b $1" >&2 }
-  function note() { print -P "  %6F->%f $1" >&2 }
-  function warn() { print -P " %B%11F-> WARNING:%f%b $1" >&2 }
-  function err() { print -P " %B%9F-> ERROR: $1%f%b" >&2 }
-  function ask() { print -Pn "$1" }
+  function note() { print -P "   %6F->%f %7F$1%f" >&2 }
+  function warn() { print -P " %B%11F-> warning:%f%b $1" >&2 }
+  function err() { print -P " %B%9F-> error: $1%f%b" >&2 }
+  function ask() { print -Pn "$1" >&2 }
 else
   function head() { print "==> $1" >&2 }
   function say() { print " -> $1" >&2 }
-  function note() { print "  -> $1" >&2 }
-  function warn() { print " !> WARNING: $1" >&2 }
-  function err() { print " !> ERROR: $1" >&2 }
+  function note() { print "   -> $1" >&2 }
+  function warn() { print " !> WRN: $1" >&2 }
+  function err() { print " !> ERR: $1" >&2 }
   function ask() { print -n "$1" | sed 's/%[[:digit:]]*[[:alpha:]]//' >&2 }
 fi
 
 function cmd() {
   for c in "${(@)@}"; do
     (( $+commands[$c] )) || continue
-    echo "$c"
+    echo -n "$c"
     return
   done
 }
@@ -42,7 +44,7 @@ function patch_dest() {
   chmod "$mode" "$dest"
 
   "$cat" "$dest" || true
-  [[ "$(yn "Does this look correct? [y/N] " n)" == y ]] || return 2
+  yn "Does this look correct? [y/N] " n || return 2
 }
 
 function put_file() {
@@ -53,11 +55,18 @@ function put_file() {
     install -m"$mode" "$src" "$dest"
     return
   elif [[ ! -f "$dest" ]]; then
-    err "Cannot write to '$dest' - not a file"
+    err "Destination is not a file"
     return -1
-  elif diff -q "$src" "$dest" >/dev/null; then
-    note "Contents match - skipping"
+  fi
+
+  local old_mode="$(stat -c'%a' "$dest")"
+  if [[ "$old_mode" != "$mode" ]]; then
+    warn "Permissions differ (have $old_mode, want $mode) - fixing"
     chmod "$mode" "$dest"
+  fi
+
+  if diff -q "$src" "$dest" >/dev/null; then
+    note "Contents match - skipping"
     return
   fi
 
@@ -68,7 +77,7 @@ function put_file() {
 
     case "$action" in
       d|D)
-        echo >&2
+        newline
         if (( $+commands[git] )); then
           git diff --no-index -- "$dest" "$src" || true
         else
@@ -76,18 +85,18 @@ function put_file() {
         fi
         ;;
       k|K)
-        echo >&2
-        warn "Skipping install of '$dest'"
+        newline
+        note "Skipped install of '$dest'"
         return ;;
       r|R)
-        echo >&2
+        newline
         local tmp="$(mktemp "$dest".bk.XXXXX)"
         mv -f "$dest" "$tmp"
         install -m"$mode" "$src" "$dest"
         rm -i "$tmp" || warn "Removal of temp file '$tmp' failed"
         return ;;
       p|P)
-        echo >&2
+        newline
         while ! patch_dest; do
           case "$?" in
             -1) err "This option requires vim to be installed"; break ;;
@@ -97,42 +106,38 @@ function put_file() {
         done
         return ;;
       $'\n') ;;
-      *) echo >&2 ;;
+      *) newline ;;
     esac
   done
 }
 
 function unhome() {
   [[ -d "$(dirname "$1")" ]] && 1="$(realpath "$1")"
-  echo "${1/$(realpath "$HOME")/\$HOME}"
+  echo -n "${1/$(realpath "$HOME")/\$HOME}"
 }
 
 function yn() {
   local yn
 
   while :; do
-    echo -n "$1" >&2
+    ask "$1"
 
     read -k1 yn
 
     case $yn in
       y|Y)
-        echo >&2
-        echo y
-        return
+        newline
+        return 0
         ;;
       n|N)
-        echo >&2
-        echo n
-        return
+        newline
+        return 1
         ;;
       $'\n')
-        echo $2
-        return
+        [[ "$2" == y ]]
+        return "$?"
         ;;
-      *)
-        echo >&2
-        ;;
+      *) newline ;;
     esac
   done
 }
@@ -180,7 +185,44 @@ fi
 
 target="$(realpath "${(e)pretty_target}")"
 
+######## Installation - read install versions
+
+ver_file="$target"/.zrc-ver
+curr_version="$(cat "$ver_file")"
+version="$(cat VERSION)"
+
+say "Installer version: $version"
+
+######## Installation - check for newer versions
+
+if [[ -f "$ver_file" ]]; then
+  if [[ "$curr_version" -gt "$version" ]]; then
+    warn "Newer install version '$curr_version' detected!"
+
+    yn 'Continue anyway? [y/N] ' n
+  elif [[ "$curr_version" -eq "$version" ]]; then
+    warn "zrc installation already exists - reinstalling"
+  fi
+fi
+
+######## Installation - check Git upstream
+
+if [[ "$curr_version" -lt 3 ]]; then
+  git_branch="$(git rev-parse --abbrev-ref @)"
+  new_branch=main
+
+  if [[ "$git_branch" == master ]] && git rev-parse --verify -q "$new_branch" >/dev/null; then
+    warn "Upstream branch name is outdated"
+
+    yn 'Update it and restart installation? [Y/n] ' y || say bleh
+    git switch "$new_branch"
+    exec "$0" "${(@)@}"
+  fi
+fi
+
 ######## Installation - write temporary files
+
+env_f="$(mktemp zrc-bootstrap.XXXXX)"
 
 # Used in the sed command
 if [[ "$pretty_target" == *\x01* ]]; then
@@ -193,23 +235,20 @@ function drop_temps() {
 }
 
 function sig_drop_temps() {
-  echo >&2
+  newline
   drop_temps
   exit 1
 }
 
 trap drop_temps EXIT
+trap drop_temps ERR
 trap sig_drop_temps INT
 trap sig_drop_temps TERM
 trap sig_drop_temps HUP
 
-env_f="$(mktemp zrc-bootstrap.XXXXX)"
 sed -e $'s\x01@TARGET@\x01'"$pretty_target"$'\x01' install/bootstrap.zsh.in >"$env_f"
 
 ######## Installation - define manifest
-
-ver_file="$target"/.zrc-ver
-version="$(cat VERSION)"
 
 # If, for some deranged reason, /etc/zshenv sets ZDOTDIR, this should catch that
 base_dotdir="$(env -i zsh -o norcs -c 'print -n "$ZDOTDIR"')"
@@ -222,22 +261,6 @@ typeset -A manifest=(
   "$target"/.zshrc        install/.zshrc
 )
 
-######## Installation - check for newer versions
-
-head "Installer version: $version"
-
-if [[ -f "$ver_file" ]]; then
-  curr_version="$(cat "$ver_file")"
-
-  if [[ "$curr_version" -gt "$version" ]]; then
-    warn "Newer install version '$curr_version' detected!"
-
-    [[ "$(yn 'Continue anyway? [y/N] ' n)" == y ]]
-  elif [[ "$curr_version" -eq "$version" ]]; then
-    warn "zrc installation already exists - reinstalling"
-  fi
-fi
-
 ######## Installation - confirm config with user
 
 head "Checking install configuration..."
@@ -245,7 +268,7 @@ say "Target directory: '$target' (will be formatted as '$pretty_target')"
 
 any_existing=''
 for f in "${(@k)manifest}"; do
-  if [[ -f "$f" ]]; then
+  if [[ -f "$f" ]] && ! diff -q "${manifest[$f]}" "$f" >/dev/null; then
     [[ -n "$any_existing" ]] || warn "The following file(s) already exist:"
     any_existing=t
 
@@ -283,7 +306,7 @@ if [[ "$(realpath "$curr_dotdir")" != "$target" ]]; then
   fi
 fi
 
-[[ $(yn 'Continue with installation? [y/N] ' n) == y ]]
+yn 'Continue with installation? [y/N] ' n
 
 ######## Installation - install files
 
