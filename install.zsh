@@ -207,15 +207,23 @@ fi
 
 ######## Installation - check Git upstream
 
-if [[ "$curr_version" -lt 3 ]]; then
-  git_branch="$(git rev-parse --abbrev-ref @)"
-  new_branch=main
+git_branch="$(git rev-parse --abbrev-ref @)"
+git_remote="$(git config branch."$git_branch".remote)"
+new_branch=main
 
-  if [[ "$git_branch" == master ]] && git rev-parse --verify -q "$new_branch" >/dev/null; then
-    warn "Upstream branch name is outdated"
+if [[ "$git_branch" == master ]] && git rev-parse --verify -q "$git_remote/$new_branch" >/dev/null; then
+  warn 'Upstream branch name is outdated'
 
-    yn 'Update it and restart installation? [Y/n] ' y || say bleh
-    git switch "$new_branch"
+  if ! yn 'Update it and restart installation? [Y/n] ' y; then
+    warn 'Installation may become out-of-date!'
+
+    if yn 'Ignore anyway? [y/N] ' n; then
+      new_branch=''
+    fi
+  fi
+
+  if [[ -n "$new_branch" ]]; then
+    git checkout -B "$new_branch" -t "$git_remote/$new_branch"
     exec "$0" "${(@)@}"
   fi
 fi
