@@ -94,7 +94,7 @@ local ftgroup = vim.api.nvim_create_augroup('FiletypeConfig', {})
 
 vim.api.nvim_create_autocmd('FileType', {
   group = ftgroup,
-  pattern = 'swift',
+  pattern = 'swift,lean',
   callback = function(ev)
     for _, win in ipairs(vim.fn.win_findbuf(ev.buf)) do
       vim.wo[win].spell = false
@@ -202,6 +202,7 @@ do
 
   map('gl', '<Cmd>tablast<CR>')
 
+  map('<Leader>sp', '<Cmd>setl nospell<CR>')
   map('<Leader>d', '<Cmd>tab split<CR>')
   nimap('<Leader>e', '<Cmd>e<CR>')
   map('<Leader>m', '<Cmd>checkt<CR>')
