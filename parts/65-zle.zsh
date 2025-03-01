@@ -12,14 +12,6 @@ function fzf-history-search() {
 autoload fzf-history-search
 zle -N fzf-history-search
 
-function fzf-history-search-accept() {
-  zle fzf-history-search || return "$?"
-  zle accept-line
-}
-
-autoload fzf-history-search-accept
-zle -N fzf-history-search-accept
-
 function zle-isearch-update() {
   zle -M "Line $HISTNO"
 }

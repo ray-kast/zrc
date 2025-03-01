@@ -28,7 +28,6 @@ bindkey ",," vi-cmd-mode
 bindkey "^[v" vi-cmd-mode
 
 bindkey ",f" fzf-history-search
-bindkey ",F" fzf-history-search-accept
 
 bindkey "^[e" edit-command-line
 
