@@ -71,7 +71,7 @@ command = ARGV.dup
 
 unless command.empty?
   argv0 = command[0]
-  unless [*File::PATH_SEPARATOR, *File::ALT_SEPARATOR].any?{|s| argv0.include?(s) }
+  unless [*File::SEPARATOR, *File::ALT_SEPARATOR].any?{|s| argv0.include?(s) }
     command[0] = catch(:found) do
       ENV['PATH'].split(':').each do |path|
         joined = File.join(path, argv0)
