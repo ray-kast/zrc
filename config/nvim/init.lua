@@ -711,32 +711,33 @@ if not vim.g.lazy_did_setup then
     -- },
     {
       'neovim/nvim-lspconfig',
-      dependencies = {
-        {
-          'lvimuser/lsp-inlayhints.nvim',
-          opts = {
-            inlay_hints = {
-              highlight = 'Comment',
-            },
-          },
-          config = function(_, opts)
-            local ih = require'lsp-inlayhints'
-            ih.setup(opts)
+      -- NOTE: uncomment for inlay hints if not enabled by default
+      -- dependencies = {
+      --   {
+      --     'lvimuser/lsp-inlayhints.nvim',
+      --     opts = {
+      --       inlay_hints = {
+      --         highlight = 'Comment',
+      --       },
+      --     },
+      --     config = function(_, opts)
+      --       local ih = require'lsp-inlayhints'
+      --       ih.setup(opts)
 
-            vim.api.nvim_create_autocmd('LspAttach', {
-              group = vim.api.nvim_create_augroup('LspAttachInlayHints', {}),
-              callback = function(args)
-                if not (args.data and args.data.client_id) then
-                  return
-                end
+      --       vim.api.nvim_create_autocmd('LspAttach', {
+      --         group = vim.api.nvim_create_augroup('LspAttachInlayHints', {}),
+      --         callback = function(args)
+      --           if not (args.data and args.data.client_id) then
+      --             return
+      --           end
 
-                local client = vim.lsp.get_client_by_id(args.data.client_id)
-                ih.on_attach(client, args.buf)
-              end,
-            })
-          end,
-        },
-      },
+      --           local client = vim.lsp.get_client_by_id(args.data.client_id)
+      --           ih.on_attach(client, args.buf)
+      --         end,
+      --       })
+      --     end,
+      --   },
+      -- },
     },
     {
       'numToStr/Comment.nvim',
