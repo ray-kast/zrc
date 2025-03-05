@@ -1,3 +1,4 @@
+alias a2c="aria2c -x4 -k1M"
 alias b="bundle exec"
 alias cp="cp -i"
 alias dh="dirs -v"
