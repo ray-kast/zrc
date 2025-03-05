@@ -220,10 +220,6 @@ do
   map('gN', vim.diagnostic.goto_prev)
   map('<Leader>k', vim.diagnostic.open_float)
 
-  _map({'n', 'x', 'o'}, 'f',  '<Plug>(leap-forward)')
-  _map({'n', 'x', 'o'}, 'F',  '<Plug>(leap-backward)')
-  _map({'n', 'x', 'o'}, '<Leader>f', '<Plug>(leap-from-window)')
-
   local tab = vim.api.nvim_replace_termcodes('<Tab>', true, false, true)
   local s_tab = vim.api.nvim_replace_termcodes('<S-Tab>', true, false, true)
 
@@ -382,6 +378,9 @@ if not vim.g.lazy_did_setup then
         'tpope/vim-repeat',
       },
       lazy = false,
+      config = function()
+        require'leap'.create_default_mappings()
+      end
     },
     {
       'hrsh7th/nvim-cmp',
