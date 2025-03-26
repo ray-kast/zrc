@@ -37,8 +37,6 @@ function _rc_g_fn_update_elan() {
 
   elan self update
 
-  elan update
-
   return 0
 }
 
