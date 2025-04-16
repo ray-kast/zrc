@@ -40,7 +40,7 @@ alias tls="tmux ls"
 alias venv="python -m venv"
 alias yay='MAKEFLAGS="-j$(nproc)" command yay'
 alias zl="zstd --long --ultra -T0 -B0 -vvv"
-alias zm="zstd --long --ultra -8 -T0 -B0 -vvv"
+alias zm="zstd --long --ultra -9 -T0 -B0 -vvv"
 alias zs="zstd --long --ultra -22 -T0 -B0 -vvv"
 
 alias :q="exit"
