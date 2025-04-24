@@ -269,7 +269,7 @@ do
       -- Mostly stolen from nvim-lspconfig
       map('<Leader>lr', function()
         local detach = {}
-        for _, client in ipairs(vim.lsp.get_active_clients{ bufnr = ev.buf }) do
+        for _, client in ipairs(vim.lsp.get_clients{ bufnr = ev.buf }) do
           client.stop()
           vim.lsp.codelens.clear(client.id)
 
@@ -304,7 +304,7 @@ do
 
       local codelens = false
       for _, client in ipairs(vim.lsp.get_active_clients{ bufnre = ev.buf }) do
-        if client.supports_method'textDocument/codeLens' then
+        if client:supports_method'textDocument/codeLens' then
           codelens = true
         end
       end
