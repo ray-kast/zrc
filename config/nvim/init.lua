@@ -494,6 +494,9 @@ if not vim.g.lazy_did_setup then
           omnisharp = {
             cmd = { 'omnisharp' },
           },
+          pylsp = {
+            pylsp = {},
+          },
           rust_analyzer = {
             ['rust-analyzer'] = {
               cargo = {
