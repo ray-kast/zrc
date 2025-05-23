@@ -303,7 +303,7 @@ do
       end)
 
       local codelens = false
-      for _, client in ipairs(vim.lsp.get_active_clients{ bufnre = ev.buf }) do
+      for _, client in ipairs(vim.lsp.get_clients{ bufnre = ev.buf }) do
         if client:supports_method'textDocument/codeLens' then
           codelens = true
         end
