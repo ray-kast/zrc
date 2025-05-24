@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+$stderr << 'Retry count: '
+count = gets.to_f
+$stderr << "(read #{count})\n"
+$stderr << 'Retry interval: '
+delay = gets.to_f
+$stderr << "(read #{delay})\n"
+$stderr << 'Expected time-to-failure: '
+grace = gets.to_f
+$stderr << "(read #{grace})\n"
+
+puts <<EOF
+[Unit]
+StartLimitInterval=#{((delay + grace) * (count + 1)).ceil.to_i}
+StartLimitBurst=#{count.ceil.to_i}
+
+[Service]
+RestartSec=#{delay.ceil.to_i}
+EOF
