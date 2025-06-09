@@ -4,12 +4,19 @@
 	word-show = show -w --word-diff-regex='[[:alnum:]]+|[^[:space:]]'
 	big-word-diff = diff -w "--word-diff-regex='([^[:space:][:alnum:]][^[:alnum:]]*)?[^[:space:]]+'"
 	big-word-show = show -w "--word-diff-regex='([^[:space:][:alnum:]][^[:alnum:]]*)?[^[:space:]]+'"
+	difft = -c diff.external=difft diff
+	dtshow = -c diff.external=difft show --ext-diff
+	dtlog = -c diff.external=difft log --ext-diff
 
 [difftool "vscode-diff"]
 	cmd = code --wait --diff $LOCAL $REMOTE
 
 [difftool "nvim-diff"]
 	cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+
+[merge "mergiraf"]
+	name = mergiraf
+	driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
 
 [mergetool "nvim-fugitive-merge"]
 	cmd = nvim -c \"Gdiffsplit!\" \"$MERGED\"

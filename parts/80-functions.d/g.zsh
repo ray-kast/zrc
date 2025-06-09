@@ -87,6 +87,14 @@ _rc_g_fn_gcmds+=(
   w-  'switch -'
 )
 
+if _rc_g_has difft; then
+  _rc_g_fn_gcmds+=(
+    dd  'difft'
+    ddc 'difft --cached'
+    dh  'dtshow'
+  );
+fi
+
 function _rc_g_fn_gcmd() {
   local cmd="${_rc_g_fn_gcmds[$1]}"
 
