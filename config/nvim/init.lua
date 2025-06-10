@@ -318,6 +318,8 @@ do
       else
         -- vim.notify('Not enabling code lenses for buffer ' .. ev.buf, vim.log.levels.INFO)
       end
+
+      vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf });
     end
   })
 end
