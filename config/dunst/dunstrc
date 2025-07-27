@@ -1,5 +1,5 @@
 [global]
-  font = Inter Medium 12
+  font = "Inter Variable 12.5 @opsz=14 #calt,dlig,tnum,case,ccmp,ss01,cv08"
 
   dmenu = "rofi -dmenu"
 
@@ -12,7 +12,8 @@
   # %i - iconname (with path)
   # %I - iconname (without path)
   # %p - progress (0-100%) if set
-  format = "<b>%s </b><i>(%a)</i> %p\n%b"
+  format = "<span font_size="112%" font_weight="800">%s </span><span font_weight="350"> %p</span>\n<span font_size="90%" font_weight="375">via %a</span>\n<span font_weight="450">%b</span>"
+  # format = "<span line_height="1.25"><span font_size="110%" font_weight="800">%s </span><span font_weight="350"><i>(%a)</i> %p</span></span>\n<span font_weight="450">%b</span>"
 
   # sort by urgency
   sort = yes
@@ -31,7 +32,7 @@
 
   # window geometry
   width = (300, 600)
-  height = 100
+  height = 300
   origin = left-center
   offset = 32x0
   notification_limit = 4
@@ -154,4 +155,4 @@
   frame_color = "#D34A29"
   fullscreen = show
 
-# vim:ft=cfg sw=2
+# vim:ft=cfg sw=2 nospell:
