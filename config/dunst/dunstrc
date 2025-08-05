@@ -4,7 +4,7 @@
   dmenu = "rofi -dmenu"
 
   # allow faux-html
-  markup = yes
+  markup = no # Discord doesn't get this right
 
   # %a - appname
   # %s - summary
