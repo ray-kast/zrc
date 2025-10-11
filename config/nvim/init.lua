@@ -464,8 +464,7 @@ if not vim.g.lazy_did_setup then
           }),
         })
 
-        local conf = require'lspconfig'
-        local caps = require'cmp_nvim_lsp'.default_capabilities()
+        vim.lsp.config('*', require'cmp_nvim_lsp'.default_capabilities())
 
         for lsp, opts in pairs{
           clangd = {},
@@ -530,19 +529,18 @@ if not vim.g.lazy_did_setup then
           ts_ls = {},
         } do
           if opts[1] ~= nil then
-            conf[lsp].setup{
-              capabilities = caps,
+            vim.lsp.config(lsp, {
               filetypes = opts[1],
-              settings = opts[2] or {},
-              cmd = opts['cmd'],
-            }
+              settings = opts[2],
+              cmd = opts.cmd,
+            })
           else
-            conf[lsp].setup{
-              capabilities = caps,
+            vim.lsp.config(lsp, {
               settings = opts,
-              cmd = opts['cmd'],
-            }
+              cmd = opts.cmd
+            })
           end
+          vim.lsp.enable(lsp)
         end
       end
     },
