@@ -348,7 +348,7 @@ if not vim.g.lazy_did_setup then
 
     {
       'andythigpen/nvim-coverage',
-      config = {
+      opts = {
         signs = {
           covered = { hl = 'CoverageCovered', text = '▌' },
           uncovered = { hl = 'CoverageUncovered', text = '▌' },
