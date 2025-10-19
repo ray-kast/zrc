@@ -1,7 +1,7 @@
 -- editor behavior
 vim.o.compatible = false
 vim.o.mouse = 'a'
-vim.o.mousescroll = 'ver:0,hor:0'
+-- vim.o.mousescroll = 'ver:0,hor:0' -- Not needed with hardtime
 vim.o.autoread = true
 vim.o.autowrite = true
 vim.o.wildignorecase = true
@@ -574,6 +574,12 @@ if not vim.g.lazy_did_setup then
         vim.keymap.set('n', '<Leader>r', ':RnvimrToggle<CR>')
         vim.keymap.set('t', '<Leader>r', '<C-\\><C-n>:RnvimrToggle<CR>')
       end,
+    },
+    {
+      'm4xshen/hardtime.nvim',
+      lazy = false,
+      dependencies = { 'MunifTajim/nui.nvim' },
+      opts = {},
     },
     {
       'nvim-treesitter/nvim-treesitter',
