@@ -1,6 +1,7 @@
 -- editor behavior
 vim.o.compatible = false
 vim.o.mouse = 'a'
+vim.o.mousescroll = 'ver:0,hor:0'
 vim.o.autoread = true
 vim.o.autowrite = true
 vim.o.wildignorecase = true
