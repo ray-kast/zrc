@@ -578,7 +578,7 @@ if not vim.g.lazy_did_setup then
     {
       'm4xshen/hardtime.nvim',
       lazy = false,
-      dependencies = { 'MunifTajim/nui.nvim' },
+      dependencies = { 'MunifTanjim/nui.nvim' },
       opts = {},
     },
     {
