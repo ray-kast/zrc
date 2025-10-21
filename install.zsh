@@ -188,7 +188,12 @@ target="$(realpath "${(e)pretty_target}")"
 ######## Installation - read install versions
 
 ver_file="$target"/.zrc-ver
-curr_version="$(cat "$ver_file")"
+if [[ -r "$ver_file" ]]; then
+  curr_version="$(cat "$ver_file")"
+  say "Current version: $curr_version"
+else
+  curr_version=0
+fi
 version="$(cat VERSION)"
 
 say "Installer version: $version"
