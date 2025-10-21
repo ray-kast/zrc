@@ -6,7 +6,7 @@ false && alias _='print' || alias _=':'
 
 if [[ -d "$HOME/.local/bin" ]]; then
   _ local-bin
-  export PATH="$PATH:$HOME/.local/bin"
+  export PATH="$HOME/.local/bin:$PATH"
 fi
 
 if (( $+commands[snap] )); then
