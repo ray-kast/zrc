@@ -36,6 +36,11 @@ if  [[ -x "$HOME/.elan/bin/elan" ]]; then
   export PATH="$HOME/.elan/bin:$PATH"
 fi
 
+if (( $+commands[juliaup] )) || [[ -x "$HOME/.juliaup/bin/juliaup" ]]; then
+  _ juliaup
+  export PATH="$HOME/.juliaup/bin:$PATH"
+fi
+
 if (( $+commands[ruby] )) && (( $+commands[gem] )); then
   _ gem
   export PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
