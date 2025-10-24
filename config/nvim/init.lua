@@ -60,7 +60,7 @@ vim.o.cursorline = true
 vim.o.number = true
 vim.o.relativenumber = true
 vim.o.list = true
-vim.opt.listchars = { tab = '› ', space = '·', trail = '·' }
+vim.opt.listchars = { tab = '› ', space = '·', trail = '◀' }
 vim.o.showbreak = '»'
 vim.o.showmatch = true
 vim.opt.matchpairs:append'<:>'
