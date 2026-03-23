@@ -1,5 +1,5 @@
-_rc_g_has emacs && export EDITOR="emacs"
 _rc_g_has nano && export EDITOR="nano"
+_rc_g_has emacs && export EDITOR="emacs"
 _rc_g_has vi && export EDITOR="vi"
 _rc_g_has vim && export EDITOR="vim"
 _rc_g_has nvim && export EDITOR="nvim"

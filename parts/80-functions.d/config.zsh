@@ -17,6 +17,7 @@
 }
 
 alias cfg-install-dunst='_rc_g_cfg_install dunst dunstrc'
+alias cfg-install-emacs='_rc_g_cfg_install emacs init.el early-init.el'
 alias cfg-install-nvim='_rc_g_cfg_install nvim init.lua'
 alias cfg-install-picom='_rc_g_cfg_install picom picom.conf'
 alias cfg-install-ranger='_rc_g_cfg_install ranger rc.conf rifle.conf scope.sh'
