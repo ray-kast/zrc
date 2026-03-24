@@ -4,6 +4,8 @@
 
 ;;; Code:
 
+;; Packages
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
@@ -19,7 +21,26 @@
 
 (use-package undo-fu)
 
-;; Evil
+;; Global stuff
+
+(use-package company
+  :init
+  (setq ;; company-backends '((company-capf))
+	company-minimum-prefix-length 1
+	company-idle-delay 0.3)
+  :hook ((after-init . global-company-mode)))
+
+(use-package desktop
+  :init
+  (setq desktop-path `("." "~/.config/emacs/" "~"))
+  :config
+  (desktop-save-mode 1))
+
+(use-package display-line-numbers
+  :init
+  (setq display-line-numbers-type 'relative)
+  :config
+  (global-display-line-numbers-mode))
 
 (use-package evil
   :after (undo-fu)
@@ -28,20 +49,22 @@
   :config
   (evil-mode 1))
 
-;; Other utilities
-
-(use-package display-line-numbers
-  :init
-  (setq display-line-numbers-type 'relative)
-  :config
-  (global-display-line-numbers-mode))
-
 (use-package flycheck
-  :config
   :hook ((after-init . global-flycheck-mode)))
 
 (use-package lsp-mode
-  :hook ((rust-mode . lsp)))
+  :after (lsp-ui)
+  :init
+  (setq lsp-inlay-hint-enable t
+	lsp-keymap-prefix 'M-l)
+  :bind-keymap ("M-l" . lsp-command-map)
+  :hook ((lsp-mode . (lambda ()
+		       (let ((lsp-keymap-prefix "M-l"))
+			 (lsp-enable-which-key-integration))))))
+
+(use-package lsp-ui)
+
+(use-package tramp)
 
 (use-package which-key
   :after (evil)
@@ -50,11 +73,10 @@
   :config
   (which-key-mode))
 
-;; Modes etc
+;; Languages
 
-(use-package rust-mode
-  :init
-  (setq rust-mode-treesitter-derive nil))
+(use-package rustic
+  :after (lsp-mode))
 
 ;; Misc. Config
 
