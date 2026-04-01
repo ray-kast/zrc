@@ -13,9 +13,12 @@
 (setq use-package-always-ensure t)
 
 (use-package auto-package-update
+  :defer 1
   :init
   (setq auto-package-update-delete-old-versions t
 	auto-package-update-interval 7)
+  :hook (auto-package-update-after . (lambda ()
+				       (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))))
   :config
   (auto-package-update-maybe))
 
@@ -36,12 +39,6 @@
   :bind (("C-x w l" . desktop+-load)
 	 ("C-x w c" . desktop+-create)))
 
-;; (use-package desktop
-;;   :init
-;;   (setq desktop-path `("." "~/.config/emacs/" "~"))
-;;   :config
-;;   (desktop-save-mode 1))
-
 (use-package counsel
   :after (ivy swiper)
   :config
@@ -52,6 +49,11 @@
   (setq display-line-numbers-type 'relative)
   :config
   (global-display-line-numbers-mode))
+
+(use-package eglot
+  :init
+  (setq eglot-autoshutdown t)
+  :hook ((python-ts-mode rust-ts-mode) . eglot-ensure))
 
 (use-package evil
   :after (avy undo-fu)
@@ -69,41 +71,17 @@
   (evil-collection-init))
 
 (use-package flycheck
-  :hook ((after-init . global-flycheck-mode)))
+  :hook (after-init . global-flycheck-mode))
+
+(use-package flycheck-eglot
+  :after (flycheck eglot)
+  :config
+  (global-flycheck-eglot-mode 1))
 
 (use-package ivy
   :after (avy)
   :config
   (ivy-mode))
-
-(use-package lsp-mode
-  :after (lsp-ivy lsp-ui)
-  :init
-  (setq lsp-inlay-hint-enable t
-	lsp-keymap-prefix 'M-l)
-  :custom
-  (lsp-rust-analyzer-binding-mode-hints t)
-  (lsp-rust-analyzer-call-info-full t)
-  (lsp-rust-analyzer-closure-capture-hints t)
-  (lsp-rust-analyzer-closure-return-type-hints "always")
-  (lsp-rust-analyzer-discriminants-hints "always")
-  (lsp-rust-analyzer-chaining-hints t)
-  (lsp-rust-analyzer-display-closure-return-type-hints nil)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "always")
-  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-  (lsp-rust-analyzer-display-parameter-hints t)
-  (lsp-rust-analyzer-display-reborrow-hints "always")
-  (lsp-rust-analyzer-expression-adjustment-hints "always")
-  (lsp-rust-analyzer-max-inlay-hint-length 20)
-  :bind-keymap ("M-l" . lsp-command-map)
-  :hook ((lsp-mode . (lambda ()
-		       (let ((lsp-keymap-prefix "M-l"))
-			 (lsp-enable-which-key-integration))))))
-
-(use-package lsp-ivy
-  :after (ivy))
-
-(use-package lsp-ui)
 
 (use-package swiper
   :after (ivy evil)
@@ -127,52 +105,43 @@
   :config
   (yas-global-mode 1))
 
-;; Languages
-
-(use-package rustic
-  :after (lsp-mode))
-
 ;; Misc. Config
 
-(require 'tramp)
-(require 'desktop+)
-(let ((auto-save-dir "~/.local/state/emacs/auto-saves/")
-      (backup-dir "~/.local/state/emacs/backups/")
-      (lock-dir "~/.local/state/emacs/locks/")
-      (desktop-dir "~/.local/state/emacs/desktops/"))
+(use-package emacs
+  :after (tramp desktop+)
 
-  (dolist (dir (list auto-save-dir backup-dir lock-dir desktop-dir))
-    (when (not (file-directory-p dir))
-      (make-directory dir t)))
+  :init
+  (setq backup-by-copying t
+	custom-file "~/.config/emacs/custom.el"
+	delete-old-versions t
+	version-control t
+	kept-new-versions 6
+	kept-old-versions 2
+	treesit-language-source-alist '((python "https://github.com/tree-sitter/tree-sitter-python")
+					(rust "https://github.com/tree-sitter/tree-sitter-rust"))
+	major-mode-remap-alist (append (eval major-mode-remap-alist)
+				       '((python-mode . python-ts-mode)
+					 (rust-mode . rust-ts-mode))))
 
-  (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t))
-	auto-save-list-file-prefix (concat auto-save-dir ".saves-")
-	tramp-auto-save-directory auto-save-dir
+  :config
+  (let ((auto-save-dir "~/.local/state/emacs/auto-saves/")
+	(backup-dir "~/.local/state/emacs/backups/")
+	(lock-dir "~/.local/state/emacs/locks/")
+	(desktop-dir "~/.local/state/emacs/desktops/"))
 
-	backup-directory-alist `((".*" . ,backup-dir))
-	tramp-backup-directory-alist `((".*" . ,backup-dir))
+    (dolist (dir (list auto-save-dir backup-dir lock-dir desktop-dir))
+      (when (not (file-directory-p dir))
+	(make-directory dir t)))
 
-	lock-file-name-transforms `((".*" ,lock-dir t))
+    (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t))
+	  auto-save-list-file-prefix (concat auto-save-dir ".saves-")
+	  tramp-auto-save-directory auto-save-dir
 
-	desktop+-base-dir desktop-dir))
+	  backup-directory-alist `((".*" . ,backup-dir))
+	  tramp-backup-directory-alist `((".*" . ,backup-dir))
 
-(setq backup-by-copying t
-      delete-old-versions t
-      version-control t
-      kept-new-versions 6
-      kept-old-versions 2)
+	  lock-file-name-transforms `((".*" ,lock-dir t))
 
-(load-theme 'tango-dark)
+	  desktop+-base-dir desktop-dir))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+  (load-theme 'tango-dark))
