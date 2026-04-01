@@ -19,22 +19,33 @@
   :config
   (auto-package-update-maybe))
 
-(use-package undo-fu)
-
 ;; Global stuff
+
+(use-package avy
+  :defer nil
+  :bind (("C-'" . avy-goto-char-2)))
 
 (use-package company
   :init
-  (setq ;; company-backends '((company-capf))
-	company-minimum-prefix-length 1
+  (setq company-minimum-prefix-length 1
 	company-idle-delay 0.3)
   :hook ((after-init . global-company-mode)))
 
-(use-package desktop
-  :init
-  (setq desktop-path `("." "~/.config/emacs/" "~"))
+(use-package desktop+
+  :defer nil
+  :bind (("C-x w l" . desktop+-load)
+	 ("C-x w c" . desktop+-create)))
+
+;; (use-package desktop
+;;   :init
+;;   (setq desktop-path `("." "~/.config/emacs/" "~"))
+;;   :config
+;;   (desktop-save-mode 1))
+
+(use-package counsel
+  :after (ivy swiper)
   :config
-  (desktop-save-mode 1))
+  (counsel-mode))
 
 (use-package display-line-numbers
   :init
@@ -43,35 +54,78 @@
   (global-display-line-numbers-mode))
 
 (use-package evil
-  :after (undo-fu)
+  :after (avy undo-fu)
   :init
-  (setq evil-undo-system 'undo-fu)
+  (setq evil-want-integration t
+	evil-want-keybinding nil
+	evil-want-C-u-scroll t
+	evil-undo-system 'undo-fu)
   :config
   (evil-mode 1))
+
+(use-package evil-collection
+  :after (evil)
+  :config
+  (evil-collection-init))
 
 (use-package flycheck
   :hook ((after-init . global-flycheck-mode)))
 
+(use-package ivy
+  :after (avy)
+  :config
+  (ivy-mode))
+
 (use-package lsp-mode
-  :after (lsp-ui)
+  :after (lsp-ivy lsp-ui)
   :init
   (setq lsp-inlay-hint-enable t
 	lsp-keymap-prefix 'M-l)
+  :custom
+  (lsp-rust-analyzer-binding-mode-hints t)
+  (lsp-rust-analyzer-call-info-full t)
+  (lsp-rust-analyzer-closure-capture-hints t)
+  (lsp-rust-analyzer-closure-return-type-hints "always")
+  (lsp-rust-analyzer-discriminants-hints "always")
+  (lsp-rust-analyzer-chaining-hints t)
+  (lsp-rust-analyzer-display-closure-return-type-hints nil)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "always")
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+  (lsp-rust-analyzer-display-parameter-hints t)
+  (lsp-rust-analyzer-display-reborrow-hints "always")
+  (lsp-rust-analyzer-expression-adjustment-hints "always")
+  (lsp-rust-analyzer-max-inlay-hint-length 20)
   :bind-keymap ("M-l" . lsp-command-map)
   :hook ((lsp-mode . (lambda ()
 		       (let ((lsp-keymap-prefix "M-l"))
 			 (lsp-enable-which-key-integration))))))
 
+(use-package lsp-ivy
+  :after (ivy))
+
 (use-package lsp-ui)
+
+(use-package swiper
+  :after (ivy evil)
+  :bind (([remap isearch-forward] . swiper-isearch)
+	 ([remap evil-search-forward] . swiper-isearch)
+	 ([remap isearch-backward] . swiper-isearch-backward)
+	 ([remap evil-search-backward] . swiper-isearch-backward)))
 
 (use-package tramp)
 
+(use-package undo-fu)
+
 (use-package which-key
-  :after (evil)
+  :after (evil evil-collection)
   :init
   (setq which-key-idle-delay 0.5)
   :config
   (which-key-mode))
+
+(use-package yasnippet
+  :config
+  (yas-global-mode 1))
 
 ;; Languages
 
@@ -81,11 +135,13 @@
 ;; Misc. Config
 
 (require 'tramp)
+(require 'desktop+)
 (let ((auto-save-dir "~/.local/state/emacs/auto-saves/")
       (backup-dir "~/.local/state/emacs/backups/")
-      (lock-dir "~/.local/state/emacs/locks/"))
+      (lock-dir "~/.local/state/emacs/locks/")
+      (desktop-dir "~/.local/state/emacs/desktops/"))
 
-  (dolist (dir (list auto-save-dir backup-dir lock-dir))
+  (dolist (dir (list auto-save-dir backup-dir lock-dir desktop-dir))
     (when (not (file-directory-p dir))
       (make-directory dir t)))
 
@@ -96,7 +152,9 @@
 	backup-directory-alist `((".*" . ,backup-dir))
 	tramp-backup-directory-alist `((".*" . ,backup-dir))
 
-	lock-file-name-transforms `((".*" ,lock-dir t))))
+	lock-file-name-transforms `((".*" ,lock-dir t))
+
+	desktop+-base-dir desktop-dir))
 
 (setq backup-by-copying t
       delete-old-versions t
