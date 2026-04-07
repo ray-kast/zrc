@@ -59,7 +59,7 @@
 	       `((python-mode python-ts-mode) .
 		 (lambda (inter proj)
 		   (let ((project-dir (project-root proj)))
-		     (eglot-alternatives `(("uv" "--project" ,project-dir "-wpython-lsp-server[all],python-lsp-ruff" "pylsp")
+		     (eglot-alternatives `(("uv" "run" "--project" ,project-dir "-wpython-lsp-server[all],python-lsp-ruff" "pylsp")
 					   (,(getenv "SHELL") "-lc" "uv run --project \"$1\" -w'python-lsp-server[all],python-lsp-ruff' pylsp" "--" ,project-dir)))))))
   :hook ((python-ts-mode rust-ts-mode) . eglot-ensure))
 
