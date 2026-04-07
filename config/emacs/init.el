@@ -51,8 +51,16 @@
   (global-display-line-numbers-mode))
 
 (use-package eglot
+  :after (project)
   :init
   (setq eglot-autoshutdown t)
+  :config
+  (add-to-list 'eglot-server-programs
+	       `((python-mode python-ts-mode) .
+		 (lambda (inter proj)
+		   (let ((project-dir (project-root proj)))
+		     (eglot-alternatives `(("uv" "--project" ,project-dir "-wpython-lsp-server[all],python-lsp-ruff" "pylsp")
+					   (,(getenv "SHELL") "-lc" "uv run --project \"$1\" -w'python-lsp-server[all],python-lsp-ruff' pylsp" "--" ,project-dir)))))))
   :hook ((python-ts-mode rust-ts-mode) . eglot-ensure))
 
 (use-package evil
@@ -83,6 +91,27 @@
   :config
   (ivy-mode))
 
+(use-package project
+  :config
+  (defun +project-try-bny (dir)
+    "Perform an ancestor search starting at DIR for project manifest files."
+    (when-let* ((found
+		 (condition-case nil
+		     (locate-dominating-file dir (lambda (d)
+						   (directory-files
+						    d nil
+						    (rx string-start
+							(or "pyproject.toml")
+							string-end))))
+		   (file-missing nil))))
+      (cons 'bny found)))
+
+  (cl-defmethod project-root ((project (head bny)))
+    "Get the project root for PROJECT, if located by (+project-try-bny)."
+    (cdr project))
+
+  (add-hook 'project-find-functions #'+project-try-bny -1337))
+
 (use-package swiper
   :after (ivy evil)
   :bind (([remap isearch-forward] . swiper-isearch)
@@ -111,12 +140,15 @@
   :after (tramp desktop+)
 
   :init
-  (setq backup-by-copying t
+  (setq project-mode-line t
+
+	backup-by-copying t
 	custom-file "~/.config/emacs/custom.el"
 	delete-old-versions t
 	version-control t
 	kept-new-versions 6
 	kept-old-versions 2
+
 	treesit-language-source-alist '((python "https://github.com/tree-sitter/tree-sitter-python")
 					(rust "https://github.com/tree-sitter/tree-sitter-rust"))
 	major-mode-remap-alist (append (eval major-mode-remap-alist)
