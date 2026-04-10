@@ -121,6 +121,10 @@
 
 (use-package tramp)
 
+(use-package treesit-fold
+  :config
+  (global-treesit-fold-mode))
+
 (use-package undo-fu)
 
 (use-package which-key
@@ -177,3 +181,5 @@
 	  desktop+-base-dir desktop-dir))
 
   (load-theme 'tango-dark))
+
+;;; init.el ends here
