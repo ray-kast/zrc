@@ -61,7 +61,7 @@
 		   (let ((project-dir (project-root proj)))
 		     (eglot-alternatives `(("uv" "run" "--project" ,project-dir "-wpython-lsp-server[all],python-lsp-ruff" "pylsp")
 					   (,(getenv "SHELL") "-lc" "uv run --project \"$1\" -w'python-lsp-server[all],python-lsp-ruff' pylsp" "--" ,project-dir)))))))
-  :hook ((python-ts-mode rust-ts-mode) . eglot-ensure))
+  :hook ((c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode) . eglot-ensure))
 
 (use-package evil
   :after (avy undo-fu)
@@ -91,6 +91,8 @@
   :config
   (ivy-mode))
 
+(use-package magit)
+
 (use-package project
   :config
   (defun +project-try-bny (dir)
@@ -101,7 +103,8 @@
 						   (directory-files
 						    d nil
 						    (rx string-start
-							(or "pyproject.toml")
+							(or "compile_commands.json"
+							    "pyproject.toml")
 							string-end))))
 		   (file-missing nil))))
       (cons 'bny found)))
@@ -153,10 +156,14 @@
 	kept-new-versions 6
 	kept-old-versions 2
 
-	treesit-language-source-alist '((python "https://github.com/tree-sitter/tree-sitter-python")
+	treesit-language-source-alist '((c "https://github.com/tree-sitter/tree-sitter-c")
+					(cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+					(python "https://github.com/tree-sitter/tree-sitter-python")
 					(rust "https://github.com/tree-sitter/tree-sitter-rust"))
 	major-mode-remap-alist (append (eval major-mode-remap-alist)
-				       '((python-mode . python-ts-mode)
+				       '((c-mode . c-ts-mode)
+					 (c++-mode . c++-ts-mode)
+					 (python-mode . python-ts-mode)
 					 (rust-mode . rust-ts-mode))))
 
   :config
