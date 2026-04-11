@@ -78,6 +78,11 @@
   :config
   (evil-collection-init))
 
+(use-package evil-surround
+  :after (evil evil-collection)
+  :config
+  (global-evil-surround-mode))
+
 (use-package flycheck
   :hook (after-init . global-flycheck-mode))
 
