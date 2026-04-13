@@ -104,10 +104,46 @@
   :config
   (evil-mode 1))
 
+(use-package evil-args
+  :after (evil evil-collection)
+  :bind (:map evil-inner-text-objects-map
+	 ("a" . evil-inner-arg)
+	 :map evil-outer-text-objects-map
+	 ("a" . evil-outer-arg)
+	 :map evil-normal-state-map
+	 ("g l" . evil-forward-arg)
+	 ("g h" . evil-backward-arg)
+	 ("g a" . evil-jump-out-args)
+	 :map evil-motion-state-map
+	 ("g l" . evil-forward-arg)
+	 ("g h" . evil-backward-arg)))
+
 (use-package evil-collection
   :after (evil)
   :config
   (evil-collection-init))
+
+(use-package evil-indent-plus
+  :after (evil evil-collection)
+  :bind (
+	 :map evil-inner-text-objects-map
+	 ("i" . evil-indent-plus-i-indent)
+	 ("I" . evil-indent-plus-i-indent-up)
+	 ("J" . evil-indent-plus-i-indent-up-down)
+	 :map evil-outer-text-objects-map
+	 ("i" . evil-indent-plus-a-indent)
+	 ("I" . evil-indent-plus-a-indent-up)
+	 ("J" . evil-indent-plus-a-indent-up-down)))
+
+(use-package evil-matchit
+  :after (evil evil-collection)
+  :config
+  (global-evil-matchit-mode 1))
+
+(use-package evil-mc
+  :after (evil evil-collection)
+  :config
+  (global-evil-mc-mode 1))
 
 (use-package evil-smartparens
   :after (evil evil-collection smartparens)
@@ -117,6 +153,10 @@
   :after (evil evil-collection)
   :config
   (global-evil-surround-mode))
+
+(use-package evil-vimish-fold
+  :after (vimish-fold)
+  :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 
 (use-package flycheck
   :bind ("C-c k" . flycheck-command-map)
@@ -196,6 +236,9 @@
   (vertico-cycle t)
   :config
   (vertico-mode))
+
+(use-package vimish-fold
+  :after (evil evil-collection))
 
 (use-package yasnippet
   :config
