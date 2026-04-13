@@ -17,4 +17,13 @@
 	    (path (string-join (delete-dups (mapcar #'file-name-parent-directory libs)) ":")))
   (setenv "LIBRARY_PATH" path))
 
+(require 'cl-seq)
+(dolist (path
+	 `("/opt/local/bin"
+	   ,(expand-file-name "~/.cargo/bin")))
+  (when (and
+	 (not (cl-member path exec-path))
+	 (file-directory-p path))
+    (setq exec-path (cons path exec-path))))
+
 ;;; early-init.el ends here

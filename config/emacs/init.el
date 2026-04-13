@@ -26,7 +26,10 @@
 
 (use-package avy
   :defer nil
-  :bind (("C-'" . avy-goto-char-2)))
+  :custom
+  (avy-timeout-seconds 0.2)
+  :bind (("C-'" . evil-avy-goto-char-timer)
+	 ("C-c '" . evil-avy-goto-char-timer)))
 
 (use-package company
   :init
@@ -39,10 +42,22 @@
   :bind (("C-x w l" . desktop+-load)
 	 ("C-x w c" . desktop+-create)))
 
-(use-package counsel
-  :after (ivy swiper)
-  :config
-  (counsel-mode))
+(use-package consult
+  :custom
+  (register-preview-delay 0.5)
+  (xref-show-xrefs-function #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
+  :init
+  (advice-add #'register-preview :override #'consult-register-window))
+
+(use-package consult-eglot
+  :after (consult eglot))
+
+(use-package consult-flycheck
+  :after (consult flycheck))
+
+(use-package consult-yasnippet
+  :after (company consult eglot yasnippet))
 
 (use-package display-line-numbers
   :init
@@ -63,11 +78,27 @@
 					   (,(getenv "SHELL") "-lc" "uv run --project \"$1\" -w'python-lsp-server[all],python-lsp-ruff' pylsp" "--" ,project-dir)))))))
   :hook ((c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode) . eglot-ensure))
 
+(use-package embark
+  :bind (("C-c ." . embark-act)
+	 ("C-c C-." . embark-act)
+	 ("C-c ;" . embark-dwim)
+	 ("C-c C-;" . embark-dwim)
+	 ("C-h B" . embark-bindings))
+  :config
+  (setq prefix-help-command #'embark-prefix-help-command)
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+(use-package embark-consult)
+
 (use-package evil
   :after (avy undo-fu)
   :init
   (setq evil-want-integration t
 	evil-want-keybinding nil
+	evil-want-C-w-delete nil
 	evil-want-C-u-scroll t
 	evil-undo-system 'undo-fu)
   :config
@@ -78,12 +109,17 @@
   :config
   (evil-collection-init))
 
+(use-package evil-smartparens
+  :after (evil evil-collection smartparens)
+  :hook (smartparens-enabled . evil-smartparens-mode))
+
 (use-package evil-surround
   :after (evil evil-collection)
   :config
   (global-evil-surround-mode))
 
 (use-package flycheck
+  :bind ("C-c k" . flycheck-command-map)
   :hook (after-init . global-flycheck-mode))
 
 (use-package flycheck-eglot
@@ -91,12 +127,20 @@
   :config
   (global-flycheck-eglot-mode 1))
 
-(use-package ivy
-  :after (avy)
-  :config
-  (ivy-mode))
-
 (use-package magit)
+
+(use-package marginalia
+  :config
+  (marginalia-mode))
+
+(use-package orderless
+  :after (embark)
+  :custom
+  (orderless-component-separator #'orderless-escapable-split-on-space)
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles partial-completion))))
+  (completion-category-defaults nil)
+  (completion-pcm-leading-wildcard t))
 
 (use-package project
   :config
@@ -120,12 +164,23 @@
 
   (add-hook 'project-find-functions #'+project-try-bny -1337))
 
-(use-package swiper
-  :after (ivy evil)
-  :bind (([remap isearch-forward] . swiper-isearch)
-	 ([remap evil-search-forward] . swiper-isearch)
-	 ([remap isearch-backward] . swiper-isearch-backward)
-	 ([remap evil-search-backward] . swiper-isearch-backward)))
+(use-package projectile
+  :bind-keymap* ("C-c p" . projectile-mode-map)
+  :config
+  (projectile-mode))
+
+(use-package rustic
+  :after (emacs))
+
+(use-package savehist
+  :config
+  (savehist-mode))
+
+(use-package smartparens
+  :after (evil evil-collection)
+  :hook ((prog-mode text-mode markdown-mode) . smartparens-strict-mode)
+  :config
+  (require 'smartparens-config))
 
 (use-package tramp)
 
@@ -135,12 +190,12 @@
 
 (use-package undo-fu)
 
-(use-package which-key
-  :after (evil evil-collection)
-  :init
-  (setq which-key-idle-delay 0.5)
+(use-package vertico
+  :custom
+  (vertico-resize t)
+  (vertico-cycle t)
   :config
-  (which-key-mode))
+  (vertico-mode))
 
 (use-package yasnippet
   :config
@@ -152,7 +207,11 @@
   :after (tramp desktop+)
 
   :init
-  (setq project-mode-line t
+  (setq enable-recursive-minibuffers t
+	project-mode-line t
+	context-menu-mode t
+	read-extended-command-predicate #'command-completion-default-include-p
+	minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
 
 	backup-by-copying t
 	custom-file "~/.config/emacs/custom.el"
@@ -169,7 +228,8 @@
 				       '((c-mode . c-ts-mode)
 					 (c++-mode . c++-ts-mode)
 					 (python-mode . python-ts-mode)
-					 (rust-mode . rust-ts-mode))))
+					 (rust-mode . rust-ts-mode)
+					 (rustic-mode . rust-ts-mode))))
 
   :config
   (let ((auto-save-dir "~/.local/state/emacs/auto-saves/")
@@ -192,6 +252,10 @@
 
 	  desktop+-base-dir desktop-dir))
 
-  (load-theme 'tango-dark))
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (load-theme 'tango-dark)
+  (add-to-list 'default-frame-alist '(font . "Iosevka 14"))
+  (set-face-attribute 'default nil :height 140))
 
 ;;; init.el ends here
