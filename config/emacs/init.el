@@ -254,8 +254,6 @@
 
   (menu-bar-mode -1)
   (tool-bar-mode -1)
-  (load-theme 'tango-dark)
-  (add-to-list 'default-frame-alist '(font . "Iosevka 14"))
-  (set-face-attribute 'default nil :height 140))
+  (load-theme 'tango-dark))
 
 ;;; init.el ends here
