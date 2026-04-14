@@ -232,7 +232,7 @@
 
 (use-package vertico
   :custom
-  (vertico-resize t)
+  (vertico-resize nil)
   (vertico-cycle t)
   :config
   (vertico-mode))
