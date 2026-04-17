@@ -96,7 +96,8 @@
 (use-package evil
   :after (avy undo-fu)
   :init
-  (setq evil-want-integration t
+  (setq evil-move-beyond-eol t
+	evil-want-integration t
 	evil-want-keybinding nil
 	evil-want-C-w-delete nil
 	evil-want-C-u-scroll t
@@ -123,10 +124,19 @@
   :config
   (evil-collection-init))
 
+(use-package evil-commentary
+  :after (evil evil-collection)
+  :config
+  (evil-commentary-mode))
+
+(use-package evil-exchange
+  :after (evil evil-collection)
+  :config
+  (evil-exchange-install))
+
 (use-package evil-indent-plus
   :after (evil evil-collection)
-  :bind (
-	 :map evil-inner-text-objects-map
+  :bind (:map evil-inner-text-objects-map
 	 ("i" . evil-indent-plus-i-indent)
 	 ("I" . evil-indent-plus-i-indent-up)
 	 ("J" . evil-indent-plus-i-indent-up-down)
@@ -144,6 +154,21 @@
   :after (evil evil-collection)
   :config
   (global-evil-mc-mode 1))
+
+(use-package evil-numbers
+  :after (evil evil-collection)
+  :bind (:map evil-normal-state-map
+	 ("g =" . evil-numbers/inc-at-pt)
+	 ("g -" . evil-numbers/dec-at-pt)
+	 ("g M-=" . evil-numbers/inc-at-pt-incremental)
+	 ("g M--" . evil-numbers/dec-at-pt-incremental)))
+
+(use-package evil-org
+  :after (evil evil-collection)
+  :hook (org-mode . evil-org-mode)
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
 
 (use-package evil-smartparens
   :after (evil evil-collection smartparens)
@@ -181,6 +206,11 @@
   (completion-category-overrides '((file (styles partial-completion))))
   (completion-category-defaults nil)
   (completion-pcm-leading-wildcard t))
+
+(use-package org-modern
+ :after (org)
+ :config
+ (global-org-modern-mode))
 
 (use-package project
   :config
@@ -262,6 +292,12 @@
 	version-control t
 	kept-new-versions 6
 	kept-old-versions 2
+
+	org-fold-catch-invisible-edits 'show-and-error
+	org-special-ctrl-a/e t
+	org-insert-heading-respect-content t
+	org-pretty-entities t
+	org-ellipsis "…"
 
 	treesit-language-source-alist '((c "https://github.com/tree-sitter/tree-sitter-c")
 					(cpp "https://github.com/tree-sitter/tree-sitter-cpp")
