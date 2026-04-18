@@ -24,6 +24,18 @@
 
 ;; Global stuff
 
+(use-package affe
+  :after (consult orderless)
+  :init
+  (defun +affe-orderless-regexp-compiler (input _type _ignorecase)
+    (setq input (cdr (orderless-compile input)))
+    (cons input (apply-partially #'orderless--highlight input t)))
+
+  (let ((path (locate-file "rg" exec-path)))
+   (setq affe-find-command (concat path " --color=never --files")
+	 affe-grep-command (concat path " --null --color=never --max-columns=1000 --no-heading --line-number -v ^$")
+	 affe-regexp-compiler #'+affe-orderless-regexp-compiler)))
+
 (use-package avy
   :defer nil
   :custom
@@ -31,16 +43,35 @@
   :bind (("C-'" . evil-avy-goto-char-timer)
 	 ("C-c '" . evil-avy-goto-char-timer)))
 
-(use-package company
+(use-package cape
+  :after (corfu)
+  :bind ("C-c p" . cape-prefix-map)
   :init
-  (setq company-minimum-prefix-length 1
-	company-idle-delay 0.3)
-  :hook ((after-init . global-company-mode)))
+   (add-hook 'completion-at-point-functions #'cape-dabbrev)
+   (add-hook 'completion-at-point-functions #'cape-file)
+   (add-hook 'completion-at-point-functions #'cape-elisp-block))
 
-(use-package desktop+
-  :defer nil
-  :bind (("C-x w l" . desktop+-load)
-	 ("C-x w c" . desktop+-create)))
+(use-package corfu
+  :after (vertico)
+  :custom
+  (corfu-auto t)
+  (corfu-quit-no-match t)
+  (corfu-quit-at-boundary 'separator)
+  :config
+  (require 'corfu-auto)
+  (require 'corfu-echo)
+  (require 'corfu-history)
+  (global-corfu-mode)
+  (corfu-echo-mode)
+  (with-eval-after-load 'savehist
+    (corfu-history-mode)))
+
+(if (and (version< emacs-version "31")
+	 (not (display-graphic-p)))
+    (use-package corfu-terminal
+      :after (corfu)
+      :config
+      (corfu-terminal-mode)))
 
 (use-package consult
   :custom
@@ -57,7 +88,12 @@
   :after (consult flycheck))
 
 (use-package consult-yasnippet
-  :after (company consult eglot yasnippet))
+  :after (consult eglot yasnippet))
+
+(use-package desktop+
+  :defer nil
+  :bind (("C-x w l" . desktop+-load)
+	 ("C-x w c" . desktop+-create)))
 
 (use-package display-line-numbers
   :init
@@ -96,7 +132,8 @@
 (use-package evil
   :after (avy undo-fu)
   :init
-  (setq evil-move-beyond-eol t
+  (setq evil-echo-state nil
+	evil-move-beyond-eol t
 	evil-want-integration t
 	evil-want-keybinding nil
 	evil-want-C-w-delete nil
@@ -192,6 +229,11 @@
   :config
   (global-flycheck-eglot-mode 1))
 
+(use-package kind-icon
+  :after (corfu)
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
 (use-package magit)
 
 (use-package marginalia
@@ -211,6 +253,22 @@
  :after (org)
  :config
  (global-org-modern-mode))
+
+(use-package popper
+  :bind (("C-c o" . popper-toggle)
+	 ("C-c C-o" . popper-toggle)
+	 ("C-c O" . popper-toggle-type)
+	 ("C-c M-o" . popper-cycle))
+  :custom
+  (popper-reference-buffers
+   '("\\*Messages\\*"
+     "Output\\*"
+     "\\*Async Shell Command\\*"
+     help-mode
+     compilation-mode))
+  :config
+  (popper-mode)
+  (popper-echo-mode))
 
 (use-package project
   :config
@@ -235,7 +293,11 @@
   (add-hook 'project-find-functions #'+project-try-bny -1337))
 
 (use-package projectile
-  :bind-keymap* ("C-c p" . projectile-mode-map)
+  :defer nil
+  :bind (:map projectile-mode-map
+	 ("C-c r" . projectile-command-map))
+  :custom
+  (projectile-fd-executable (locate-file "fd" exec-path))
   :config
   (projectile-mode))
 
@@ -264,8 +326,19 @@
   :custom
   (vertico-resize nil)
   (vertico-cycle t)
+  (vertico-multiform-commands
+   '((consult-line buffer)
+     (consult-imenu reverse buffer)
+     (execute-extended-command (:keymap "X" execute-extended-command-for-buffer))))
+  (vertico-multiform-categories
+   '((file (:keymap . vertico-directory-map))
+     (imenu (:not indexed mouse))
+     (symbol (vertico-sort-function . vertico-sort-alpha))))
+  :defer nil
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
   :config
-  (vertico-mode))
+  (vertico-mode)
+  (vertico-multiform-mode))
 
 (use-package vimish-fold
   :after (evil evil-collection))
@@ -279,31 +352,35 @@
 (use-package emacs
   :after (tramp desktop+)
 
-  :init
-  (setq enable-recursive-minibuffers t
-	project-mode-line t
-	context-menu-mode t
-	read-extended-command-predicate #'command-completion-default-include-p
-	minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
+  :custom
+  (backup-by-copying t)
+  (custom-file "~/.config/emacs/custom.el")
+  (delete-old-versions t)
+  (version-control t)
+  (kept-new-versions 6)
+  (kept-old-versions 2)
 
-	backup-by-copying t
-	custom-file "~/.config/emacs/custom.el"
-	delete-old-versions t
-	version-control t
-	kept-new-versions 6
-	kept-old-versions 2
+  (enable-recursive-minibuffers t)
+  (project-mode-line t)
+  (context-menu-mode t)
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  (minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt))
 
-	org-fold-catch-invisible-edits 'show-and-error
-	org-special-ctrl-a/e t
-	org-insert-heading-respect-content t
-	org-pretty-entities t
-	org-ellipsis "…"
+  (tab-always-indent 'complete)
+  (text-mode-ispell-word-completion nil)
 
-	treesit-language-source-alist '((c "https://github.com/tree-sitter/tree-sitter-c")
-					(cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-					(python "https://github.com/tree-sitter/tree-sitter-python")
-					(rust "https://github.com/tree-sitter/tree-sitter-rust"))
-	major-mode-remap-alist (append (eval major-mode-remap-alist)
+  (org-fold-catch-invisible-edits 'show-and-error)
+  (org-special-ctrl-a/e t)
+  (org-insert-heading-respect-content t)
+  (org-pretty-entities t)
+  (org-ellipsis "…")
+
+  (treesit-language-source-alist '((c "https://github.com/tree-sitter/tree-sitter-c")
+				   (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+				   (python "https://github.com/tree-sitter/tree-sitter-python")
+				   (rust "https://github.com/tree-sitter/tree-sitter-rust")))
+
+  (major-mode-remap-alist (append (eval major-mode-remap-alist)
 				       '((c-mode . c-ts-mode)
 					 (c++-mode . c++-ts-mode)
 					 (python-mode . python-ts-mode)
