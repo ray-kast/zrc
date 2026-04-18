@@ -17,3 +17,7 @@ if [[ "$TERM" == "linux" ]]; then
   echo -en "\e]PFfdf6e3" # S_base3
   echo -en "\e]PD6c71c4" # S_violet
 fi
+
+if [[ -n "$EAT_SHELL_INTEGRATION_DIR" ]]; then
+  source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+fi

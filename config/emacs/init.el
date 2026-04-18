@@ -26,6 +26,8 @@
 
 (use-package affe
   :after (consult orderless)
+  :bind (("M-p" . affe-find)
+	 ("C-M-p" . affe-grep))
   :init
   (defun +affe-orderless-regexp-compiler (input _type _ignorecase)
     (setq input (cdr (orderless-compile input)))
@@ -169,6 +171,11 @@
   :config
   (global-display-line-numbers-mode))
 
+(use-package eat
+  :hook ((eshell-load . eat-eshell-mode))
+  :bind (("C-c t" . eat))
+  :commands (eat))
+
 (use-package eglot
   :after (project)
   :init
@@ -224,6 +231,12 @@
 	 ("g l" . evil-forward-arg)
 	 ("g h" . evil-backward-arg)))
 
+(use-package evil-cleverparens
+  :after (evil evil-collection smartparens)
+  :custom
+  (evil-cleverparens-use-additional-movement-keys nil)
+  :hook (smartparens-mode . evil-cleverparens-mode))
+
 (use-package evil-collection
   :after (evil)
   :config
@@ -274,10 +287,6 @@
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
-
-(use-package evil-smartparens
-  :after (evil evil-collection smartparens)
-  :hook (smartparens-enabled . evil-smartparens-mode))
 
 (use-package evil-surround
   :after (evil evil-collection)

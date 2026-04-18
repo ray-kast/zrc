@@ -19,7 +19,8 @@
 
 (require 'cl-seq)
 (dolist (path
-	 `("/opt/local/bin"
+	 `("/usr/lib/rustup/bin"
+	   "/opt/local/bin"
 	   ,(expand-file-name "~/.cargo/bin")))
   (when (and
 	 (not (cl-member path exec-path))
