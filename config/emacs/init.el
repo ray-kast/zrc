@@ -209,16 +209,26 @@
 
 (use-package evil
   :after (undo-fu)
-  :init
-  (setq evil-echo-state nil
-	evil-move-beyond-eol t
-	evil-want-integration t
-	evil-want-keybinding nil
-	evil-want-C-w-delete nil
-	evil-want-C-u-scroll t
-	evil-undo-system 'undo-fu)
+  :custom
+  (evil-echo-state nil)
+  (evil-move-beyond-eol t)
+  (evil-want-integration t)
+  (evil-want-keybinding nil)
+  (evil-want-C-w-delete nil)
+  (evil-want-C-u-scroll t)
+  (evil-undo-system 'undo-fu)
+
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  (setq
+   evil-emacs-state-tag (propertize " <E> " 'face '(:background "red" :foreground "black"))
+   evil-insert-state-tag (propertize " <I> " 'face '(:background "green" :foreground "black"))
+   evil-motion-state-tag (propertize " <M> " 'face '())
+   evil-normal-state-tag (propertize " <N> " 'face '())
+   evil-visual-state-tag (lambda (&optional selection)
+			   (propertize (evil-visual-tag selection) 'face '(:background "yellow" :foreground "black")))
+   evil-replace-state-tag (propertize " <R> " 'face '(:background "red" :foreground "black"))
+   evil-operator-state-tag (propertize " <O> " 'face '(:background "yellow" :foreground "black"))))
 
 (use-package evil-args
   :after (evil evil-collection)
