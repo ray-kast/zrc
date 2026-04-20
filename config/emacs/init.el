@@ -33,9 +33,10 @@
     (setq input (cdr (orderless-compile input)))
     (cons input (apply-partially #'orderless--highlight input t)))
 
-  (let ((path (locate-file "rg" exec-path)))
-   (setq affe-find-command (concat path " --color=never --files")
-	 affe-grep-command (concat path " --null --color=never --max-columns=1000 --no-heading --line-number -v ^$")
+  (let ((path (locate-file "rg" exec-path))
+	(misc-flags " --color=never --no-ignore-exclude --hidden"))
+   (setq affe-find-command (concat path misc-flags " --files")
+	 affe-grep-command (concat path misc-flags " --null --max-columns=1000 --no-heading --line-number -v ^$")
 	 affe-regexp-compiler #'+affe-orderless-regexp-compiler)))
 
 (use-package avy
