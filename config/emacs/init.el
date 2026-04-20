@@ -14,9 +14,9 @@
 
 (use-package auto-package-update
   :defer 1
-  :init
-  (setq auto-package-update-delete-old-versions t
-	auto-package-update-interval 7)
+  :custom
+  (auto-package-update-delete-old-versions t)
+  (auto-package-update-interval 7)
   :hook (auto-package-update-after . (lambda ()
 				       (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))))
   :config
@@ -43,15 +43,19 @@
   :custom
   (avy-timeout-seconds 0.2)
   :bind (("C-'" . evil-avy-goto-char-timer)
-	 ("C-c '" . evil-avy-goto-char-timer)))
+	 ("C-c '" . evil-avy-goto-char-timer)
+	 :map evil-normal-state-map
+	 ("s" . evil-avy-goto-char-timer)
+	 :map evil-motion-state-map
+	 ("s" . evil-avy-goto-char-timer)))
 
 (use-package cape
   :after (corfu)
   :bind ("C-c p" . cape-prefix-map)
   :init
-   (add-hook 'completion-at-point-functions #'cape-dabbrev)
-   (add-hook 'completion-at-point-functions #'cape-file)
-   (add-hook 'completion-at-point-functions #'cape-elisp-block))
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block))
 
 (use-package corfu
   :after (vertico)
@@ -153,9 +157,6 @@
 
 (use-package consult-eglot
   :after (consult eglot))
-
-(use-package consult-flycheck
-  :after (consult flycheck))
 
 (use-package consult-yasnippet
   :after (consult eglot yasnippet))
@@ -297,14 +298,11 @@
   :after (vimish-fold)
   :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 
-(use-package flycheck
-  :bind ("C-c k" . flycheck-command-map)
-  :hook (after-init . global-flycheck-mode))
-
-(use-package flycheck-eglot
-  :after (flycheck eglot)
-  :config
-  (global-flycheck-eglot-mode 1))
+(use-package flymake
+  :custom
+  (flymake-show-diagnostics-at-end-of-line t)
+  :bind ("C-c k" . flymake-show-project-diagnostics)
+  :hook ((prog-mode text-mode) . flymake-mode))
 
 (use-package kind-icon
   :after (corfu)
