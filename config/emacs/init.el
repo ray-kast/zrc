@@ -40,6 +40,7 @@
 	 affe-regexp-compiler #'+affe-orderless-regexp-compiler)))
 
 (use-package avy
+  :after (evil evil-collection)
   :defer nil
   :custom
   (avy-timeout-seconds 0.2)
@@ -207,7 +208,7 @@
 (use-package embark-consult)
 
 (use-package evil
-  :after (avy undo-fu)
+  :after (undo-fu)
   :init
   (setq evil-echo-state nil
 	evil-move-beyond-eol t
@@ -236,8 +237,13 @@
 (use-package evil-cleverparens
   :after (evil evil-collection smartparens)
   :custom
+  (evil-cleverparens-use-s-and-S nil)
   (evil-cleverparens-use-additional-movement-keys nil)
-  :hook (smartparens-mode . evil-cleverparens-mode))
+  :hook
+  (smartparens-mode . evil-cleverparens-mode)
+  (evil-cleverparens-mode . (lambda ()
+			      (evil-define-key 'normal evil-cleverparens-mode-map
+				"S" 'evil-cp-change-whole-line))))
 
 (use-package evil-collection
   :after (evil)
