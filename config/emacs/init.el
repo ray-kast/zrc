@@ -354,8 +354,10 @@
   :custom
   (popper-reference-buffers
    '("\\*Messages\\*"
-     "Output\\*"
+     "\\*Output\\*"
      "\\*Async Shell Command\\*"
+     "\\*scratch\\*"
+     "\\*Async-native-compile-log\\*"
      help-mode
      compilation-mode))
   :config
