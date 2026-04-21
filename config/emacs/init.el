@@ -251,7 +251,8 @@
   (evil-cleverparens-use-additional-movement-keys nil)
   :config
   (evil-define-key 'normal evil-cleverparens-mode-map
-    "S" 'evil-cp-change-whole-line)
+    (kbd "S") 'evil-cp-change-whole-line
+    (kbd "M-s") search-map)
   (evil-define-key '(normal visual) evil-cleverparens-mode-map
     (kbd "<") 'evil-shift-left
     (kbd ">") 'evil-shift-right
@@ -410,6 +411,8 @@
 (use-package smartparens
   :after (evil evil-collection)
   :hook ((prog-mode text-mode markdown-mode) . smartparens-strict-mode)
+  :custom
+  (sp-base-key-bindings 'sp)
   :config
   (require 'smartparens-config))
 
