@@ -249,11 +249,16 @@
   :custom
   (evil-cleverparens-use-s-and-S nil)
   (evil-cleverparens-use-additional-movement-keys nil)
+  :config
+  (evil-define-key 'normal evil-cleverparens-mode-map
+    "S" 'evil-cp-change-whole-line)
+  (evil-define-key '(normal visual) evil-cleverparens-mode-map
+    (kbd "<") 'evil-shift-left
+    (kbd ">") 'evil-shift-right
+    (kbd "g <") 'evil-cp-<
+    (kbd "g >") 'evil-cp->)
   :hook
-  (smartparens-mode . evil-cleverparens-mode)
-  (evil-cleverparens-mode . (lambda ()
-			      (evil-define-key 'normal evil-cleverparens-mode-map
-				"S" 'evil-cp-change-whole-line))))
+  (smartparens-mode . evil-cleverparens-mode))
 
 (use-package evil-collection
   :after (evil)
