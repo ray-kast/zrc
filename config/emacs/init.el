@@ -26,8 +26,8 @@
 
 (use-package affe
   :after (consult orderless)
-  :bind (("M-p" . affe-find)
-	 ("C-M-p" . affe-grep))
+  :bind (("M-s j" . affe-find)
+	 ("M-s L" . affe-grep))
   :init
   (defun +affe-orderless-regexp-compiler (input _type _ignorecase)
     (setq input (cdr (orderless-compile input)))
@@ -117,13 +117,12 @@
 	 ("M-g i" . consult-imenu)
 	 ("M-g I" . consult-imenu-multi)
 	 ;; M-s bindings in `search-map'
-	 ("M-s d" . consult-find)                  ;; Alternative: consult-fd
 	 ("M-s c" . consult-locate)
 	 ("M-s g" . consult-grep)
 	 ("M-s G" . consult-git-grep)
 	 ("M-s r" . consult-ripgrep)
 	 ("M-s l" . consult-line)
-	 ("M-s L" . consult-line-multi)
+	 ("M-s M-l" . consult-line-multi)
 	 ("M-s k" . consult-keep-lines)
 	 ("M-s u" . consult-focus-lines)
 	 ;; Isearch integration
