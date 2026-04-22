@@ -218,16 +218,7 @@
   (evil-undo-system 'undo-fu)
 
   :config
-  (evil-mode 1)
-  (setq
-   evil-emacs-state-tag (propertize " <E> " 'face '(:background "red" :foreground "black"))
-   evil-insert-state-tag (propertize " <I> " 'face '(:background "green" :foreground "black"))
-   evil-motion-state-tag (propertize " <M> " 'face '())
-   evil-normal-state-tag (propertize " <N> " 'face '())
-   evil-visual-state-tag (lambda (&optional selection)
-			   (propertize (evil-visual-tag selection) 'face '(:background "yellow" :foreground "black")))
-   evil-replace-state-tag (propertize " <R> " 'face '(:background "red" :foreground "black"))
-   evil-operator-state-tag (propertize " <O> " 'face '(:background "yellow" :foreground "black"))))
+  (evil-mode 1))
 
 (use-package evil-args
   :after (evil evil-collection)
@@ -451,7 +442,7 @@
 ;; Misc. Config
 
 (use-package emacs
-  :after (tramp desktop+)
+  :after (desktop+ evil evil-collection tramp)
 
   :custom
   (backup-by-copying t)
@@ -511,6 +502,55 @@
 
   (menu-bar-mode -1)
   (tool-bar-mode -1)
-  (load-theme 'tango-dark))
+  (load-theme 'tango-dark)
+
+  (defface +mode-evil-typing '((t . (:background "#b4fa70" :inherit 'mode-line-active)))
+    "Insert-like evil state face")
+
+  (defface +mode-evil-typing-danger '((t . (:background "#ff4b4b" :inherit 'mode-line-active)))
+    "Replace-like evil state face")
+
+  (defface +mode-evil-pending '((t . (:background "#729fcf" :inherit 'mode-line-active)))
+    "Operator-like evil state face")
+
+  (defface +mode-evil-visual '((t . (:background "#fcaf3e" :inherit 'mode-line-active)))
+    "Visual-like evil state face")
+
+  (setq
+   evil-emacs-state-tag        (propertize " E- " 'face '+mode-evil-typing)
+   evil-insert-state-tag       (propertize " I- " 'face '+mode-evil-typing)
+   evil-motion-state-tag       (propertize " M- " 'face '+mode-evil-pending)
+   evil-normal-state-tag       (propertize " N- " 'face 'mode-line-active)
+   evil-replace-state-tag      (propertize " R- " 'face '+mode-evil-typing-danger)
+   evil-operator-state-tag     (propertize " O- " 'face '+mode-evil-pending)
+   evil-visual-block-tag       (propertize " Vb " 'face '+mode-evil-visual)
+   evil-visual-char-tag        (propertize " V- " 'face '+mode-evil-visual)
+   evil-visual-line-tag        (propertize " Vl " 'face '+mode-evil-visual)
+   evil-visual-screen-line-tag (propertize " Vs " 'face '+mode-evil-visual))
+
+  (setq-default
+   mode-line-format
+   '(
+     (:eval (if (mode-line-window-selected-p) evil-mode-line-tag "    "))
+     mode-line-mule-info mode-line-client mode-line-modified mode-line-remote
+     (:eval (when (not (window-system)) " %F"))
+     (vc-mode vc-mode)
+     "  "
+     (:eval (and-let*
+		((project (or (and-let* ((p (project-current))) (project-name p))
+			      projectile-project-name
+			      (and-let* ((r (projectile-project-root)))
+				(funcall projectile-project-name-function r)))))
+	      `(,project ":")))
+     "%b  %m"
+     (flymake-mode flymake-mode-line-format)
+     mode-line-misc-info
+
+     " " mode-line-format-right-align
+
+     "%l:%C  "
+     (-3 "%p")
+     " "
+     )))
 
 ;;; init.el ends here
