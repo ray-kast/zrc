@@ -189,6 +189,10 @@
 		   (let ((project-dir (project-root proj)))
 		     (eglot-alternatives `(("uv" "run" "--project" ,project-dir "-wpython-lsp-server[all],python-lsp-ruff" "pylsp")
 					   (,(getenv "SHELL") "-lc" "uv run --project \"$1\" -w'python-lsp-server[all],python-lsp-ruff' pylsp" "--" ,project-dir)))))))
+  :bind (:map eglot-mode-map
+	 ("C-c l a" . eglot-code-actions)
+	 ("C-c l f" . eglot-format-buffer)
+	 ("C-c l r" . eglot-rename))
   :hook ((c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode) . eglot-ensure))
 
 (use-package embark
