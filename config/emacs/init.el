@@ -354,6 +354,7 @@
   :custom
   (popper-reference-buffers
    '("\\*Messages\\*"
+     "\\*Warnings\\*"
      "\\*Output\\*"
      "\\*Async Shell Command\\*"
      "\\*scratch\\*"
@@ -446,8 +447,6 @@
 ;; Misc. Config
 
 (use-package emacs
-  :after (desktop+ evil evil-collection tramp)
-
   :custom
   (backup-by-copying t)
   (custom-file "~/.config/emacs/custom.el")
