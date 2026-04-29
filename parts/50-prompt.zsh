@@ -5,7 +5,7 @@ function _rc_g_prompt_ps1_line1() {
 
   local vcs
 
-  [[ -z "$ZRC_NO_GIT_PROMPT" ]] && _rc_g_has git && vcs="$(_rc_g_prompt_ps1_git)"
+  [[ -z "$ZRC_NO_GIT_PROMPT" ]] && (( $+commands[git] )) && vcs="$(_rc_g_prompt_ps1_git)"
 
   [[ -n "$VIRTUAL_ENV" ]] && p " $(basename "$VIRTUAL_ENV") "
 

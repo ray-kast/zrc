@@ -5,7 +5,7 @@ _rc_g_set_gpg_tty() {
 }
 
 _rc_g_reset_gpg() {
-  if _rc_g_has systemd; then
+  if (( $+commands[systemd] )); then
     timeout 5s systemctl --user restart gpg-agent.service
   else
     timeout 5s gpg-connect-agent killagent /bye | rg -Fv OK

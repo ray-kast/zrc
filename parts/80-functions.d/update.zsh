@@ -1,12 +1,12 @@
 function _rc_g_fn_update_notify() {
-  _rc_g_has notify_send || return 0
+  (( $+commands[notify_send] )) || return 0
 
   # It appears notify-send may have hung when I was running only a TTY
   (timeout 2s notify-send -i archlinux 'update' $1) &!
 }
 
 function _rc_g_fn_update_apt() {
-  _rc_g_has apt-get || return 0
+  (( $+commands[apt-get] )) || return 0
 
   echo ":: Running APT upgrade..."
 
@@ -19,7 +19,7 @@ function _rc_g_fn_update_apt() {
 }
 
 function _rc_g_fn_update_cabal() {
-  _rc_g_has cabal || return 0
+  (( $+commands[cabal] )) || return 0
 
   echo ":: Running Cabal update..."
 
@@ -29,7 +29,7 @@ function _rc_g_fn_update_cabal() {
 }
 
 function _rc_g_fn_update_elan() {
-  _rc_g_has elan || return 0
+  (( $+commands[elan] )) || return 0
 
   echo ":: Running elan upgrade..."
 
@@ -41,7 +41,7 @@ function _rc_g_fn_update_elan() {
 }
 
 function _rc_g_fn_update_flatpak() {
-  _rc_g_has flatpak || return 0
+  (( $+commands[flatpak] )) || return 0
 
   echo ":: Running Flatpak update..."
 
@@ -53,7 +53,7 @@ function _rc_g_fn_update_flatpak() {
 }
 
 function _rc_g_fn_update_nvim() {
-  _rc_g_has nvim || return 0
+  (( $+commands[nvim] )) || return 0
 
   echo ":: Running nvim package upgrade..."
 
@@ -151,9 +151,9 @@ function _rc_g_fn_update_nvim() {
 }
 
 function _rc_g_fn_update_pacman() {
-  _rc_g_has pacman || return 0
+  (( $+commands[pacman] )) || return 0
 
-  if _rc_g_has reflector && [[ "$(_rc_g_yn "Update mirror list? [Y/n] " y)" == 'y' ]]; then
+  if (( $+commands[reflector] )) && [[ "$(_rc_g_yn "Update mirror list? [Y/n] " y)" == 'y' ]]; then
     _rc_g_fn_update_notify 'Updating mirrors...'
 
     sudo sh -c 'reflector --verbose --sort rate -cUS --score 50 -f 20 --save /etc/pacman.d/mirrorlist && rm -f /etc/pacman.d/mirrorlist.pacnew'
@@ -177,7 +177,7 @@ function _rc_g_fn_update_pacman() {
     echo " there is nothing to do"
   fi
 
-  if _rc_g_has yay; then
+  if (( $+commands[yay] )); then
     # TODO: Find a way to suppress this if we're doing nothing
     _rc_g_fn_update_notify 'Starting AUR upgrade...'
 
@@ -211,7 +211,7 @@ function _rc_g_fn_update_pacman() {
   sudo paccache -rk3
   sudo paccache -ruk0
 
-  if _rc_g_has yay; then
+  if (( $+commands[yay] )); then
     yay -Sca --noconfirm
   fi
 
@@ -289,7 +289,7 @@ function _rc_g_fn_update_pacman() {
 }
 
 function _rc_g_fn_update_port() {
-  _rc_g_has port || return 0
+  (( $+commands[port] )) || return 0
 
   echo ":: Running MacPorts upgrade..."
 
@@ -307,7 +307,7 @@ function _rc_g_fn_update_port() {
 }
 
 function _rc_g_fn_update_rustup() {
-  _rc_g_has rustup || return 0
+  (( $+commands[rustup] )) || return 0
 
   echo ":: Running rustup upgrade..."
 
@@ -321,7 +321,7 @@ function _rc_g_fn_update_rustup() {
 }
 
 function _rc_g_fn_update_snap() {
-  _rc_g_has snap || return 0
+  (( $+commands[snap] )) || return 0
 
   echo ":: Running snap upgrade..."
 
@@ -333,7 +333,7 @@ function _rc_g_fn_update_snap() {
 }
 
 function _rc_g_fn_update_yarn() {
-  _rc_g_has yarn || return 0
+  (( $+commands[yarn] )) || return 0
 
   echo ":: Running yarn global upgrade..."
 
@@ -369,7 +369,7 @@ function update() {
 
 
 function _rc_g_fn_update-cleanup_apt() {
-  _rc_g_has apt-get || return 0
+  (( $+commands[apt-get] )) || return 0
 
   sudo apt-get autoremove
 
@@ -377,7 +377,7 @@ function _rc_g_fn_update-cleanup_apt() {
 }
 
 function _rc_g_fn_update-cleanup_pacman() {
-  _rc_g_has pacman || return 0
+  (( $+commands[pacman] )) || return 0
 
   local targets
 
@@ -393,7 +393,7 @@ function _rc_g_fn_update-cleanup_pacman() {
 }
 
 function _rc_g_fn_update-cleanup_port() {
-  _rc_g_has port || return 0
+  (( $+commands[port] )) || return 0
 
   sudo port reclaim || return $?
   # sudo port uninstall inactive && sudo port uninstall leaves || return $?

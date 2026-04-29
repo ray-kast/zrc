@@ -87,7 +87,7 @@ _rc_g_fn_gcmds+=(
   w-  'switch -'
 )
 
-if _rc_g_has difft; then
+if (( $+commands[difft] )); then
   _rc_g_fn_gcmds+=(
     dd  'difft'
     ddc 'difft --cached'

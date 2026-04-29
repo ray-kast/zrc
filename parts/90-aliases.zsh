@@ -16,7 +16,6 @@ alias ls="command ls --color -bF --group-directories-first"
 alias mv="mv -i"
 alias nn="pnpm"
 alias nv="nvim"
-alias nvo=$'echo "Don\'t."'
 alias nx="pnpx"
 alias p="typeset -m --"
 alias pf="typeset -mf --"
@@ -64,7 +63,7 @@ alias -s pdf="evince"
   typeset -a clipboard_order=(pbcopy xclip)
 
   for c in "${(@)clipboard_order}"; do
-    if _rc_g_has "$c"; then
+    if (( $+commands[$c] )); then
       alias xc="$clipboards[$c]"
       break
     fi
@@ -99,7 +98,7 @@ alias -s pdf="evince"
 
   local open='false'
   for x in "${(@)opener_order}"; do
-    if _rc_g_has "$x"; then
+    if (( $+commands[$x] )); then
       open="$openers[$x]"
       break
     fi
@@ -115,7 +114,7 @@ alias -s pdf="evince"
     for x in png jpg gif; do alias -s $x=icat; done
   fi
 
-  if _rc_g_has firefox; then
+  if (( $+commands[firefox] )); then
     for x in svg html; do alias -s $x="firefox"; done
   fi
 }
@@ -131,7 +130,7 @@ alias -s pdf="evince"
   for cmd in "${(@k)pairs}"; do
     alt="${pairs[$cmd]}"
 
-    if _rc_g_has "$cmd" && ! _rc_g_has "$alt"; then
+    if (( $+commands[$cmd] && ! $+commands[$alt] )); then
       alias "$alt"="$cmd"
     fi
   done

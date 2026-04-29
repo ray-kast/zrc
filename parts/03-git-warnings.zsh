@@ -1,5 +1,5 @@
 () {
-  if _rc_g_has mergiraf; then
+  if (( $+commands[mergiraf] )); then
     local attrs="${$(git config --global core.attributesfile)/#\~/$HOME}"
 
     if [[ "$attrs" =~ "^[\s\n]*$" ]]; then

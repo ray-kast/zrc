@@ -1,5 +1,5 @@
 function mime-default-select() {
-  if ! _rc_g_has xdg-mime; then
+  if (( ! $+commands[xdg-mime] )); then
     echo 'Install xdg-mime first.'
     return -1
   fi
@@ -19,7 +19,7 @@ function mime-default-select() {
 
       name_pretty="${$(basename "$f")%.desktop}\e[38;5;2m >> $(sed -Ene 's/Name\s*=\s*(.*)\s*/\1/p;T;q 0' "$f")\e[m"
       name="${(S)name_pretty//\\e\[*m}"
-      if ! (( $+entries[$name] )); then
+      if (( ! $+entries[$name] )); then
         entries_pretty+=("$name_pretty")
         entries[$name]="$f"
       fi

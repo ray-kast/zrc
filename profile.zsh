@@ -21,7 +21,7 @@ fi
 
 ######## End system-level package managers
 
-if (( $+commands[cargo] )) || (( $+commands[rustup] )) || [[ -x "$HOME/.cargo/bin/rustup" ]]; then
+if (( $+commands[cargo] || $+commands[rustup] )) || [[ -x "$HOME/.cargo/bin/rustup" ]]; then
   _ cargo
   export PATH="/usr/lib/cargo/bin:$HOME/.cargo/bin:$PATH"
 fi
@@ -41,7 +41,7 @@ if (( $+commands[juliaup] )) || [[ -x "$HOME/.juliaup/bin/juliaup" ]]; then
   export PATH="$HOME/.juliaup/bin:$PATH"
 fi
 
-if (( $+commands[ruby] )) && (( $+commands[gem] )); then
+if (( $+commands[ruby] && $+commands[gem] )); then
   _ gem
   export PATH="$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
 fi
