@@ -376,13 +376,13 @@ if not vim.g.lazy_did_setup then
       },
     },
     {
-      'ggandor/leap.nvim',
+      'https://codeberg.org/andyg/leap.nvim',
       dependencies = {
         'tpope/vim-repeat',
       },
       lazy = false,
       config = function()
-        require'leap'.create_default_mappings()
+	vim.keymap.set({'n', 'x', 'o'}, 's', '<Plug>(leap)')
       end
     },
     {

@@ -8,6 +8,14 @@
   )
   functions[_rc_g_cfg_install]=$cmd
 
+  typeset -a cmd=(
+    local base='"$1"' dir='"${XDG_CONFIG_DIR:-$HOME/.config}/$2"'\;
+    '((' \# \> 1 '))' '&&' shift 2 '||' return 1\;
+    mkdir -vp '"$dir"' '&&'
+    ln -ibsvt '"$dir"' "'$_rc_i_basedir/config/'"'"$base/${(@)^@}"'
+  )
+  functions[_rc_g_cfg_install2]=$cmd
+
   cmd=(
     local base='"$1"'\;
     '((' \# \> 0 '))' '&&' shift '||' return 1\;
@@ -19,6 +27,7 @@
 alias cfg-install-dunst='_rc_g_cfg_install dunst dunstrc'
 alias cfg-install-emacs='_rc_g_cfg_install emacs init.el early-init.el'
 alias cfg-install-nvim='_rc_g_cfg_install nvim init.lua'
+alias cfg-install-nvim-minimal='_rc_g_cfg_install2 nvim-minimal nvim init.lua'
 alias cfg-install-picom='_rc_g_cfg_install picom picom.conf'
 alias cfg-install-ranger='_rc_g_cfg_install ranger rc.conf rifle.conf scope.sh'
 alias cfg-install-rofi='_rc_g_cfg_install rofi config.rasi theme.rasi'

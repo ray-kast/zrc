@@ -472,12 +472,14 @@
 
   (treesit-language-source-alist '((c "https://github.com/tree-sitter/tree-sitter-c")
 				   (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+				   (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua")
 				   (python "https://github.com/tree-sitter/tree-sitter-python")
 				   (rust "https://github.com/tree-sitter/tree-sitter-rust")))
 
   (major-mode-remap-alist (append (eval major-mode-remap-alist)
 				       '((c-mode . c-ts-mode)
 					 (c++-mode . c++-ts-mode)
+					 (lua-mode . lua-ts-mode)
 					 (python-mode . python-ts-mode)
 					 (rust-mode . rust-ts-mode)
 					 (rustic-mode . rust-ts-mode))))
