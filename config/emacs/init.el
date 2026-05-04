@@ -214,12 +214,13 @@
   :after (undo-fu)
   :custom
   (evil-echo-state nil)
+  (evil-ex-substitute-global t)
   (evil-move-beyond-eol t)
+  (evil-undo-system 'undo-fu)
+  (evil-want-C-u-scroll t)
+  (evil-want-C-w-delete nil)
   (evil-want-integration t)
   (evil-want-keybinding nil)
-  (evil-want-C-w-delete nil)
-  (evil-want-C-u-scroll t)
-  (evil-undo-system 'undo-fu)
 
   :config
   (evil-mode 1))
