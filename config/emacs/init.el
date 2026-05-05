@@ -425,7 +425,8 @@
   (vertico-resize nil)
   (vertico-cycle t)
   (vertico-multiform-commands
-   '((consult-line buffer)
+   '((affe-grep buffer)
+     (consult-line buffer)
      (consult-imenu reverse buffer)
      (execute-extended-command (:keymap "X" execute-extended-command-for-buffer))))
   (vertico-multiform-categories
