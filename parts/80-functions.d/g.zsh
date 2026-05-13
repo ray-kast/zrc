@@ -85,6 +85,11 @@ _rc_g_fn_gcmds+=(
   w   'switch'
   wc  'switch -c'
   w-  'switch -'
+  wt  'worktree'
+  wta 'worktree add'
+  wtl 'worktree list'
+  wtm 'worktree move'
+  wtr 'worktree repair'
 )
 
 if (( $+commands[difft] )); then
