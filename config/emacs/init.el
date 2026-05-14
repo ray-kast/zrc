@@ -466,11 +466,14 @@
   (tab-always-indent 'complete)
   (text-mode-ispell-word-completion nil)
 
+  (org-ellipsis "…")
   (org-fold-catch-invisible-edits 'show-and-error)
-  (org-special-ctrl-a/e t)
   (org-insert-heading-respect-content t)
   (org-pretty-entities t)
-  (org-ellipsis "…")
+  (org-special-ctrl-a/e t)
+
+  (org-use-sub-superscripts '{})
+  (org-export-with-sub-superscripts '{})
 
   (treesit-language-source-alist '((c "https://github.com/tree-sitter/tree-sitter-c")
 				   (cpp "https://github.com/tree-sitter/tree-sitter-cpp")

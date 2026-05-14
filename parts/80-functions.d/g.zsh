@@ -113,10 +113,23 @@ function g() {
     return $?
   fi
 
+  local opt
+  typeset -a flags
+
+  OPTIND=1
+  while getopts C:pPb opt; do
+     case "$opt" in
+       C) flags+=(-C "$OPTARG") ;;
+       b) flags+=(--bare) ;;
+       *) flags+=(-"$opt") ;;
+     esac
+  done
+
+  shift $(( OPTIND - 1 ))
   local cmd="$(_rc_g_fn_gcmd "$1")"
   shift
 
   _rc_g_fix_gpg_tty
-  git "${(@s: :)cmd}" $@
+  git "${(@)flags}" "${(@s: :)cmd}" $@
   return $?
 }
