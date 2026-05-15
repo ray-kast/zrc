@@ -1,33 +1,64 @@
-function _rc_g_prompt_begin {
-  alias p="print -${1}n" # usage: printflags (namely P for non-prompt use)
+# Usage: <print flags> (i.e. P, for use outside prompt strings)
+function _rc_g_prompt_begin() {
+  alias p="print -${1}n"
 
-  # TODO: setn, setk, and setf are present because it appears a zsh 5.8 bug
-  #       prevents the use of %#F and %#K
-  alias setn=$'() { p "%K{${1}}%F{${2}}" }' # usage: bg, fg
-  alias setk=$'() { p "%K{${1}}" }' # usage: bg
-  alias setf=$'() { p "%F{${1}}" }' # usage: fg
+  # Usage: IF <cond> [value]; ... ELSE; ... FI
+  # NOTE: The ELSE is always required
+  alias IF=$'() { p "%${2}(${1}\x01" }'
+  alias ELSE=$'p "\x01"'
+  alias FI=$'p ")"'
 
-  alias setl=$'() { p "%F{${1}}%S\ue0b0%s%K{${1}}%F{${2}}" }' # usage: bg, fg
-  alias endl=$'() { p "%F{${1}}%k\ue0b0%${2}" }' # usage: oldbg, formatspec
-  alias setr=$'() { p "%F{${1}}\ue0b2%K{${1}}%F{${2}}" }' # usage: bg, fg
+  # Usage: trunc.l <width> <replacement>
+  alias trunc.l='() { p "%${1}<${2}<" }'
+  # Usage: trunc.r <width> <replacement>
+  alias trunc.r='() { p "%${1}>${2}>" }'
+  # Usage: trunc.e
+  alias trunc.e="p '%<<'"
 
-  alias chevl=$'p \'\ue0b1\''
-  alias chevr=$'p \'\ue0b3\''
+  # Usage: set.bf <new bg> <new fg>
+  alias set.bf='() { p "%K{$1}%F{$2}" }'
+  # Usage: set.b <new bg>
+  alias set.b='() { p "%K{$1}" }'
+  # Usage: set.f <new fg>
+  alias set.f='() { p "%F{$1}" }'
 
-  alias IF=$'() { p "%${2}(${1}\x01" }' # usage: cond, value
-  alias ELSE=$'p \'\x01\''
-  alias FI=$'p \')\''
+  typeset -a bits=(p IF ELSE FI trunc.l trunc.r trunc.e)
 
-  alias truncl='() { p "%${1}<${2}<" }' # usage: width, str
-  alias truncr='() { p "%${1}>${2}>" }' # usage: width, str
-  alias etrunc="p '%<<'"
-}
+  # Create fill left (fl), end left (el), fill right (fr), and lined left and
+  # right (l and r) decorators
+  # Usage: <alias prefix> <unicode private-use offset>
+  function style() {
+    local fl=$(( [##16] 0x$2 + 0 )) fr=$(( [##16] 0x$2 + 2 )) \
+      l=$(( [##16] 0x$2 + 1 )) r=$(( [##16] 0x$2 + 3 ))
 
-function _rc_g_prompt_end() {
-  unalias p \
-    setn setk setf \
-    setl endl setr \
-    chevl chevr \
-    IF ELSE FI \
-    truncl truncr etrunc
+    # Usage: <name>.fl <new bg> <new fg>
+    alias $1.fl='() { p "%F{$1}%S\u'$fl'%s%K{$1}%F{$2}" }'
+    # Usage: <name>.el <old bg> <format %-flag>
+    alias $1.el='() { p "%F{$1}%k\u'$fl'%$2" }'
+    # Usage: <name>.fr <new bg> <new fg>
+    alias $1.fr='() { p "%F{$1}\u'$fr'%K{$1}%F{$2}" }'
+    # Usage: <name>.l
+    alias $1.l='p "\u'$l'"'
+    # Usage: <name>.r
+    alias $1.r='p "\u'$r'"'
+
+    bits+=($1.fl $1.el $1.fr $1.l $1.r)
+  }
+
+  # Triangle styl
+  style tri e0b0
+  # Circle style
+  style cir e0b4
+  # Valley-sloped line style
+  style val e0b8
+  # Mountain-sloped line style
+  style mtn e0bc
+
+  unfunction style
+
+  typeset -a cmd=(
+    unalias "${(@)bits}" \;
+    unfunction _rc_g_prompt_end
+  )
+  functions[_rc_g_prompt_end]=$cmd
 }

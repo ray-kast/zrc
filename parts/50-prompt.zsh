@@ -1,7 +1,7 @@
 _rc_g_prompt_begin
 
 function _rc_g_prompt_ps1_line1() {
-  setn 2 0
+  set.bf 2 0
 
   local vcs
 
@@ -9,16 +9,22 @@ function _rc_g_prompt_ps1_line1() {
 
   [[ -n "$VIRTUAL_ENV" ]] && p " $(basename "$VIRTUAL_ENV") "
 
-  setl 0 3
-  p ' %M '
+  tri.fl 0 3
+
+  if [[ -n "$_rc_g_dl_name" ]]; then
+    p " $_rc_g_dl_name "
+    set.bf 0 3
+  else
+    p ' %M '
+  fi
 
   IF L 2
-    setl 2 0
+    tri.fl 2 0
     p ' %L '
   ELSE; FI
 
   IF j 1
-    setl 4 0
+    tri.fl 4 0
     p ' %j '
   ELSE; FI
 
@@ -26,42 +32,42 @@ function _rc_g_prompt_ps1_line1() {
     p "$vcs"
   else
     IF j 1
-      endl 4 f
+      tri.el 4 f
     ELSE
       IF L 2; ELSE
-        setl 2 0
+        tri.fl 2 0
         p ' '
       FI
-      endl 2 f
+      tri.el 2 f
     FI
   fi
 }
 
 function _rc_l_prompt_ps1_line2() {
   IF !
-    setn 3 0
+    set.bf 3 0
     p ' %B!!%b '
 
     IF '?' 0
-      endl 3 f
+      tri.el 3 f
     ELSE
       IF l -101
-        setl 0 5
+        tri.fl 0 5
       ELSE
-        setl 9 0
+        tri.fl 9 0
       FI
     FI
   ELSE; FI
 
   IF '?' 0
     IF l -100
-      setf 8
+      set.f 8
       p ' %n '
-      setf 2
-      chevl
+      set.f 2
+      tri.l
     ELSE; FI
 
-    setf 6
+    set.f 6
     p ' '
 
     IF l -100
@@ -71,15 +77,15 @@ function _rc_l_prompt_ps1_line2() {
     FI
 
     p ' '
-    setf 2
-    chevl
+    set.f 2
+    tri.l
   ELSE
     IF l -100
-      setn 0 5
+      set.bf 0 5
       p ' %n '
-      setl 9 0
+      tri.fl 9 0
     ELSE;
-      setn 9 0
+      set.bf 9 0
     FI
     p ' '
 
@@ -90,7 +96,7 @@ function _rc_l_prompt_ps1_line2() {
     FI
 
     p ' '
-    endl 9 f
+    tri.el 9 f
   FI
 }
 
@@ -136,14 +142,14 @@ function _rc_g_prompt_ps1_git() {
   [[ -e "$git_dir/rebase-apply" ]] && mode+=('RA')
   [[ -e "$git_dir/rebase-merge" ]] && mode+=('RM')
 
-  setl $bkgd 0
+  tri.fl $bkgd 0
   p " $ref_sym "
 
   if (( ${#mode} > 0 )); then
-    setl 0 5
+    tri.fl 0 5
     p " %B${(j: :)mode}%b "
 
-    setl $bkgd 0
+    tri.fl $bkgd 0
     p ' '
   fi
 
@@ -153,37 +159,37 @@ function _rc_g_prompt_ps1_git() {
     p "%B${(kj::)dirty}%b "
   fi
 
-  endl $bkgd f
+  tri.el $bkgd f
 }
 
 function _rc_l_prompt_rps1() {
   p ' '
-  setf 2
-  chevr
+  set.f 2
+  tri.r
 
-  setf 6
+  set.f 6
   p ' %D{%H:%M}'
 
   IF l -100
     p ' '
-    setf 2
-    chevr
+    set.f 2
+    tri.r
 
-    setf 8
+    set.f 8
     p ' %D{%d/%m/%y}'
   ELSE; FI
 
   IF '?' 0; ELSE
     p ' '
-    setr 9 0
+    tri.fr 9 0
     p ' %? '
   FI
 }
 
 function _rc_l_prompt_ps2() {
-  setk 0
+  set.b 0
   p ' '
-  setl 2 0
+  tri.fl 2 0
   p ' '
 
   IF l -100
@@ -193,16 +199,16 @@ function _rc_l_prompt_ps2() {
   FI
 
   p ' '
-  endl 2 f
+  tri.el 2 f
   p ' '
 }
 
 function _rc_l_prompt_rps2() {
   p ' '
-  setf 2
-  chevr
+  set.f 2
+  tri.r
 
-  setf 6
+  set.f 6
   p ' '
 
   IF l -150
@@ -214,27 +220,27 @@ function _rc_l_prompt_rps2() {
 
 function _rc_l_prompt_ps3() {
   p ' '
-  setf 2
-  chevl
+  set.f 2
+  tri.l
   p ' '
 }
 
 function _rc_l_prompt_ps4() {
-  setf 0
+  set.f 0
 
   local i
   for i in {1..$(print -Pn "%e")}; do p " :"; done
 
   p ' %e '
-  setf 2
-  chevl
-  setf 6
+  set.f 2
+  tri.l
+  set.f 6
   p ' '
-  truncl -100 ..
+  trunc.l -100 ..
   p '%x:%I '
-  etrunc
-  setf 2
-  chevl
+  trunc.e
+  set.f 2
+  tri.l
   p ' '
 }
 
@@ -247,3 +253,4 @@ RPS1="%{%f%b%k%}$(_rc_l_prompt_rps1)%{%f%b%k%}"
 RPS2="%{%f%b%k%}$(_rc_l_prompt_rps2)%{%f%b%k%}"
 
 _rc_g_prompt_end
+

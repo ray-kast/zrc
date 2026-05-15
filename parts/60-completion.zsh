@@ -1,33 +1,33 @@
 _rc_g_prompt_begin
 
 function _rc_l_compl_prompt() {
-  setn 2 0
+  set.bf 2 0
   p ' Completing '
-  setl 0 3
+  tri.fl 0 3
   p ' %d '
-  setl 2 0
+  tri.fl 2 0
   p ' '
-  endl 2 f
+  tri.el 2 f
 }
 
 function _rc_l_list_prompt() {
-  setn 2 0
+  set.bf 2 0
   p ' Hit TAB for more '
-  setl 0 3
+  tri.fl 0 3
   p ' %l '
-  setl 2 0
+  tri.fl 2 0
   p ' %p '
-  endl 2 f
+  tri.el 2 f
 }
 
 function _rc_l_scroll_prompt() {
-  setn 2 0
+  set.bf 2 0
   p ' Scrolling active '
-  setl 0 3
+  tri.fl 0 3
   p ' %l '
-  setl 2 0
+  tri.fl 2 0
   p ' %p '
-  endl 2 f
+  tri.el 2 f
 }
 
 _rc_g_prompt_end
