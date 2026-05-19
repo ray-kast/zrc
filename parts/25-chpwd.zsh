@@ -1,22 +1,62 @@
 function _rc_g_update_dirlocal() {
-  local dir=${PWD%%/##} key value
-  while [[ ! (-z "$dir" || -r "$dir/.zrc.local") ]]; do
-    dir=${dir%/*}
-  done
+  # Begin logic for clearing previous state
 
   unset _rc_g_dl_name
+  typeset -Ag _rc_g_dl_aliases _rc_g_dl_orig_aliases
 
-  if [[ ! -r "$dir/.zrc.local" ]]; then
-      return
-  fi
+  for k in "${(@k)_rc_g_dl_aliases}"; do
+    if [[ "$aliases[$k]" != "$_rc_g_dl_aliases[$k]" ]]; then
+      continue
+    fi
 
-  while read line; do
-    key="${line%%=*}"
-    value="${line#*=}"
-    case "$key" in
-      name) _rc_g_dl_name=$value ;;
-    esac
-  done <"$dir/.zrc.local"
+    if (( $+_rc_g_dl_orig_aliases[$k] )); then
+      alias "$k"="$_rc_g_dl_orig_aliases[$k]"
+    else
+      unalias "$k"
+    fi
+  done
+
+  # End logic for clearing previous state
+
+  typeset -Ag _rc_g_dl_aliases=() _rc_g_dl_orig_aliases=()
+
+  local dir=${PWD%%/##} key value
+  typeset -A seen=()
+
+  while :; do
+    dir=${dir%%/##}
+
+    if [[ -r "$dir/.zrc.local" ]]; then
+      while read line; do
+        key=${line%%=*}
+        if (( $+seen[$key] )); then
+          continue
+        fi
+        seen[$key]=1
+
+        value=${${line#*=}/\$dir/$dir}
+        case "$key" in
+          name) _rc_g_dl_name=$value ;;
+          alias.*)
+            key="${key#alias.}"
+
+            if (( $+aliases[$key] )); then
+              _rc_g_dl_orig_aliases[$key]=$aliases[$key]
+            fi
+
+            _rc_g_dl_aliases[$key]=$value
+            alias "$key"="$value"
+            ;;
+        esac
+      done <"$dir/.zrc.local"
+    fi
+
+    if [[ -z "${dir#/}" ]]; then
+      break
+    fi
+
+    dir=${dir%/*}/
+  done
 }
 
 chpwd_functions+=(_rc_g_update_dirlocal)
