@@ -21,6 +21,7 @@ function _rc_g_update_dirlocal() {
   typeset -Ag _rc_g_dl_aliases=() _rc_g_dl_orig_aliases=()
 
   local dir=${PWD%%/##} key value
+  local alias_allow="$ZDOTDIR/.zrc-allowed-dirlocal-aliases"
   typeset -A seen=()
 
   while :; do
@@ -39,6 +40,16 @@ function _rc_g_update_dirlocal() {
           name) _rc_g_dl_name=$value ;;
           alias.*)
             key="${key#alias.}"
+
+            if [[ ! -r "$alias_allow" ]] \
+              || ! grep -qF "$key=$value" "$alias_allow"; then
+              if [[ "$(_rc_g_yn "Allow alias $key='$value'? [y/N] ")" == y ]]; then
+                echo "$key=$value" >>"$alias_allow"
+                chmod 600 "$alias_allow"
+              else
+                continue
+              fi
+            fi
 
             if (( $+aliases[$key] )); then
               _rc_g_dl_orig_aliases[$key]=$aliases[$key]
