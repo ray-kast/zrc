@@ -19,6 +19,7 @@ loop do
 end
 
 $stderr << $t << "\n"
+$stderr << $t.localtime << "\n"
 
 $stdout << $t.to_i
 $stdout << "\n" if $stdout.tty?
