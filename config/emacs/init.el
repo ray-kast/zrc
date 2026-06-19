@@ -192,7 +192,9 @@
   :bind (:map eglot-mode-map
 	 ("C-c l a" . eglot-code-actions)
 	 ("C-c l f" . eglot-format-buffer)
-	 ("C-c l r" . eglot-rename))
+	 ("C-c l r" . eglot-rename)
+	 :map evil-normal-state-map
+	 ("g C-d" . eglot-find-typeDefinition))
   :hook ((c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode) . eglot-ensure))
 
 (use-package embark
