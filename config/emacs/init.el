@@ -528,6 +528,9 @@
   (defface +mode-evil-visual '((t . (:background "#fcaf3e" :inherit 'mode-line-active)))
     "Visual-like evil state face")
 
+  (defface +mode-smerge '((t . (:background "#ff4b4b" :inherit 'mode-line-active)))
+    "Smerge mode line face")
+
   (setq
    evil-emacs-state-tag        (propertize " E- " 'face '+mode-evil-typing)
    evil-insert-state-tag       (propertize " I- " 'face '+mode-evil-typing)
@@ -555,6 +558,7 @@
 				(funcall projectile-project-name-function r)))))
 	      `(,project ":")))
      "%b  %m"
+     (smerge-mode (" " (:propertize ">>>>>>>" face +mode-smerge)))
      (flymake-mode flymake-mode-line-format)
      mode-line-misc-info
 
