@@ -408,7 +408,7 @@
 
 (use-package smartparens
   :after (evil evil-collection)
-  :hook ((prog-mode text-mode markdown-mode) . smartparens-strict-mode)
+  :hook ((prog-mode text-mode markdown-mode) . smartparens-mode)
   :custom
   (sp-base-key-bindings 'sp)
   :config
@@ -567,6 +567,8 @@
      "%l:%C  "
      (-3 "%p")
      " "
-     )))
+     ))
+
+  (load custom-file 'noerror 'nomessage))
 
 ;;; init.el ends here

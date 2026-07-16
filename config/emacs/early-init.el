@@ -4,6 +4,8 @@
 
 ;;; Code:
 
+(setq custom-file "~/.config/emacs/custom.el")
+
 (when-let* ((libs
 	     (condition-case nil
 		 (directory-files-recursively "/opt/local/lib" (rx (or ".a" ".o" ".so") string-end) nil
