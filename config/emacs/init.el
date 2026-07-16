@@ -394,8 +394,6 @@
   :defer nil
   :bind (:map projectile-mode-map
 	 ("C-c r" . projectile-command-map))
-  :custom
-  (projectile-fd-executable (locate-file "fd" exec-path))
   :config
   (projectile-mode))
 
@@ -484,12 +482,12 @@
 				   (rust "https://github.com/tree-sitter/tree-sitter-rust")))
 
   (major-mode-remap-alist (append (eval major-mode-remap-alist)
-				       '((c-mode . c-ts-mode)
-					 (c++-mode . c++-ts-mode)
-					 (lua-mode . lua-ts-mode)
-					 (python-mode . python-ts-mode)
-					 (rust-mode . rust-ts-mode)
-					 (rustic-mode . rust-ts-mode))))
+				  '((c-mode . c-ts-mode)
+				    (c++-mode . c++-ts-mode)
+				    (lua-mode . lua-ts-mode)
+				    (python-mode . python-ts-mode)
+				    (rust-mode . rust-ts-mode)
+				    (rustic-mode . rust-ts-mode))))
 
   :config
   (let ((auto-save-dir "~/.local/state/emacs/auto-saves/")
@@ -516,19 +514,19 @@
   (tool-bar-mode -1)
   (load-theme 'tango-dark)
 
-  (defface +mode-evil-typing '((t . (:background "#b4fa70" :inherit 'mode-line-active)))
+  (defface +mode-evil-typing '((t . (:background "#b4fa70" :inherit mode-line-active)))
     "Insert-like evil state face")
 
-  (defface +mode-evil-typing-danger '((t . (:background "#ff4b4b" :inherit 'mode-line-active)))
+  (defface +mode-evil-typing-danger '((t . (:background "#ff4b4b" :inherit mode-line-active)))
     "Replace-like evil state face")
 
-  (defface +mode-evil-pending '((t . (:background "#729fcf" :inherit 'mode-line-active)))
+  (defface +mode-evil-pending '((t . (:background "#729fcf" :inherit mode-line-active)))
     "Operator-like evil state face")
 
-  (defface +mode-evil-visual '((t . (:background "#fcaf3e" :inherit 'mode-line-active)))
+  (defface +mode-evil-visual '((t . (:background "#fcaf3e" :inherit mode-line-active)))
     "Visual-like evil state face")
 
-  (defface +mode-smerge '((t . (:background "#ff4b4b" :inherit 'mode-line-active)))
+  (defface +mode-smerge '((t . (:background "#ff4b4b" :inherit mode-line-active)))
     "Smerge mode line face")
 
   (setq
