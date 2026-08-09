@@ -335,6 +335,68 @@
   :config
   (marginalia-mode))
 
+;; Minuet
+(defun minuet-init ()
+  "Initialize minuet based on the current llama-cpp server."
+  (interactive)
+  (with-eval-after-load 'plz
+    (if-let*
+	((llama-server (locate-file "llama-server" exec-path))
+	 (json
+	  (condition-case nil
+	      (plz 'get "http://localhost:8012/props"
+		:as #'json-read
+		:connect-timeout 0.2)
+	    (plz-error nil)))
+	 (model (alist-get 'model_alias json)))
+
+	(use-package minuet
+	  :after (consult)
+	  :bind (("M-SPC" . minuet-complete-with-minibuffer)
+		 :map minuet-active-mode-map
+		 ("M-RET" . minuet-accept-suggestion)
+		 ("M-n" . minuet-next-suggestion)
+		 ("M-p" . minuet-previous-suggestion))
+	  :hook (prog-mode . minuet-auto-suggestion-mode)
+	  :custom
+	  (minuet-provider 'openai-fim-compatible)
+	  (minuet-n-completions 1)
+	  (minuet-context-window 512)
+	  (minuet-auto-suggestion-debounce-delay 0)
+	  (minuet-auto-suggestion-throttle-delay 0.3)
+	  :config
+	  (plist-put minuet-openai-fim-compatible-options :end-point "http://localhost:8012/v1/completions")
+	  (plist-put minuet-openai-fim-compatible-options :name "Llama.cpp")
+	  (plist-put minuet-openai-fim-compatible-options :api-key "SHELL")
+	  (plist-put minuet-openai-fim-compatible-options :model "SHELL")
+
+	  (minuet-set-nested-plist minuet-openai-fim-compatible-options nil :template :suffix)
+
+	  (defun +minuet-qwen2.5-prompt (ctx)
+	    (format "<|fim_prefix|>%s\n%s<|fim_suffix|>%s<|fim_middle|>"
+		    (plist-get ctx :language-and-tab)
+		    (plist-get ctx :before-cursor)
+		    (plist-get ctx :after-cursor)))
+
+	  (defun +minuet-mellum-prompt (ctx)
+	    (format "<fim_suffix>%s<fim_prefix>%s\n%s<fim_middle>"
+		    (plist-get ctx :after-cursor)
+		    (plist-get ctx :language-and-tab)
+		    (plist-get ctx :before-cursor)))
+
+	  (message "minuet using %s" model)
+
+	  (minuet-set-optional-options
+	   minuet-openai-fim-compatible-options
+	   :prompt
+	   (cond ((string-match-p (rx "Mellum") model) #'+minuet-mellum-prompt)
+		 ((string-match-p (rx "Qwen" (* anychar) "2.5") model) #'+minuet-qwen2.5-prompt))
+	   :template)
+	  (minuet-set-optional-options minuet-openai-fim-compatible-options :max_tokens 56))
+
+      (message "skipping minuet init"))))
+(minuet-init)
+
 (use-package orderless
   :after (embark)
   :custom
@@ -367,6 +429,9 @@
   :config
   (popper-mode)
   (popper-echo-mode))
+
+(use-package plz
+  :defer 1)
 
 (use-package project
   :config
