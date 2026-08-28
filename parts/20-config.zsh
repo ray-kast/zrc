@@ -3,7 +3,6 @@
 (( $+commands[vi] )) && export EDITOR="vi"
 (( $+commands[vim] )) && export EDITOR="vim"
 (( $+commands[nvim] )) && export EDITOR="nvim"
-export PAGER="less -QRS"
 export PATH="$PATH:$HOME/.zrc/bin"
 export VISUAL="$EDITOR"
 (( $+commands[code] )) && export VISUAL="code --new-window -g --wait -- "
@@ -32,8 +31,19 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 export GOPATH="$HOME/Documents/Go"
 
 # less
-export LESS="-QRS"
+LESS="-QRS"
 export LESSEDIT="%E %f?lm\:%lm."
+
+() {
+  local v
+
+  if v=$(less --version) && [[ "$v" =~ '[0-9]+' && "$MATCH" -ge 590 ]]; then
+    LESS="$LESS --mouse"
+  fi
+}
+
+export LESS
+export PAGER="less $LESS"
 
 # ls
 source <(dircolors -b)
