@@ -31,7 +31,7 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 export GOPATH="$HOME/Documents/Go"
 
 # less
-LESS="-QRS"
+LESS="-QRSi"
 export LESSEDIT="%E %f?lm\:%lm."
 
 () {
