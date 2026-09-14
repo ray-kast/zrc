@@ -288,6 +288,18 @@ function _rc_g_fn_update_pacman() {
   return 0
 }
 
+function _rc_g_fn_update_rpm() {
+  (( $+commands[dnf] )) || return 0
+
+  echo ":: Running DNF upgrade..."
+
+  _rc_g_fn_update_notify 'Starting DNF upgrade...'
+
+  sudo dnf upgrade
+
+  return 0
+}
+
 function _rc_g_fn_update_port() {
   (( $+commands[port] )) || return 0
 
@@ -351,6 +363,7 @@ function update() {
   _rc_g_fn_update_apt
   _rc_g_fn_update_pacman
   _rc_g_fn_update_port
+  _rc_g_fn_update_rpm
   _rc_g_fn_update_snap
 
   # ...then run other updaters
@@ -407,6 +420,15 @@ function update-cleanup() {
   _rc_g_fn_update-cleanup_apt
   _rc_g_fn_update-cleanup_pacman
   _rc_g_fn_update-cleanup_port
+  _rc_g_fn_update-cleanup_rpm
+
+  return 0
+}
+
+function _rc_g_fn_update-cleanup_rpm() {
+  (( $+commands[dnf] )) || return 0
+
+  sudo dnf autoremove
 
   return 0
 }

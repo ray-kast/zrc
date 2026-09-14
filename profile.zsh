@@ -36,6 +36,11 @@ if  [[ -x "$HOME/.elan/bin/elan" ]]; then
   export PATH="$HOME/.elan/bin:$PATH"
 fi
 
+if (( $+commands[envision] )); then
+  _ envision
+  export PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1
+fi
+
 if (( $+commands[juliaup] )) || [[ -x "$HOME/.juliaup/bin/juliaup" ]]; then
   _ juliaup
   export PATH="$HOME/.juliaup/bin:$PATH"
