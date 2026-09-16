@@ -18,8 +18,9 @@ loop do
   end
 end
 
-$stderr << $t << "\n"
-$stderr << $t.localtime << "\n"
+$stderr << "Parsed: " << $t << "\n"
+$stderr << "UTC:    " << $t.utc << "\n"
+$stderr << "Local:  " << $t.localtime << "\n"
 
 $stdout << $t.to_i
 $stdout << "\n" if $stdout.tty?
