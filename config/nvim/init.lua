@@ -53,7 +53,7 @@ vim.o.foldenable = false
 -- visual
 vim.o.termguicolors = true
 vim.cmd.syntax'on'
-vim.cmd.colorscheme'slate'
+vim.cmd.colorscheme'retrobox'
 vim.cmd.filetype'plugin indent on'
 vim.o.background = 'dark'
 vim.o.cursorline = true
