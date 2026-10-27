@@ -61,12 +61,24 @@ vim.o.number = true
 vim.o.relativenumber = true
 vim.o.list = true
 vim.opt.listchars = { tab = '› ', space = '·', trail = '◀' }
+vim.opt.fillchars = { diff = ' ' }
 vim.o.showbreak = '»'
 vim.o.showmatch = true
 vim.opt.matchpairs:append'<:>'
 vim.opt.colorcolumn = { 80, 100 }
 vim.opt.completeopt = { 'menu', 'menuone', 'longest', 'noinsert', 'preview' }
-vim.opt.diffopt = { 'vertical', 'iwhiteall', 'internal', 'filler', 'hiddenoff', 'algorithm:histogram' }
+vim.opt.diffopt = {
+  'algorithm:histogram',
+  'closeoff',
+  'filler',
+  'hiddenoff',
+  'indent-heuristic',
+  'inline:char',
+  'internal',
+  'iwhiteeol',
+  'linematch:60',
+  'vertical',
+}
 vim.o.laststatus = 2
 
 -- leader key
